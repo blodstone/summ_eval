@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -38,8 +38,8 @@ def create_app(test_config=None):
     def index():
         return render_template('index.html')
 
-    @app.route('/report')
-    def report():
-        return render_template('report.html')
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory('/','favicon.ico')
 
     return app
