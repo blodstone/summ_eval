@@ -1,9 +1,6 @@
-import sys, logging
 from flask import Flask, render_template
 
-app = Flask('__name__', static_folder='../dist', template_folder='dist')
-app.logger.addHandler(logging.StreamHandler(sys.stdout))
-app.logger.setLevel(logging.ERROR)
+app = Flask('__name__', static_folder='../dist/static', template_folder='../dist')
 
 @app.route('/')
 def index():
