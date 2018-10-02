@@ -1,5 +1,5 @@
-import sys
-from flask import Flask, render_template, logging
+import sys, logging
+from flask import Flask, render_template
 
 app = Flask('__name__', static_folder='../dist', template_folder='dist')
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
