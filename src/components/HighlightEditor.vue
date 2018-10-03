@@ -84,10 +84,6 @@ function wordCounting(sent) {
 
 export default {
   methods: {
-    submitHandler(event) {
-      this.$route.push({ path: '/foo', name: 'home2' });
-    },
-
     captureHighlight(event) {
       // Save highlight
       let selection = '';

@@ -40,8 +40,17 @@
                 </div>
                 <div class='card-body'>
                   <div class="row">
+                    <div class="col">
+                    <p>
+                    Words in the document that are deemed important have been highlighted by participants.
+                    The deeper the color, the more participants who have higlighted it.
+                    You can filter the color using the slider to restrict by the number of person who have higlighted the words.
+                    </p>
+                    </div>
+                  </div>
+                  <div class="row">
                     <div class="my-checkbox col-2">
-                      <input type="checkbox" v-model="checked">Show All
+                      <input type="checkbox" v-model="checked">Enable Filter
                     </div>
                     <div class="col-10">
                         <VueSlideBar
@@ -50,7 +59,8 @@
                         :range="slider.range"
                         :labelStyles="{ color: '#4a4a4a', backgroundColor: '#4a4a4a' }"
                         :processStyle="{ backgroundColor: '#d8d8d8' }"
-                        @callbackRange="callbackRange">
+                        @callbackRange="callbackRange"
+                        >
                       </VueSlideBar>
                     </div>
                   </div>
