@@ -9,7 +9,8 @@
         <div class='card-header'>Guidelines</div>
         <div class='card-body'>
           <p>You have been given a document and several summaries that are extracted
-from the document. Please read the document and then highlights fragments of sentences to form a 100 words summary based on the following guidelines.</p>
+from the document. Please read the document and then highlights fragments of sentences to
+form a 100 words summary based on the following guidelines.</p>
 
           <p>1. The summary tells you who was involved in the document narration and
           the information is correct.</p>
@@ -34,7 +35,7 @@ from the document. Please read the document and then highlights fragments of sen
     <div class="row card-deck">
       <div class="card col-11 lower-card">
         <div class="card-header">Summary</div>
-        <div class='card-body col'>{{markedText}}</div>
+        <div class='card-body col highlights' v-html="markedText"></div>
       </div>
       <div class="card col-1 lower-card">
         <div class='card-header'>Words Left</div>
@@ -42,13 +43,21 @@ from the document. Please read the document and then highlights fragments of sen
       </div>
     </div>
     <div class="row float-right">
-      <router-link :to="{ name: 'surveyForm', params: {markedTextIdxs: this.markedTextIdxs}}" tag='button'>Submit</router-link>
+      <router-link
+      :to="{ name: 'surveyForm', params: {markedTextIdxs: this.markedTextIdxs}}" tag='button'>
+        Submit
+      </router-link>
     </div>
   </div>
 </template>
 
 <script>
+/* eslint no-unused-vars: ["error", { "args": "none" }] */
+/* eslint no-continue: "off" */
+const randomColor = require('randomcolor');
+
 let docContent = '';
+let highlightId = 0;
 function readFile(file) {
   const d = new XMLHttpRequest();
   d.open('get', file, false);
@@ -65,7 +74,7 @@ function readFile(file) {
 function wordCounting(sent) {
   const arrMarkedText = sent.trim().split(' ');
   let count = 0;
-  for (let i = 0; i < arrMarkedText.length; i++) {
+  for (let i = 0; i < arrMarkedText.length; i += 1) {
     if (arrMarkedText[i] !== '') {
       count += 1;
     }
@@ -94,14 +103,17 @@ export default {
         selection = document.selection.createRange().text;
       }
       if ((this.wordCount + wordCounting(selection.toString())) <= 100) {
+        const color = randomColor({
+          luminosity: 'light',
+        });
         selections.push([selection.anchorOffset, selection.focusOffset]);
         this.index = selections;
-        this.markedText = `${this.markedText} ${selection.toString()}`;
+        this.markedText = `${this.markedText} <div style='background-color: ${color};'><span class='highlightID' >[${highlightId}]</span> ${selection.toString()}</div>`;
         sessionStorage.setItem('selections', JSON.stringify(selections));
 
         // Replacement
         const range = selection.getRangeAt(0);
-        const _iterator = document.createNodeIterator(
+        const iterator = document.createNodeIterator(
           range.commonAncestorContainer,
           NodeFilter.SHOW_ALL, // pre-filter
           {
@@ -111,21 +123,22 @@ export default {
             },
           },
         );
-        const _nodes = [];
-        while (_iterator.nextNode()) {
-          if (_nodes.length === 0 && _iterator.referenceNode !== range.startContainer) continue;
-          _nodes.push(_iterator.referenceNode);
-          if (_iterator.referenceNode.parentElement.nodeName === 'SPAN') {
-            const parent = _iterator.referenceNode.parentElement.parentElement;
-            const child = _iterator.referenceNode.parentElement;
+        const nodes = [];
+        while (iterator.nextNode()) {
+          if (nodes.length === 0 && iterator.referenceNode !== range.startContainer) continue;
+          nodes.push(iterator.referenceNode);
+          if (iterator.referenceNode.parentElement.nodeName === 'SPAN') {
+            const parent = iterator.referenceNode.parentElement.parentElement;
+            const child = iterator.referenceNode.parentElement;
             this.markedTextIdxs.push(Array.prototype.indexOf.call(parent.children, child));
-            _iterator.referenceNode.parentElement.setAttribute('style', 'background-color: yellow;');
+            iterator.referenceNode.parentElement.setAttribute('style', `background-color: ${color};`);
           }
-          if (_iterator.referenceNode === range.endContainer) break;
+          if (iterator.referenceNode === range.endContainer) break;
         }
       } else {
         alert('Max words are 100');
       }
+      highlightId += 1;
       // Clear selection
       if (window.getSelection) {
         if (window.getSelection().empty) { // Chrome
@@ -150,6 +163,7 @@ export default {
       index: [],
       markedText: '',
       markedTextIdxs: [],
+      isActive: false,
     };
   },
   computed: {
@@ -186,8 +200,15 @@ export default {
   margin: 0;
   padding: 0;
 }
-.lower-card{
+.lower-card {
   overflow: auto;
   height: 200px;
+}
+.highlights /deep/ .highlightID {
+  vertical-align: super;
+  font-size: 70%;
+}
+.highlights /deep/ .selHighlight{
+  background: greenyellow;
 }
 </style>
