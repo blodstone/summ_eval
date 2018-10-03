@@ -1,36 +1,41 @@
 <template>
     <div>
-        <div class='row card-deck'>
+        <div class='row card-deck' >
             <div class='card col-8'>
                 <div class='card-header'>Document</div>
-                <div class='card-body document' v-html="message"></div>
+                <div class='card-body document' v-html="message" style="height: 400px; overflow: auto;"></div>
             </div>
-            <div class='card col-4'>
-                <div class='card-header'>Guidelines</div>
-                <div class='card-body'>
-                <p>You have been given a document where some of its words are highlighted.
-                  These highlighted words depict important words to the document.
-                  Please read the document and then rate the given summaries
-                  based on the following guidelines.</p>
-
-                <p>1. The summary tells you who was involved in the document narration and
-                the information is correct.</p>
-
-                <p>2. The summary tells you what had happened in the document narration and
-                the information is correct.</p>
-
-                <p>3. The summary tells you where the event took place in the document
-                narration and the information is correct.</p>
-
-                <p>4. The summary tells you when did the event happen in the document
-                narration and the information is correct.</p>
-
-                <p>5. The summary tells you why did the event happen in the document
-                narration and the information is correct.</p>
-
-                <p>6. The summary tells you how did the event happen in the document
-                narration and the information is correct.</p>
+            <div class='col-4'>
+              <div class='row card-deck'>
+                <div class='card'>
+                  <div class="card-header">Summary</div>
+                  <div class='card-body'>
+                    u.s and european officials may impose a 4th round of sanctions on tehran when the u.n , security council considers the issue of iran 's nuclear energy program most likely in september 2007 . 
+                  </div>
+                 </div>
+              </div>
+              <div class='row card-deck'>
+                <div class='card'>
+                  <div class="card-header">Precision Evaluation</div>
+                  <div class='card-body'>
+                      <p>A good summary should be brief and clearly expressed i.e.: all the information in the summary is important in regard to the document. Does the summary contain only important information in regard to the document?</p>
+                      <label for="" class="float-left">Disagree</label>
+                      <label for="" class="float-right">Agree</label>
+                      <input type="range" min="1" max="100" value=50 class="slider">
+                  </div>
                 </div>
+              </div>
+              <div class='row card-deck'>
+                <div class='card'>
+                  <div class="card-header">Recall Evaluation</div>
+                  <div class='card-body'>
+                      <p>A good summary should cover as much as possible the important information from the document. Does the summary cover all the important information of the document?</p>
+                      <label for="" class="float-left">Disagree</label>
+                      <label for="" class="float-right">Agree</label>
+                      <input type="range" min="1" max="100" value=50 class="slider">
+                  </div>
+                </div>
+              </div>
             </div>
         </div>
         <div class='row card-deck'>
@@ -64,57 +69,6 @@
                       </VueSlideBar>
                     </div>
                   </div>
-                </div>
-            </div>
-        </div>
-        <div class='row card-deck'>
-            <div class='card'>
-                <div class="card-header">Summary 1</div>
-                <div class='card-body col'>u.s and european officials may impose a 4th round of sanctions on tehran when the u.n , security council considers the issue of iran 's nuclear energy program most likely in september 2007 . </div>
-            </div>
-        </div>
-        <div class='row card-deck'>
-            <div class='card'>
-                <div class="card-header">Evaluation 1</div>
-                <div class='card-body col'>
-                    <p>The given summary is informative in term of the six criteria (see the guidance).</p>
-                    <label for="" class="float-left">Disagree</label>
-                    <label for="" class="float-right">Agree</label>
-                    <input type="range" min="1" max="100" value=50 class="slider">
-                </div>
-            </div>
-        </div>
-        <div class='row card-deck'>
-            <div class='card'>
-                <div class="card-header">Summary 2</div>
-                <div class='card-body col'>The International Atomic Energy Agency distributed limited copies of the European nuclear energy program masks an effort to obtain technology that could be used in the production of nuclear bomb material that could be used in the production of the uranium and the U.S. sanctions on Tehran when the U.N. Security Council considers the issue .</div>
-            </div>
-        </div>
-        <div class='row card-deck'>
-            <div class='card'>
-                <div class="card-header">Evaluation 2</div>
-                <div class='card-body col'>
-                    <p>The given summary is informative in term of the six criteria (see the guidance).</p>
-                    <label for="" class="float-left">Disagree</label>
-                    <label for="" class="float-right">Agree</label>
-                    <input type="range" min="1" max="100" value=50 class="slider" >
-                </div>
-            </div>
-        </div>
-        <div class='row card-deck'>
-            <div class='card'>
-                <div class="card-header">Summary 3</div>
-                <div class='card-body col'>A masked nuclear energy program is suspected of the international civilian energy energy program in Europe and Iran 's efforts to obtain technology used to produce the atomic bombs used to produce the atomic bomb when the U.N. Security Council considers it .</div>
-            </div>
-        </div>
-        <div class='row card-deck'>
-            <div class='card'>
-                <div class="card-header">Evaluation 3</div>
-                <div class='card-body col'>
-                    <p>The given summary is informative in term of the six criteria (see the guidance).</p>
-                    <label for="" class="float-left">Disagree</label>
-                    <label for="" class="float-right">Agree</label>
-                    <input type="range" min="1" max="100" value=50 class="slider">
                 </div>
             </div>
         </div>
