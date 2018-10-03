@@ -42,15 +42,15 @@
                   <div class="row">
                     <div class="col">
                     <p>
-                    Words in the document that are deemed important have been highlighted by participants.
+                    Words in the document that are deemed important have been highlighted by participants and presented using heat map visualization.
                     The deeper the color, the more participants who have higlighted it.
-                    You can filter the color using the slider to restrict by the number of person who have higlighted the words.
+                    You can disable the heatmap and instead filtering the color using the slider to restrict by the number of person who have higlighted the words.
                     </p>
                     </div>
                   </div>
                   <div class="row">
                     <div class="my-checkbox col-2">
-                      <input type="checkbox" v-model="checked">Enable Filter
+                      <input type="checkbox" v-model="checked">Enable Heatmap
                     </div>
                     <div class="col-10">
                         <VueSlideBar
