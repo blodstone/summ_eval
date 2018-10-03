@@ -1,5 +1,8 @@
 import os
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, Markup
+from flask_sqlalchemy import SQLAlchemy
+
+
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -12,34 +15,38 @@ class CustomFlask(Flask):
         comment_end_string='#>',
     ))
 
+
+
 def create_app(test_config=None):
     # create and configure the app
     app = CustomFlask(__name__, instance_relative_config=True, static_folder='../dist/static', template_folder='../dist')
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+        SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
+        SQLALCHEMY_TRACK_MODIFICATIONS=True,
     )
+    # print(os.environ['DATABASE_URL'])
+    db = SQLAlchemy(app)
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
+    class Control(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        form_id = db.Column(db.String(80), unique=True, nullable=False)
+        is_filled = db.Column(db.Boolean, unique=False, nullable=False)
+        doc_id = db.Column(db.String(80), unique=False, nullable=False)
+        
+        def __repr__(self):
+            return '<User %r>' % self.username
 
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
-
+    
+    @app.route('/control')
+    def control():
+        try:
+            return '<h1>It works.</h1>' + Markup.escape(str(a))
+        except Exception as e:
+            return '<h1>Something is broken.</h1>' + str(e)
 
     @app.route('/')
     def index():
         return render_template('index.html')
-
-    @app.route('/favicon.ico')
-    def favicon():
-        return send_from_directory('/','favicon.ico')
 
     return app
