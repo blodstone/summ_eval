@@ -1,14 +1,18 @@
-<template>
+ <template>
   <div>
     <div class='row card-deck'>
       <div class='card col-8'>
         <div class='card-header'>Document</div>
-        <div class='card-body document' v-on:mouseup="captureHighlight" v-html="message"></div>
+        <div class='card-body document'
+          v-on:mouseup="captureHighlight"
+          v-html="doc.createHTML()"></div>
       </div>
       <div class='card col-4'>
         <div class='card-header'>Guidelines</div>
         <div class='card-body'>
-          <p>You have been given a document and guidelines to help you form a summary. Please read the document and then highlights fragments of sentences to form a 100 words summary based on the following guidelines.</p>
+          <p>You have been given a document and guidelines to help you form a summary.
+            Please read the document and then highlights fragments of sentences to form a
+            100 words summary based on the following guidelines.</p>
 
           <p>1. The summary tells you who was involved in the document narration and
           the information is correct.</p>
@@ -54,19 +58,59 @@
 /* eslint no-continue: "off" */
 const randomColor = require('randomcolor');
 
-let docContent = '';
 let highlightId = 0;
+
+function Char(char, idx, wrdIdx) {
+  this.idx = idx;
+  this.char = char;
+  this.wrdIdx = wrdIdx;
+  this.isHighlight = false;
+  this.fgColor = '#000000';
+  this.bgColor = '#ffffff';
+}
+
+function Word(word, wrdIdx) {
+  this.word = word;
+  this.wrdIdx = wrdIdx;
+}
+
+function Doc(text) {
+  this.chars = [];
+  this.words = [];
+  let wrdIdx = 0;
+  let word = '';
+  for (let i = 0; i < text.length; i += 1) {
+    if (text[i] === ' ') {
+      this.words.push(new Word(word, wrdIdx));
+      wrdIdx += 1;
+      word = '';
+    } else {
+      word.push(text[i]);
+    }
+    this.chars.push(new Char(text[i], i, wrdIdx));
+  }
+  this.createHTML = function toHTML() {
+    const html = '';
+    this.chars.forEach((el) => {
+      html.push(`<span>${el.chars}</span>`);
+    });
+    return html;
+  };
+}
+
 function readFile(file) {
   const d = new XMLHttpRequest();
+  let newDoc = null;
   d.open('get', file, false);
-  d.onreadystatechange = function () {
+  d.onreadystatechange = function readDoc() {
     if (d.readyState === 4) {
       if (d.status === 200 || d.status === 0) {
-        docContent = d.responseText;
+        newDoc = new Doc(d.responseText);
       }
     }
   };
   d.send(null);
+  return newDoc;
 }
 
 function wordCounting(sent) {
@@ -83,7 +127,7 @@ function wordCounting(sent) {
 export default {
   methods: {
     captureHighlight(event) {
-      // Save highlight
+      // Get selection from mouse
       let selection = '';
       let selections = [];
       if (sessionStorage.getItem('selections') != null) {
@@ -96,6 +140,7 @@ export default {
       } else if (document.selection) {
         selection = document.selection.createRange().text;
       }
+      // Start making highlights
       if ((this.wordCount + wordCounting(selection.toString())) <= 100) {
         const color = randomColor({
           luminosity: 'light',
@@ -146,14 +191,8 @@ export default {
     },
   },
   data() {
-    readFile('/static/gold_doc/PROXY_LTW_ENG_20070831_0072');
-    let markedDocContent = '';
-    for (let i = 0; i < docContent.length; i += 1) {
-      markedDocContent += `<span>${docContent[i]}</span>`;
-    }
-    this.message = markedDocContent;
     return {
-      message: this.message,
+      doc: readFile('/static/gold_doc/PROXY_LTW_ENG_20070831_0072'),
       index: [],
       markedText: '',
       markedTextIdxs: [],
