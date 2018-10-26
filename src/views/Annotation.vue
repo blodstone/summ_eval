@@ -6,7 +6,7 @@
 
 <script>
 // @ is an alias to /src
-import Editor from '@/components/HighlightEditor.vue';
+import Editor from '@/components/Annotator/HighlightEditor.1.vue';
 
 export default {
   components: {

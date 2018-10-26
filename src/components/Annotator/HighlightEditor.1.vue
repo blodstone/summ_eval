@@ -5,7 +5,8 @@
         <div class='card-header'>Document</div>
         <div class='card-body document'
           v-on:mouseup="captureHighlight"
-          v-html="doc.createHTML()"></div>
+          v-html="createHTML"></div>
+        <div class='float-menu'>Testing</div>
       </div>
       <div class='card col-4'>
         <div class='card-header'>Guidelines</div>
@@ -59,42 +60,92 @@
 const randomColor = require('randomcolor');
 
 let highlightId = 0;
-
 function Char(char, idx, wrdIdx) {
   this.idx = idx;
   this.char = char;
   this.wrdIdx = wrdIdx;
   this.isHighlight = false;
-  this.fgColor = '#000000';
+  this.isLink = false;
+  this.isCoref = false;
+  this.corefColor = '#ffffff';
+  this.ulColor = '#ffffff';
   this.bgColor = '#ffffff';
+  this.highlight = function highlight(color) {
+    this.isHighlight = true;
+    this.bgColor = color;
+  };
+  this.setlink = function setLink(color) {
+    this.isLink = true;
+    this.uColor = color;
+  };
+  this.setCoref = function setCoref(color) {
+    this.isCoref = true;
+    this.corefColor = color;
+  };
 }
 
-function Word(word, wrdIdx) {
+function WordIdx(idx, sntIdx, posIdx) {
+  this.idx = idx;
+  this.sntIdx = sntIdx;
+  this.posIdx = posIdx;
+}
+
+function Word(word, wrdIdx, isSourceLink) {
   this.word = word;
   this.wrdIdx = wrdIdx;
+  this.wrdIdxLink = [];
+  this.isSourceLink = isSourceLink;
 }
 
-function Doc(text) {
-  this.chars = [];
+function Doc(textJSON) {
+  this.chars = {};
   this.words = [];
+  this.pos2corefkey = {};
+  this.charIdx2wrdIdx = {};
   let wrdIdx = 0;
-  let word = '';
-  for (let i = 0; i < text.length; i += 1) {
-    if (text[i] === ' ') {
-      this.words.push(new Word(word, wrdIdx));
-      wrdIdx += 1;
-      word = '';
-    } else {
-      word.push(text[i]);
-    }
-    this.chars.push(new Char(text[i], i, wrdIdx));
-  }
-  this.createHTML = function toHTML() {
-    const html = '';
-    this.chars.forEach((el) => {
-      html.push(`<span>${el.chars}</span>`);
+  let charIdx = 0;
+  let text = '';
+  this.corefs = textJSON.corefs;
+  Object.keys(textJSON.corefs).forEach((key) => {
+    textJSON.corefs[key].forEach((coref) => {
+      if (coref.id.toString() === key) {
+        this.pos2corefkey[`${coref.sentNum} ${coref.startIndex} ${coref.endIndex}`] = key;
+      }
     });
-    return html;
+  });
+  textJSON.sentences.forEach((sent) => {
+    sent.tokens.forEach((token) => {
+      let isSourceLink = false;
+      Object.keys(this.pos2corefkey).forEach((key) => {
+        const corefIdxs = key.split(' ');
+        if (sent.index + 1 === parseInt(corefIdxs[0], 10)) {
+          if (token.index >= parseInt(corefIdxs[1], 10) &&
+          token.index < parseInt(corefIdxs[2], 10)) {
+            isSourceLink = true;
+          }
+        }
+      });
+      this.words.push(new Word(token, new WordIdx(wrdIdx, sent.index, token.index), isSourceLink));
+      wrdIdx += 1;
+      text = `${text} ${token.word}`.trim();
+      charIdx = token.characterOffsetBegin;
+      for (let i = 0; i < token.word.length; i += 1) {
+        const newChar = new Char(token.word[i], charIdx, wrdIdx);
+        if (isSourceLink === true) {
+          newChar.setlink('#00ff00');
+        }
+        this.chars[charIdx] = newChar;
+        charIdx += 1;
+      }
+    });
+  });
+  for (let i = 0; i < text.length; i += 1) {
+    if (!(i in this.chars)) {
+      this.chars[i] = new Char(' ', i, -1);
+    }
+  }
+  this.getChar = function getChar(idx) {
+    return this.chars[idx];
   };
 }
 
@@ -105,7 +156,8 @@ function readFile(file) {
   d.onreadystatechange = function readDoc() {
     if (d.readyState === 4) {
       if (d.status === 200 || d.status === 0) {
-        newDoc = new Doc(d.responseText);
+        const textJSON = JSON.parse(d.responseText);
+        newDoc = new Doc(textJSON);
       }
     }
   };
@@ -149,6 +201,7 @@ export default {
         this.index = selections;
         this.markedText = `${this.markedText} <div style='background-color: ${color};'><span class='highlightID' >[${highlightId}]</span> ${selection.toString()}</div>`;
         sessionStorage.setItem('selections', JSON.stringify(selections));
+        highlightId += 1;
 
         // Replacement
         const range = selection.getRangeAt(0);
@@ -170,14 +223,33 @@ export default {
             const parent = iterator.referenceNode.parentElement.parentElement;
             const child = iterator.referenceNode.parentElement;
             this.markedTextIdxs.push(Array.prototype.indexOf.call(parent.children, child));
-            iterator.referenceNode.parentElement.setAttribute('style', `background-color: ${color};`);
+            const clickedChar = this.doc.getChar(iterator.referenceNode.parentElement.dataset.idx);
+            // clickedChar.highlight(color);
+            // const clickedWord = this.doc.words[clickedChar.wrdIdx];
+            /* eslint-disable */
+            // const corefKey = this.doc.pos2corefkey[`${clickedWord.sntIdx} ${clickedWord.posIdx}`];
+            Object.keys(this.pos2corefkey).forEach((key) => {
+              const corefIdxs = key.split(' ');
+              if (clickedChar.wrdIdx === parseInt(corefIdxs[0], 10)) {
+                if (token.index >= parseInt(corefIdxs[1], 10) &&
+                token.index < parseInt(corefIdxs[2], 10)) {
+                  Object.keys(textJSON.corefs).forEach((key) => {
+                  textJSON.corefs[key].forEach((coref) => {
+                    if (coref.id.toString() !== key) {
+                      this.markedText += coref.text; 
+                    }
+                  });
+                });
+                }
+              }
+            });
+            /* eslint-enable */
           }
           if (iterator.referenceNode === range.endContainer) break;
         }
       } else {
         alert('Max words are 100');
       }
-      highlightId += 1;
       // Clear selection
       if (window.getSelection) {
         if (window.getSelection().empty) { // Chrome
@@ -192,7 +264,7 @@ export default {
   },
   data() {
     return {
-      doc: readFile('/static/gold_doc/PROXY_LTW_ENG_20070831_0072'),
+      doc: readFile('/static/gold_doc/doc.json'),
       index: [],
       markedText: '',
       markedTextIdxs: [],
@@ -200,6 +272,22 @@ export default {
     };
   },
   computed: {
+    createHTML() {
+      let html = '';
+      Object.keys(this.doc.chars).forEach((key) => {
+        const el = this.doc.chars[key];
+        let styleTag = '';
+        if (el.isHighlight === true) {
+          styleTag = `background-color: ${el.bgColor};`;
+        }
+        if (el.isLink === true) {
+          styleTag = `${styleTag}background-image: linear-gradient(to bottom, red 66%, transparent 66%, transparent 66%, red 66%, red);
+          background-position: 0 1.03em;background-repeat: repeat-x;background-size: 2px 8px;`;
+        }
+        html += `<span style='${styleTag}' data-idx="${el.idx}">${el.char}</span>`;
+      });
+      return html;
+    },
     wordsLeft() {
       return 100 - this.wordCount;
     },
@@ -243,5 +331,21 @@ export default {
 }
 .highlights /deep/ .selHighlight{
   background: greenyellow;
+}
+.source-links {
+  background: green;
+  text-decoration: none;
+  border-bottom: 2px solid currentColor;
+  display: inline-block;
+  line-height: 0.85;
+  text-shadow:
+    2px 2px white,
+    2px -2px white,
+    -2px 2px white,
+    -2px -2px white;
+}
+.float-menu {
+  display: none;
+  position: absolute;
 }
 </style>
