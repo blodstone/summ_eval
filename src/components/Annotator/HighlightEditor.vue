@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div>
     <div class='row card-deck'>
       <div class='card col-8'>
@@ -8,7 +8,9 @@
       <div class='card col-4'>
         <div class='card-header'>Guidelines</div>
         <div class='card-body'>
-          <p>You have been given a document and guidelines to help you form a summary. Please read the document and then highlights fragments of sentences to form a 100 words summary based on the following guidelines.</p>
+          <p>You have been given a document and guidelines to help you form a summary.
+            Please read the document and then highlights fragments of sentences to form a
+            100 words summary based on the following guidelines.</p>
 
           <p>1. The summary tells you who was involved in the document narration and
           the information is correct.</p>
