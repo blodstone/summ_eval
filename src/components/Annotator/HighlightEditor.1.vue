@@ -6,7 +6,7 @@
         <div class='card-body document'
           v-on:mouseup="captureHighlight"
           v-html="createHTML"></div>
-        <div class='float-menu'>Testing</div>
+        <button v-bind:style="floatMenu">Highlight</button>
       </div>
       <div class='card col-4'>
         <div class='card-header'>Guidelines</div>
@@ -192,8 +192,13 @@ export default {
       } else if (document.selection) {
         selection = document.selection.createRange().text;
       }
+      // Shows text
+      this.floatMenu.display = 'block';
+      this.floatMenu.position = 'absolute';
+      this.$set(this.floatMenu, 'left', `${event.pageX}px`);
+      this.$set(this.floatMenu, 'top', `${event.pageY - 70}px`);
       // Start making highlights
-      if ((this.wordCount + wordCounting(selection.toString())) <= 100) {
+      if ((this.wordCount + wordCounting(selection.toString())) <= 100 && false) {
         const color = randomColor({
           luminosity: 'light',
         });
@@ -247,19 +252,17 @@ export default {
           }
           if (iterator.referenceNode === range.endContainer) break;
         }
-      } else {
-        alert('Max words are 100');
       }
-      // Clear selection
-      if (window.getSelection) {
-        if (window.getSelection().empty) { // Chrome
-          window.getSelection().empty();
-        } else if (window.getSelection().removeAllRanges) { // Firefox
-          window.getSelection().removeAllRanges();
-        }
-      } else if (document.selection) { // IE?
-        document.selection.empty();
-      }
+      // // Clear selection
+      // if (window.getSelection) {
+      //   if (window.getSelection().empty) { // Chrome
+      //     window.getSelection().empty();
+      //   } else if (window.getSelection().removeAllRanges) { // Firefox
+      //     window.getSelection().removeAllRanges();
+      //   }
+      // } else if (document.selection) { // IE?
+      //   document.selection.empty();
+      // }
     },
   },
   data() {
@@ -269,6 +272,9 @@ export default {
       markedText: '',
       markedTextIdxs: [],
       isActive: false,
+      floatMenu: {
+        display: 'none',
+      },
     };
   },
   computed: {
@@ -343,9 +349,5 @@ export default {
     2px -2px white,
     -2px 2px white,
     -2px -2px white;
-}
-.float-menu {
-  display: none;
-  position: absolute;
 }
 </style>
