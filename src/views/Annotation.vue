@@ -1,14 +1,15 @@
 <template>
-  <main role='main' class='container-fluid, home'>
+  <div class='container, home'>
     <Editor/>
-  </main>
+  </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import Editor from '@/components/Annotator/HighlightEditor.1.vue';
+import Editor from '@/components/Annotator/HighlightEditor.2.vue';
 
 export default {
+  name: 'Annotation',
   components: {
     Editor,
   },
@@ -17,6 +18,6 @@ export default {
 
 <style lang="scss">
 .home {
-  padding: 40px;
+  padding-top: 25px;
 }
 </style>

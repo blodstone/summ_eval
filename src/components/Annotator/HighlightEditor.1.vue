@@ -241,7 +241,7 @@ export default {
                   Object.keys(textJSON.corefs).forEach((key) => {
                   textJSON.corefs[key].forEach((coref) => {
                     if (coref.id.toString() !== key) {
-                      this.markedText += coref.text; 
+                      this.markedText += coref.text;
                     }
                   });
                 });

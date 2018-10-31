@@ -1,10 +1,5 @@
 <template>
   <div class="clearfix">
-    <header>
-      <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">Manual Evaluation</a>
-      </nav>
-    </header>
     <router-view/>
   </div>
 </template>
