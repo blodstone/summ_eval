@@ -21,3 +21,4 @@ yarn-error.log*
 /instance/dist/static/css/
 /instance/dist/static/img/
 /instance/dist/static/js/
+/instance/dist/
