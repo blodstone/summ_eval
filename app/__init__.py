@@ -19,7 +19,7 @@ class CustomFlask(Flask):
 
 def create_app(test_config=None):
     # create and configure the app
-    app = CustomFlask(__name__, instance_relative_config=True, static_folder='../instance/dist/static', template_folder='../dist')
+    app = CustomFlask(__name__, instance_relative_config=True, static_folder='../instance/dist/static', template_folder='../instance/dist')
     app.config.from_mapping(
         SECRET_KEY='dev',
         SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
