@@ -18,6 +18,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
-/dist/static/css/
-/dist/static/img/
-/dist/static/js/
+/instance/dist/static/css/
+/instance/dist/static/img/
+/instance/dist/static/js/
+/instance/dist/

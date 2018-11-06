@@ -1,5 +1,5 @@
 module.exports = {
-  outputDir: 'dist',
+  outputDir: 'instance/dist',
   assetsDir: 'static',
 };
 
