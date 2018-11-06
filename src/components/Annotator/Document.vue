@@ -24,12 +24,8 @@
           <div class="card-body">
             <h5 class="card-title my-title">Phrases:</h5>
             <p class="card-text my-text" v-html="rawSummariesHTML"></p>
-            <router-link
-              :to="{ name: 'surveyForm',
-              params: {groups: this.groups}}"
-              tag='button' class="btn btn-primary">
-                Submit
-            </router-link>
+            <button class="btn btn-primary" :disabled="timer.isRunning"
+                    v-on:click="saveAnnotation()">{{ timenow }}</button>
           </div>
         </div>
         <div ref="document" v-on:mouseup="showHighlightMenu"
@@ -51,6 +47,7 @@ import Vue from 'vue';
 
 const randomColor = require('randomcolor');
 const axios = require('axios');
+const waitTimeForButton = 1;
 
 function createAndMountWord(sent, token, wordIndex, isSourceAndCorefID) {
   const WordClass = Vue.extend(Word);
@@ -196,16 +193,20 @@ function getFile() {
     .then((response) => {
       parseDoc.call(this, response.data);
     })
-    .catch(() => {
-    })
-    .then(() => {
-
+    .catch((error) => {
+      console.log(error);
     });
 }
 
-// function saveResult() {
-//   axios.post()
-// }
+function sendResult() {
+  axios.post('save_annotation', this.groups)
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 
 function clearSelection(selection) {
   if (selection) {
@@ -280,6 +281,12 @@ export default {
   data() {
     return {
       whitespaces: {},
+      timer: {
+        now: Math.trunc(new Date().getTime() / 1000),
+        date: Math.trunc(new Date().getTime() / 1000),
+        isRunning: true,
+        timer: null,
+      },
       words: {},
       whitespaces2Groups: {},
       words2Groups: {},
@@ -297,7 +304,24 @@ export default {
       rawSummariesHTML: '',
     };
   },
+  computed: {
+    timenow() {
+      if (this.timer.isRunning === true) {
+        if ((this.timer.now - this.timer.date) !== waitTimeForButton) {
+          return `Wait ${waitTimeForButton - (this.timer.now - this.timer.date)} seconds`;
+        }
+        // eslint-disable-next-line
+        this.timer.isRunning = false;
+        window.clearInterval(this.timer.timer);
+      }
+      return 'Click to submit';
+    },
+  },
   methods: {
+    saveAnnotation() {
+      sendResult.call(this);
+      alert('Send Done');
+    },
     showMentions(event) {
       let corefID = -1;
       if (event.target.parentElement.dataset.type === 'word') {
@@ -473,7 +497,9 @@ export default {
   },
   mounted: function onMounted() {
     getFile.call(this);
-    // readFile.call(this, '/static/gold_doc/doc.json');
+    this.timer.timer = window.setInterval(() => {
+      this.timer.now = Math.trunc((new Date()).getTime() / 1000);
+    }, 1000);
   },
 };
 </script>

@@ -1,5 +1,5 @@
 import os, json
-from flask import Flask, render_template, Markup, jsonify, make_response
+from flask import Flask, render_template, Markup, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -62,5 +62,14 @@ def create_app(test_config=None):
         file = open(os.path.join(app.static_folder, "gold_doc/doc.json"), "r")
         data = json.load(file)
         return jsonify(data)
+
+    @app.route('/save_annotation', methods=['POST'])
+    def save_annotation():
+        result = request.args.get('groups')
+        if result:
+            print(result)
+        else:
+            print('Empty result')
+        return '', 204
 
     return app

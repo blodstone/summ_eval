@@ -25,6 +25,7 @@
 /* eslint no-continue: "off" */
 import Document from '@/components/Annotator/Document.vue';
 
+
 // const randomColor = require('randomcolor');
 
 export default {
