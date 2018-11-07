@@ -47,6 +47,7 @@ import Vue from 'vue';
 
 const randomColor = require('randomcolor');
 const axios = require('axios');
+
 const waitTimeForButton = 1;
 
 function createAndMountWord(sent, token, wordIndex, isSourceAndCorefID) {
@@ -127,10 +128,10 @@ function populateCoref(textJSON) {
     const corefID = parseInt(ID, 10);
     for (let i = 0; i < reverseCorefs[corefID].length; i += 1) {
       const mention = reverseCorefs[corefID][i];
-      if (!(corefID in this.source2mentions)) {
-        this.source2mentions[corefID] = [];
+      if (!(corefID in this.srcCorefID2mentionsCorefID)) {
+        this.srcCorefID2mentionsCorefID[corefID] = [];
       }
-      this.source2mentions[corefID].push(mention.id);
+      this.srcCorefID2mentionsCorefID[corefID].push(mention.id);
       if (!(mention.id in this.mentions)) {
         this.mentions[mention.id] = {
           id: mention.id,
@@ -140,18 +141,18 @@ function populateCoref(textJSON) {
         };
       }
       if (corefID === mention.id) {
-        if (!(mention.sentNum in this.sent2source)) {
-          this.sent2source[mention.sentNum] = [];
+        if (!(mention.sentNum in this.sentNum2srcCorefID)) {
+          this.sentNum2srcCorefID[mention.sentNum] = [];
         }
-        this.sent2source[mention.sentNum].push(corefID);
+        this.sentNum2srcCorefID[mention.sentNum].push(corefID);
       }
     }
   });
 }
 
 function getIsSourceAndcorefID(sent, token) {
-  if (sent.index + 1 in this.sent2source) {
-    const corefIDs = this.sent2source[sent.index + 1];
+  if (sent.index + 1 in this.sentNum2srcCorefID) {
+    const corefIDs = this.sentNum2srcCorefID[sent.index + 1];
     for (let k = 0; k < corefIDs.length; k += 1) {
       if (token.index >= this.mentions[corefIDs[k]].startIndex &&
           token.index < this.mentions[corefIDs[k]].endIndex) {
@@ -198,8 +199,8 @@ function getFile() {
     });
 }
 
-function sendResult() {
-  axios.post('save_annotation', this.groups)
+function sendResult(resultJSON) {
+  axios.post('save_annotation', resultJSON)
     .then((response) => {
       console.log(response);
     })
@@ -280,34 +281,47 @@ export default {
   name: 'Document',
   data() {
     return {
-      whitespaces: {},
       timer: {
         now: Math.trunc(new Date().getTime() / 1000),
         date: Math.trunc(new Date().getTime() / 1000),
         isRunning: true,
         timer: null,
       },
+
+      // A collection of Word components
       words: {},
+      // A collection of Char components
+      whitespaces: {},
+      // A mapping of whitespace index to group index
       whitespaces2Groups: {},
+      // A mapping of word index to group index
       words2Groups: {},
+      // A collection of selected Char and Word components
       groups: {},
+
       floatMenu: {
         display: 'none',
       },
-      sent2source: {},
-      mentions: {},
-      source2mentions: {},
-      words2corefID: {},
+
+      // Words that are highlighted for mentions
       annotatedWords: [],
+      // A mapping of mention's sent index to source's corefID
+      sentNum2srcCorefID: {},
+      // A mapping of Coref ID to it's properties (Token end, start)
+      mentions: {},
+      // A mapping of source's coref ID to an array of mentions's Coref ID
+      srcCorefID2mentionsCorefID: {},
+      // A mapping of Word component to CorefID
+      words2corefID: {},
+      // A mapping between group Key (this.group index) to color
       group2color: {},
-      usedColor: [],
       rawSummariesHTML: '',
     };
   },
   computed: {
     timenow() {
       if (this.timer.isRunning === true) {
-        if ((this.timer.now - this.timer.date) !== waitTimeForButton) {
+        if ((this.timer.now - this.timer.date) < waitTimeForButton) {
           return `Wait ${waitTimeForButton - (this.timer.now - this.timer.date)} seconds`;
         }
         // eslint-disable-next-line
@@ -319,8 +333,32 @@ export default {
   },
   methods: {
     saveAnnotation() {
-      sendResult.call(this);
-      alert('Send Done');
+      const resultJSON = {
+        highlights: {},
+        words: {},
+      };
+      for (let i = 0; i < Object.keys(this.groups).length; i += 1) {
+        const key = Object.keys(this.groups)[i];
+        let text = '';
+        resultJSON.highlights[key] = {
+          indexes: [],
+        };
+        for (let j = 0; j < this.groups[key].length; j += 1) {
+          const component = this.groups[key][j];
+          if (component.$props.type === 'word') {
+            text = `${text} ${component.$props.word}`.trim();
+            resultJSON.highlights[key].indexes.push(component.$props.index);
+          }
+        }
+        resultJSON.highlights[key].text = text;
+      }
+      for (let i = 0; i < Object.keys(this.words).length; i += 1) {
+        const wordIndex = Object.keys(this.words)[i];
+        resultJSON.words[wordIndex] = {
+          word: this.words[wordIndex].word,
+        };
+      }
+      sendResult.call(this, resultJSON);
     },
     showMentions(event) {
       let corefID = -1;
@@ -334,7 +372,7 @@ export default {
           this.annotatedWords[i].resetAnnotation();
         }
         this.annotatedWords = [];
-        const mentions = this.source2mentions[corefID];
+        const mentions = this.srcCorefID2mentionsCorefID[corefID];
         for (let i = 0; i < Object.keys(this.words).length; i += 1) {
           const index = Object.keys(this.words)[i];
           const { tokenIndex } = this.words[index];

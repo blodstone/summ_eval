@@ -2,8 +2,6 @@ import os, json
 from flask import Flask, render_template, Markup, jsonify, make_response, request
 from flask_sqlalchemy import SQLAlchemy
 
-
-
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
     jinja_options.update(dict(
@@ -14,7 +12,6 @@ class CustomFlask(Flask):
         comment_start_string='<#',
         comment_end_string='#>',
     ))
-
 
 
 def create_app(test_config=None):
@@ -65,9 +62,10 @@ def create_app(test_config=None):
 
     @app.route('/save_annotation', methods=['POST'])
     def save_annotation():
-        result = request.args.get('groups')
+        result = request.get_json('highlights')
         if result:
-            print(result)
+            file = open(os.path.join(app.static_folder, "gold_doc/annotated.json"), "w")
+            json.dump(result, file, sort_keys=False, indent=2)
         else:
             print('Empty result')
         return '', 204
