@@ -2,14 +2,14 @@
     <span ref="word" v-bind:data-type="type" v-bind:data-index="index"></span>
 </template>
 <script>
-import Char from '@/components/Annotator/Char.vue';
+import Char from '@/components/Component/Char.vue';
 import Vue from 'vue';
 
 const CharClass = Vue.extend(Char);
 
 export default {
   name: 'Word',
-  props: ['index', 'sentIndex', 'tokenIndex', 'word', 'type', 'isSource'],
+  props: ['index', 'sentIndex', 'tokenIndex', 'word', 'type', 'isSource', 'compIndex'],
   data() {
     return {
       chars: [],

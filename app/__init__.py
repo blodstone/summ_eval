@@ -54,6 +54,12 @@ def create_app(test_config=None):
             body = f.read()
         return make_response((body, headers))
 
+    @app.route('/annotation_json', methods=['POST'])
+    def send_annotation_json():
+        file = open(os.path.join(app.static_folder, "gold_doc/annotated.json"), "r")
+        data = json.load(file)
+        return jsonify(data)
+
     @app.route('/json', methods=['POST'])
     def send_json():
         file = open(os.path.join(app.static_folder, "gold_doc/doc.json"), "r")

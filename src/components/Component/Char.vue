@@ -5,7 +5,7 @@
 <script>
 export default {
   name: 'Char',
-  props: ['index', 'fgColor', 'bgColor', 'type', 'fontWeight', 'cursor'],
+  props: ['index', 'fgColor', 'bgColor', 'type', 'fontWeight', 'cursor', 'compIndex'],
   data() {
     return {
       charStyle: {
