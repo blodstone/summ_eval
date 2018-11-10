@@ -1,12 +1,12 @@
 <template>
-  <main role='main' class='container-fluid, home'>
+  <div class='container, home'>
     <Survey/>
-  </main>
+  </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import Survey from '@/components/Survey.vue';
+import Survey from '@/components/Survey/Survey.2.vue';
 
 export default {
   components: {
@@ -16,5 +16,7 @@ export default {
 </script>
 
 <style lang="scss">
-
+.home {
+  padding-top: 25px;
+}
 </style>

@@ -8,12 +8,12 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/annotation',
       name: 'annotation',
       component: Annotation,
     },
     {
-      path: '/survey',
+      path: '/',
       name: 'surveyForm',
       component: SurveyForm,
     },
