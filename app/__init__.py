@@ -17,30 +17,30 @@ class CustomFlask(Flask):
 def create_app(test_config=None):
     # create and configure the app
     app = CustomFlask(__name__, instance_relative_config=True, static_folder='../instance/dist/static', template_folder='../instance/dist')
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
-        SQLALCHEMY_TRACK_MODIFICATIONS=True,
-    )
-    # print(os.environ['DATABASE_URL'])
-    db = SQLAlchemy(app)
+    # app.config.from_mapping(
+    #     SECRET_KEY='dev',
+    #     SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
+    #     SQLALCHEMY_TRACK_MODIFICATIONS=True,
+    # )
+    # # print(os.environ['DATABASE_URL'])
+    # db = SQLAlchemy(app)
 
-    class Control(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
-        form_id = db.Column(db.String(80), unique=True, nullable=False)
-        is_filled = db.Column(db.Boolean, unique=False, nullable=False)
-        doc_id = db.Column(db.String(80), unique=False, nullable=False)
+    # class Control(db.Model):
+    #     id = db.Column(db.Integer, primary_key=True)
+    #     form_id = db.Column(db.String(80), unique=True, nullable=False)
+    #     is_filled = db.Column(db.Boolean, unique=False, nullable=False)
+    #     doc_id = db.Column(db.String(80), unique=False, nullable=False)
+    #
+    #     def __repr__(self):
+    #         return '<User %r>' % self.username
 
-        def __repr__(self):
-            return '<User %r>' % self.username
 
-
-    @app.route('/control')
-    def control():
-        try:
-            return '<h1>It works.</h1>' + Markup.escape(str(a))
-        except Exception as e:
-            return '<h1>Something is broken.</h1>' + str(e)
+    # @app.route('/control')
+    # def control():
+    #     try:
+    #         return '<h1>It works.</h1>' + Markup.escape(str(a))
+    #     except Exception as e:
+    #         return '<h1>Something is broken.</h1>' + str(e)
 
     @app.route('/')
     def index():
