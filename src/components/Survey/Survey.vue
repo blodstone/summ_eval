@@ -11,7 +11,7 @@
                 <div class='card'>
                   <div class="card-header">Summary</div>
                   <div class='card-body'>
-                    u.s and european officials may impose a 4th round of sanctions on tehran when the u.n , security council considers the issue of iran 's nuclear energy program most likely in september 2007 . 
+                    u.s and european officials may impose a 4th round of sanctions on tehran when the u.n , security council considers the issue of iran 's nuclear energy program most likely in september 2007 .
                   </div>
                  </div>
               </div>

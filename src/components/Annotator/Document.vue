@@ -40,15 +40,15 @@
 </template>
 
 <script>
-import Word from '@/components/Annotator/Word.vue';
-import Char from '@/components/Annotator/Char.vue';
-import LineBreaker from '@/components/Annotator/LineBreaker.vue';
+import Word from '@/components/Component/Word.vue';
+import Char from '@/components/Component/Char.vue';
+import LineBreaker from '@/components/Component/LineBreaker.vue';
 import Vue from 'vue';
 
 const randomColor = require('randomcolor');
 const axios = require('axios');
 
-const waitTimeForButton = 1;
+const waitTimeForButton = 5;
 
 function createAndMountWord(sent, token, wordIndex, isSourceAndCorefID) {
   const WordClass = Vue.extend(Word);
@@ -58,6 +58,7 @@ function createAndMountWord(sent, token, wordIndex, isSourceAndCorefID) {
       tokenIndex: token.index,
       word: token.word,
       index: wordIndex,
+      compIndex: this.components.length,
       type: 'word',
       // eslint-disable-next-line
       isSource: isSourceAndCorefID.isSource,
@@ -67,6 +68,7 @@ function createAndMountWord(sent, token, wordIndex, isSourceAndCorefID) {
   if (isSourceAndCorefID.isSource === true) {
     this.words2corefID[wordIndex] = isSourceAndCorefID.corefID;
   }
+  this.components.push(word);
   this.words[wordIndex] = word;
   this.words2Groups[wordIndex] = [];
   this.$refs.document.appendChild(word.$el);
@@ -79,10 +81,12 @@ function createAndMountWhitespace(whitespace, whitespaceIndex) {
       bgColor: '#ffffff',
       type: 'whitespace',
       index: whitespaceIndex,
+      compIndex: this.components.length,
     },
   });
   char.$slots.default = [whitespace];
   char.$mount();
+  this.components.push(char);
   this.whitespaces[whitespaceIndex] = char;
   this.whitespaces2Groups[whitespaceIndex] = [];
   this.$refs.document.appendChild(char.$el);
@@ -288,6 +292,7 @@ export default {
         timer: null,
       },
 
+      components: [],
       // A collection of Word components
       words: {},
       // A collection of Char components
@@ -335,7 +340,8 @@ export default {
     saveAnnotation() {
       const resultJSON = {
         highlights: {},
-        words: {},
+        components: [],
+        words: [],
       };
       for (let i = 0; i < Object.keys(this.groups).length; i += 1) {
         const key = Object.keys(this.groups)[i];
@@ -351,6 +357,19 @@ export default {
           }
         }
         resultJSON.highlights[key].text = text;
+      }
+      for (let i = 0; i < this.components.length; i += 1) {
+        if (this.components[i].type === 'word') {
+          resultJSON.components.push({
+            type: this.components[i].type,
+            word: this.components[i].word,
+          });
+        } else {
+          resultJSON.components.push({
+            type: this.components[i].type,
+            word: ' ',
+          });
+        }
       }
       for (let i = 0; i < Object.keys(this.words).length; i += 1) {
         const wordIndex = Object.keys(this.words)[i];
