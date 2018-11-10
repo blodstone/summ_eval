@@ -4,7 +4,7 @@ import json
 from app.models import db
 from dotenv import load_dotenv
 from flask import Flask, render_template, Markup, jsonify, make_response, request
-
+from flask_migrate import Migrate
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -26,14 +26,17 @@ def create_app(test_config=None):
     app = CustomFlask(__name__, instance_relative_config=True,
                       static_folder='../instance/dist/static',
                       template_folder='../instance/dist')
-    app.secret_key = os.getenv('SECRET_KEY')
-    db.init_app(app)
+    app.config.from_mapping(
+        SECRET_KEY=os.getenv('SECRET_KEY'),
+        SQLALCHEMY_DATABASE_URI='sqlite:///app.db',
+        SQLALCHEMY_TRACK_MODIFICATIONS=True,
+    )
 
-    # app.config.from_mapping(
-    #     SECRET_KEY='dev',
-    #     SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
-    #     SQLALCHEMY_TRACK_MODIFICATIONS=True,
-    # )
+    db.init_app(app)
+    migrate = Migrate(app, db)
+
+
+
     # # print(os.environ['DATABASE_URL'])
 
     # class Control(db.Model):
@@ -52,10 +55,6 @@ def create_app(test_config=None):
     #         return '<h1>It works.</h1>' + Markup.escape(str(a))
     #     except Exception as e:
     #         return '<h1>Something is broken.</h1>' + str(e)
-
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.get(user_id)
 
     @app.route('/login')
     def login():
