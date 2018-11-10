@@ -1,6 +1,10 @@
-import os, json
+import os
+import json
+
+from app.models import db
+from dotenv import load_dotenv
 from flask import Flask, render_template, Markup, jsonify, make_response, request
-from flask_sqlalchemy import SQLAlchemy
+
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -15,15 +19,22 @@ class CustomFlask(Flask):
 
 
 def create_app(test_config=None):
+    # Load .env file (create one if it doesn't exist)
+    load_dotenv(os.path.join('../', '.env'))
+
     # create and configure the app
-    app = CustomFlask(__name__, instance_relative_config=True, static_folder='../instance/dist/static', template_folder='../instance/dist')
+    app = CustomFlask(__name__, instance_relative_config=True,
+                      static_folder='../instance/dist/static',
+                      template_folder='../instance/dist')
+    app.secret_key = os.getenv('SECRET_KEY')
+    db.init_app(app)
+
     # app.config.from_mapping(
     #     SECRET_KEY='dev',
     #     SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
     #     SQLALCHEMY_TRACK_MODIFICATIONS=True,
     # )
     # # print(os.environ['DATABASE_URL'])
-    # db = SQLAlchemy(app)
 
     # class Control(db.Model):
     #     id = db.Column(db.Integer, primary_key=True)
@@ -41,6 +52,14 @@ def create_app(test_config=None):
     #         return '<h1>It works.</h1>' + Markup.escape(str(a))
     #     except Exception as e:
     #         return '<h1>Something is broken.</h1>' + str(e)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.get(user_id)
+
+    @app.route('/login')
+    def login():
+        return render_template('login.html')
 
     @app.route('/')
     def index():
