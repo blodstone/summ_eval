@@ -14,7 +14,8 @@
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
     "vue-slide-bar": "^1.1.6",
-    "vue-timers": "^1.7.3"
+    "vue-timers": "^1.7.3",
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.3",
