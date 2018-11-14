@@ -1,0 +1,61 @@
+{
+  "docId": "doc_id_1",
+  "sentences": [
+    {
+      "index": 0,
+      "tokens": [
+        {
+          "index": 1,
+          "word": "U.S.",
+          "originalText": "U.S.",
+          "lemma": "U.S.",
+          "characterOffsetBegin": 0,
+          "characterOffsetEnd": 4,
+          "pos": "NNP",
+          "ner": "COUNTRY",
+          "speaker": "PER0",
+          "before": "",
+          "after": " "
+        }
+      ]
+    }
+  ],
+  "corefs": {
+    "130": [
+      {
+        "id": 122,
+        "text": "the Bush administration Tom Casey",
+        "type": "PROPER",
+        "number": "SINGULAR",
+        "gender": "MALE",
+        "animacy": "ANIMATE",
+        "startIndex": 6,
+        "endIndex": 11,
+        "headIndex": 10,
+        "sentNum": 14,
+        "position": [
+          14,
+          5
+        ],
+        "isRepresentativeMention": true
+      }
+    ]
+  },
+  "paragraphs": {
+    "endSentIndex":[3, 5, 8]
+  },
+  "annotations": {
+    "highlights": {
+
+    },
+    "components": [
+      {
+        "type": "word",
+        "word": "U.S"
+      }
+    ],
+    "words": {
+      "1": "U.S",
+    }
+  }
+}
