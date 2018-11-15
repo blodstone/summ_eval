@@ -8,14 +8,8 @@
           "index": 1,
           "word": "U.S.",
           "originalText": "U.S.",
-          "lemma": "U.S.",
           "characterOffsetBegin": 0,
           "characterOffsetEnd": 4,
-          "pos": "NNP",
-          "ner": "COUNTRY",
-          "speaker": "PER0",
-          "before": "",
-          "after": " "
         }
       ]
     }
