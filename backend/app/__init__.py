@@ -84,52 +84,6 @@ def create_app(test_config=None):
             body = f.read()
         return make_response((body, headers))
 
-    # API
-    @app.route('/annotation_json', methods=['POST'])
-    def send_annotation_json():
-        file = open(os.path.join(app.static_folder, "gold_doc/annotated.json"), "r")
-        data = json.load(file)
-        return jsonify(data)
 
-    @app.route('/json', methods=['POST'])
-    def send_json():
-        file = open(os.path.join(app.static_folder, "gold_doc/doc.json"), "r")
-        data = json.load(file)
-        return jsonify(data)
-
-    @app.route('/save_annotation', methods=['POST'])
-    def save_annotation():
-        result = request.get_json('highlights')
-        if result:
-            file = open(os.path.join(app.static_folder, "gold_doc/annotated.json"), "w")
-            json.dump(result, file, sort_keys=False, indent=2)
-        else:
-            print('Empty result')
-        return '', 204
-
-    @app.route('/register/', methods=['POST'])
-    def register():
-        data = request.get_json()
-        user = User(**data)
-        db.session.add(user)
-        db.session.commit()
-        return jsonify(user.to_dict()), 201
-
-    @app.route('/login', methods=['POST'])
-    def login():
-        data = request.get_json()
-        print(data)
-        user = User.authenticate(**data)
-        print(user)
-        if not user:
-            return jsonify({'message': 'Invalid credentials', 'authenticated': False}), 401
-        print('login success!')
-        token = jwt.encode({
-            'sub': user.email,
-            'iat': datetime.utcnow(),
-            'exp': datetime.utcnow() + timedelta(minutes=30)
-        }, app.config['SECRET_KEY']
-        )
-        return jsonify({'token': token.decode('UTF-8')})
 
     return app

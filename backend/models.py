@@ -1,9 +1,28 @@
+import json
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
+
+class Document(db.Model):
+    __tablename__ = 'document'
+
+    doc_id = db.Column(db.String(25), primary_key=True)
+    json = db.Column(db.Text, nullable=False)
+    is_highlighted = db.Column(db.Boolean, default=False, nullable=False)
+
+    def __init__(self, doc_id, json):
+        self.doc_id = doc_id
+        self.json = json
+
+    @classmethod
+    def get_dict(cls, doc_id):
+        if not doc_id:
+            return None
+        document = cls.query.filter_by(doc_id=doc_id).first()
+        return json.loads(document.json)
 
 class User(db.Model):
     __tablename__ = 'user'
