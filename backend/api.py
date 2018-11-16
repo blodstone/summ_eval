@@ -15,6 +15,9 @@ def api_document(doc_id):
         if doc_json:
             return jsonify(doc_json), http.HTTPStatus.Ok
 
+@api.route('/document/get_one', methods=['GET'])
+def api_document_get_one():
+    pass
 
 @api.route('/json', methods=['POST'])
 def send_json():
