@@ -216,6 +216,6 @@ if __name__ == "__main__":
         .append(len(sents['sentences']) + result['paragraph']['endSentIndex'][prevLen])
     del result['paragraph']['endSentIndex'][0]
     with (open(result_dir+"/"+bbcid+".data", "w")) as outfile:
-      json.dump(result, outfile, sort_keys=False, indent=2)
+      json.dump(result, outfile, sort_keys=False)
   nlp.close()
 

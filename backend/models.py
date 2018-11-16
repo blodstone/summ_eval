@@ -1,3 +1,4 @@
+import json
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -5,17 +6,90 @@ from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
 
 
+class Document(db.Model):
+    __tablename__ = 'document'
+
+    doc_id = db.Column(db.String(25), primary_key=True, nullable=False)
+    doc_json = db.Column(db.Text, nullable=False)
+    doc_statuses = db.relationship('DocStatus', backref='document', lazy=True)
+    dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=True)
+
+    @classmethod
+    def get_dict(cls, doc_id):
+        if not doc_id:
+            return None
+        document = cls.query.filter_by(doc_id=doc_id).first()
+        return json.loads(document.json)
+
+    def to_dict(self):
+        return self.doc_json
+
+
+class DocStatus(db.Model):
+    __tablename__ = 'doc_status'
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    doc_id = db.Column(db.Integer, db.ForeignKey('document.doc_id'), nullable=False)
+    proj_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
+    totalExpResults = db.Column(db.Integer, nullable=False)
+    results = db.relationship('Result', backref='doc_status', lazy=True)
+
+class Result(db.Model):
+    __tablename__ = 'result'
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    finished_at = db.Column(db.DateTime, default=datetime.utcnow)
+    result_json = db.Column(db.Text, nullable=False)
+    status_id = db.Column(db.Integer, db.ForeignKey('doc_status.id'), nullable=False)
+
+
+class Dataset(db.Model):
+    __tablename__ = 'dataset'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    documents = db.relationship('Document', backref='dataset', lazy=True)
+    projects = db.relationship('Project', backref='dataset', lazy=True)
+
+    def to_dict(self):
+        return dict(name=self.name)
+
+
+class Project(db.Model):
+    __tablename__ = 'project'
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
+    title = db.Column(db.String(255), nullable=False)
+    type = db.Column(db.String(25), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=False)
+
+    @classmethod
+    def create_project(cls, dataset_name, totalExpResults, **kwargs):
+        dataset = Dataset.query.filter_by(name=dataset_name).first()
+        if not dataset:
+            return None
+        else:
+            project = Project(title=kwargs['title'], type=kwargs['type'], dataset_id=dataset.id)
+            db.session.add(project)
+            db.session.commit()
+            for document in dataset.documents:
+                doc_status = DocStatus(
+                    proj_id=project.id, doc_id=document.doc_id, totalExpResults=totalExpResults)
+                db.session.add(doc_status)
+                db.session.commit()
+            return project
+
 class User(db.Model):
     __tablename__ = 'user'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, email, password):
-        self.email = email
-        self.password = generate_password_hash(password, method='sha256')
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        self.password = generate_password_hash(kwargs.get('password'), method='sha256')
 
     @classmethod
     def authenticate(cls, **kwargs):

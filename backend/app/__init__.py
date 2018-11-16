@@ -1,14 +1,10 @@
 import os
-import json
-from datetime import datetime, timedelta
+import jwt
 from functools import wraps
 from backend.models import db, User
-
-import jwt
+from backend.api import api
 from dotenv import load_dotenv
 from flask import Flask, render_template, jsonify, make_response, request
-from flask_migrate import Migrate,MigrateCommand
-from flask_script import Manager
 
 
 class CustomFlask(Flask):
@@ -33,12 +29,14 @@ def create_app(test_config=None):
                       template_folder='../../instance/dist')
     db_path = os.path.join(os.path.dirname(__file__), 'app.db')
     db_uri = 'sqlite:///{}'.format(db_path)
+    if test_config:
+        app.config.from_pyfile(os.path.join(os.path.dirname(__file__), test_config))
     app.config.from_mapping(
         SECRET_KEY=os.getenv('SECRET_KEY'),
         SQLALCHEMY_DATABASE_URI=db_uri,
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
     )
-
+    app.register_blueprint(api)
     db.init_app(app)
 
 
@@ -84,52 +82,6 @@ def create_app(test_config=None):
             body = f.read()
         return make_response((body, headers))
 
-    # API
-    @app.route('/annotation_json', methods=['POST'])
-    def send_annotation_json():
-        file = open(os.path.join(app.static_folder, "gold_doc/annotated.json"), "r")
-        data = json.load(file)
-        return jsonify(data)
 
-    @app.route('/json', methods=['POST'])
-    def send_json():
-        file = open(os.path.join(app.static_folder, "gold_doc/doc.json"), "r")
-        data = json.load(file)
-        return jsonify(data)
-
-    @app.route('/save_annotation', methods=['POST'])
-    def save_annotation():
-        result = request.get_json('highlights')
-        if result:
-            file = open(os.path.join(app.static_folder, "gold_doc/annotated.json"), "w")
-            json.dump(result, file, sort_keys=False, indent=2)
-        else:
-            print('Empty result')
-        return '', 204
-
-    @app.route('/register/', methods=['POST'])
-    def register():
-        data = request.get_json()
-        user = User(**data)
-        db.session.add(user)
-        db.session.commit()
-        return jsonify(user.to_dict()), 201
-
-    @app.route('/login', methods=['POST'])
-    def login():
-        data = request.get_json()
-        print(data)
-        user = User.authenticate(**data)
-        print(user)
-        if not user:
-            return jsonify({'message': 'Invalid credentials', 'authenticated': False}), 401
-        print('login success!')
-        token = jwt.encode({
-            'sub': user.email,
-            'iat': datetime.utcnow(),
-            'exp': datetime.utcnow() + timedelta(minutes=30)
-        }, app.config['SECRET_KEY']
-        )
-        return jsonify({'token': token.decode('UTF-8')})
 
     return app
