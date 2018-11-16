@@ -23,6 +23,8 @@ class CustomFlask(Flask):
     ))
 
 
+
+
 def create_app(test_config=None):
     # Load .env file (create one if it doesn't exist)
     load_dotenv(os.path.join('../', '.env'))
