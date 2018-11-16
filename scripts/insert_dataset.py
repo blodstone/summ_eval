@@ -4,9 +4,7 @@ from backend.models import Document, Dataset
 from backend.app import create_app
 from flask_sqlalchemy import SQLAlchemy
 
-if __name__ == '__main__':
-    app = create_app()
-    db = SQLAlchemy(app)
+def init_dataset(db):
     dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset/xsum-extracts-from-downloads'
     dataset = Dataset(name='Sample_BBC')
     db.session.add(dataset)

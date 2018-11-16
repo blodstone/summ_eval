@@ -4,7 +4,7 @@ import http
 import jwt
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
-from backend.models import User, Document, Project, Result, db
+from backend.models import User, Document, Project, Result, Dataset, DocStatus, db
 
 api = Blueprint('api', 'api', url_prefix='', static_folder='../../instance/dist/static')
 
@@ -27,15 +27,16 @@ def api_document_get_one():
             if doc_status.totalExpResults == n_results:
                 continue
             else:
-                return jsonify(document)
+                return jsonify(document.to_dict())
     return '', http.HTTPStatus.NO_CONTENT
 
 
-@api.route('/project/<dataset_name>', methods=['POST'])
-def api_project_create(dataset_name):
+@api.route('/project/<dataset_name>/<totalExpResults>', methods=['POST'])
+def api_project_create(dataset_name, totalExpResults):
     if request.method == 'POST':
         data = request.get_json()
-        project = Project.create_project(**data, dataset_id=dataset_name)
+        project = Project.create_project(
+            dataset_name=dataset_name, totalExpResults=totalExpResults, **data)
         if project:
             return '', http.HTTPStatus.CREATED
         else:
@@ -43,13 +44,31 @@ def api_project_create(dataset_name):
 
 
 @api.route('/project/<project_id>', methods=['GET'])
-def api_project(project_id):
-    project = Project.query.filter_by(project_id=project_id).first()
+def api_project_get(project_id):
+    project = Project.query.filter_by(id=project_id).first()
     if not project:
         return '', http.HTTPStatus.NO_CONTENT
     else:
         return jsonify(project)
 
+
+@api.route('/dataset/<dataset_name>', methods=['GET'])
+def api_dataset_get(dataset_name):
+    dataset = Dataset.query.filter_by(name=dataset_name).first()
+    if not dataset:
+        return '', http.HTTPStatus.NO_CONTENT
+    else:
+        return jsonify(dataset.to_dict())
+
+
+@api.route('/doc_status/progress/<doc_status_id>', methods=['GET'])
+def api_doc_status_progress(doc_status_id):
+    doc_status = DocStatus.query.filter_by(id=doc_status_id).first()
+    if not doc_status:
+        return '', http.HTTPStatus.NO_CONTENT
+    n_results = len(Result.query.filter_by(id=doc_status.id).all())
+    progress = "{0:.2f}".format(n_results/doc_status.totalExpResults)
+    return jsonify(dict(progress=progress))
 
 @api.route('/json', methods=['POST'])
 def send_json():

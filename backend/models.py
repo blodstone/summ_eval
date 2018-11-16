@@ -13,6 +13,7 @@ class Document(db.Model):
     doc_json = db.Column(db.Text, nullable=False)
     doc_statuses = db.relationship('DocStatus', backref='document', lazy=True)
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=True)
+
     @classmethod
     def get_dict(cls, doc_id):
         if not doc_id:
@@ -20,16 +21,18 @@ class Document(db.Model):
         document = cls.query.filter_by(doc_id=doc_id).first()
         return json.loads(document.json)
 
+    def to_dict(self):
+        return self.doc_json
+
 
 class DocStatus(db.Model):
     __tablename__ = 'doc_status'
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     doc_id = db.Column(db.Integer, db.ForeignKey('document.doc_id'), nullable=False)
-    pro_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
+    proj_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
     totalExpResults = db.Column(db.Integer, nullable=False)
     results = db.relationship('Result', backref='doc_status', lazy=True)
-
 
 class Result(db.Model):
     __tablename__ = 'result'
@@ -47,6 +50,9 @@ class Dataset(db.Model):
     documents = db.relationship('Document', backref='dataset', lazy=True)
     projects = db.relationship('Project', backref='dataset', lazy=True)
 
+    def to_dict(self):
+        return dict(name=self.name)
+
 
 class Project(db.Model):
     __tablename__ = 'project'
@@ -59,16 +65,16 @@ class Project(db.Model):
 
     @classmethod
     def create_project(cls, dataset_name, totalExpResults, **kwargs):
-        dataset = Dataset.query.filter_by(dataset_id=dataset_name).one()
+        dataset = Dataset.query.filter_by(name=dataset_name).first()
         if not dataset:
             return None
         else:
             project = Project(title=kwargs['title'], type=kwargs['type'], dataset_id=dataset.id)
             db.session.add(project)
             db.session.commit()
-            for document in dataset.docs:
+            for document in dataset.documents:
                 doc_status = DocStatus(
-                    proj_id=project.id, doc_id=document.id, totalExpResults=totalExpResults)
+                    proj_id=project.id, doc_id=document.doc_id, totalExpResults=totalExpResults)
                 db.session.add(doc_status)
                 db.session.commit()
             return project

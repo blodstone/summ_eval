@@ -1,14 +1,10 @@
 import os
-import json
-from datetime import datetime, timedelta
+import jwt
 from functools import wraps
 from backend.models import db, User
-
-import jwt
+from backend.api import api
 from dotenv import load_dotenv
 from flask import Flask, render_template, jsonify, make_response, request
-from flask_migrate import Migrate,MigrateCommand
-from flask_script import Manager
 
 
 class CustomFlask(Flask):
@@ -23,8 +19,6 @@ class CustomFlask(Flask):
     ))
 
 
-
-
 def create_app(test_config=None):
     # Load .env file (create one if it doesn't exist)
     load_dotenv(os.path.join('../', '.env'))
@@ -35,12 +29,14 @@ def create_app(test_config=None):
                       template_folder='../../instance/dist')
     db_path = os.path.join(os.path.dirname(__file__), 'app.db')
     db_uri = 'sqlite:///{}'.format(db_path)
+    if test_config:
+        app.config.from_pyfile(os.path.join(os.path.dirname(__file__), test_config))
     app.config.from_mapping(
         SECRET_KEY=os.getenv('SECRET_KEY'),
         SQLALCHEMY_DATABASE_URI=db_uri,
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
     )
-
+    app.register_blueprint(api)
     db.init_app(app)
 
 
