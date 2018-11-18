@@ -2,6 +2,7 @@ import os
 import json
 import http
 import jwt
+import urllib.parse
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from backend.models import User, Document, Project, Result, Dataset, DocStatus, db
@@ -49,6 +50,32 @@ def api_project_get(project_id):
         return '', http.HTTPStatus.NO_CONTENT
     else:
         return jsonify(project)
+
+
+@api.route('/project/progress', methods=['GET'])
+def api_project_progress():
+    projects = Project.query.all()
+    if len(projects) == 0:
+        return '', http.HTTPStatus.NO_CONTENT
+    else:
+        result_json = {'projects': []}
+        for project in projects:
+            project_json = project.to_dict()
+            project_json['dataset_name'] = \
+                Dataset.query.filter_by(id=project.dataset_id).first().name
+            total_n_results = 0
+            total_total_exp_results = 0
+            for doc_status in project.doc_statuses:
+                n_results = len(Result.query.filter_by(id=doc_status.id).all())
+                total_n_results += n_results
+                total_total_exp_results += doc_status.totalExpResults
+            project_json['progress'] = total_n_results/total_total_exp_results
+            project_json['no'] = len(result_json['projects']) + 1
+            project_json['link'] = urllib.parse.urljoin(
+                request.host_url,
+                'project/{id}/get'.format(id=project_json['id']))
+            result_json['projects'].append(project_json)
+        return jsonify(result_json)
 
 
 @api.route('/dataset/<dataset_name>', methods=['GET'])

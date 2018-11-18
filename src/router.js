@@ -52,7 +52,7 @@ export default new Router({
       component: Status,
     },
     {
-      path: '/annotation',
+      path: '/annotation/:project_id',
       name: 'annotation',
       component: Annotation,
     },

@@ -5,6 +5,7 @@ from backend.models import db, User
 from backend.api import api
 from dotenv import load_dotenv
 from flask import Flask, render_template, jsonify, make_response, request
+from flask_debugtoolbar import DebugToolbarExtension
 
 
 class CustomFlask(Flask):
@@ -39,7 +40,7 @@ def create_app(test_config=None):
         )
     app.register_blueprint(api)
     db.init_app(app)
-
+    toolbar = DebugToolbarExtension(app)
 
     def token_required(f):
         @wraps(f)

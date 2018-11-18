@@ -42,15 +42,19 @@ export default {
   },
   methods: {
     createProject() {
-      // TODO: Error handling
       axios.post('/project', this.project)
         .then(() => {
           this.$toast.open({
             message: 'Project created!',
             type: 'is-success',
           });
+          this.$router.push('project/manage');
         })
         .catch((error) => {
+          this.$toast.open({
+            message: 'Project is not created! Something is wrong',
+            type: 'is-danger',
+          });
           console.log(error);
         });
     },
@@ -63,8 +67,9 @@ export default {
             message: 'There is no dataset in database. Please insert dataset first!',
             type: 'is-danger',
           });
+        } else {
+          this.dataset.names = response.data.names;
         }
-        this.dataset.names = response.data.names;
       })
       .catch((error) => {
         console.log(error);

@@ -24,3 +24,9 @@ def test_project_get_one(test_client, init_db):
     assert response.status_code == 200
 
 
+def test_project_get_progress(test_client, init_db):
+    response = test_client.get('/project/progress')
+    assert response.status_code == 200
+    assert len(response.get_json()['projects']) > 0
+    assert response.get_json()['projects'][0]['dataset_name'] == 'Sample_BBC'
+    assert 'progress' in response.get_json()['projects'][0]

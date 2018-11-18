@@ -63,6 +63,7 @@ class Project(db.Model):
     type = db.Column(db.String(25), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=False)
+    doc_statuses = db.relationship('DocStatus', backref='project', lazy=True)
 
     @classmethod
     def create_project(cls, **kwargs):
@@ -81,6 +82,9 @@ class Project(db.Model):
                 db.session.add(doc_status)
                 db.session.commit()
             return project
+
+    def to_dict(self):
+        return dict(id=self.id, name=self.name, type=self.type, created_at=self.created_at)
 
 
 class User(db.Model):
