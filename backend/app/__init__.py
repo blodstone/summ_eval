@@ -27,15 +27,16 @@ def create_app(test_config=None):
     app = CustomFlask(__name__, instance_relative_config=True,
                       static_folder='../../instance/dist/static',
                       template_folder='../../instance/dist')
-    db_path = os.path.join(os.path.dirname(__file__), 'app.db')
-    db_uri = 'sqlite:///{}'.format(db_path)
     if test_config:
         app.config.from_pyfile(os.path.join(os.path.dirname(__file__), test_config))
-    app.config.from_mapping(
-        SECRET_KEY=os.getenv('SECRET_KEY'),
-        SQLALCHEMY_DATABASE_URI=db_uri,
-        SQLALCHEMY_TRACK_MODIFICATIONS=True,
-    )
+    else:
+        db_path = os.path.join(os.path.dirname(__file__), 'app.db')
+        db_uri = 'sqlite:///{}'.format(db_path)
+        app.config.from_mapping(
+            SECRET_KEY=os.getenv('SECRET_KEY'),
+            SQLALCHEMY_DATABASE_URI=db_uri,
+            SQLALCHEMY_TRACK_MODIFICATIONS=True,
+        )
     app.register_blueprint(api)
     db.init_app(app)
 

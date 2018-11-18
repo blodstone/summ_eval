@@ -31,16 +31,15 @@ def api_document_get_one():
     return '', http.HTTPStatus.NO_CONTENT
 
 
-@api.route('/project/<dataset_name>/<totalExpResults>', methods=['POST'])
-def api_project_create(dataset_name, totalExpResults):
+@api.route('/project', methods=['POST'])
+def api_project_create():
     if request.method == 'POST':
         data = request.get_json()
-        project = Project.create_project(
-            dataset_name=dataset_name, totalExpResults=totalExpResults, **data)
+        project = Project.create_project(**data)
         if project:
             return '', http.HTTPStatus.CREATED
         else:
-            return '', http.HTTPStatus.NO_CONTENT
+            return '', http.HTTPStatus.CONFLICT
 
 
 @api.route('/project/<project_id>', methods=['GET'])
@@ -53,12 +52,25 @@ def api_project_get(project_id):
 
 
 @api.route('/dataset/<dataset_name>', methods=['GET'])
-def api_dataset_get(dataset_name):
+def api_dataset_get_single(dataset_name):
     dataset = Dataset.query.filter_by(name=dataset_name).first()
     if not dataset:
         return '', http.HTTPStatus.NO_CONTENT
     else:
         return jsonify(dataset.to_dict())
+
+
+@api.route('/dataset', methods=['GET'])
+def api_dataset_get_names():
+    datasets = Dataset.query.all()
+    if not datasets:
+        return '', http.HTTPStatus.NO_CONTENT
+    else:
+        result = dict()
+        result['names'] = []
+        for dataset in datasets:
+            result['names'].append(dataset.name)
+        return jsonify(result)
 
 
 @api.route('/doc_status/progress/<doc_status_id>', methods=['GET'])
@@ -69,6 +81,7 @@ def api_doc_status_progress(doc_status_id):
     n_results = len(Result.query.filter_by(id=doc_status.id).all())
     progress = "{0:.2f}".format(n_results/doc_status.totalExpResults)
     return jsonify(dict(progress=progress))
+
 
 @api.route('/json', methods=['POST'])
 def send_json():

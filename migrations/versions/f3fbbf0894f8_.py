@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: a65397100baf
+Revision ID: f3fbbf0894f8
 Revises: 
-Create Date: 2018-11-16 21:39:29.336730
+Create Date: 2018-11-18 00:07:22.054044
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a65397100baf'
+revision = 'f3fbbf0894f8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -40,7 +40,7 @@ def upgrade():
     )
     op.create_table('project',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('title', sa.String(length=255), nullable=False),
+    sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('type', sa.String(length=25), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('dataset_id', sa.Integer(), nullable=False),
@@ -50,10 +50,10 @@ def upgrade():
     op.create_table('doc_status',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('doc_id', sa.Integer(), nullable=False),
-    sa.Column('pro_id', sa.Integer(), nullable=False),
+    sa.Column('proj_id', sa.Integer(), nullable=False),
     sa.Column('totalExpResults', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['doc_id'], ['document.doc_id'], ),
-    sa.ForeignKeyConstraint(['pro_id'], ['project.id'], ),
+    sa.ForeignKeyConstraint(['proj_id'], ['project.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('result',
