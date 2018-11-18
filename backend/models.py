@@ -19,7 +19,7 @@ class Document(db.Model):
         if not doc_id:
             return None
         document = cls.query.filter_by(doc_id=doc_id).first()
-        return json.loads(document.json)
+        return document.doc_json
 
     def to_dict(self):
         return self.doc_json

@@ -32,6 +32,21 @@ def api_document_get_one():
     return '', http.HTTPStatus.NO_CONTENT
 
 
+@api.route('/project/<project_id>/single_doc', methods=['GET'])
+def api_project_single_doc(project_id):
+    project = Project.query.filter_by(id=project_id).first()
+    if not project:
+        return '', http.HTTPStatus.NO_CONTENT
+    else:
+        for doc_status in project.doc_statuses:
+            n_results = len(Result.query.filter_by(id=doc_status.id).all())
+            if doc_status.totalExpResults == n_results:
+                continue
+            else:
+                doc_json = Document.get_dict(doc_status.doc_id)
+                return jsonify(doc_json)
+
+
 @api.route('/project', methods=['POST'])
 def api_project_create():
     if request.method == 'POST':

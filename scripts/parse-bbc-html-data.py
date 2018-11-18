@@ -74,6 +74,7 @@ class ParseHtml:
       ' and not(contains(@class, "story-body__h1"))'
       ' and not(contains(@class, "story-body__introduction"))'
       ' and not(contains(@class, "with-extracted-share-icons"))'
+      ' and not(contains(@class, "twite"))'
     )
 
     # Rest Content Selector
@@ -190,7 +191,6 @@ if __name__ == "__main__":
     # url, corpus, htmldata
     story_title, story_introduction, story_restcontent = GenerateMapper((webarxivid, "bbc", htmldata))
 
-
     resultJSON = nlp.annotate(" ".join(story_restcontent.restcontent), properties=props)
     result = json.loads(resultJSON)
     result['doc_id'] = bbcid
@@ -214,7 +214,7 @@ if __name__ == "__main__":
       prevLen = len(result['paragraph']['endSentIndex']) - 1
       result['paragraph']['endSentIndex']\
         .append(len(sents['sentences']) + result['paragraph']['endSentIndex'][prevLen])
-    del result['paragraph']['endSentIndex'][0]
+    # del result['paragraph']['endSentIndex'][0]
     with (open(result_dir+"/"+bbcid+".data", "w")) as outfile:
       json.dump(result, outfile, sort_keys=False)
   nlp.close()

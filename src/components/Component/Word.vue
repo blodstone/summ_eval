@@ -19,7 +19,7 @@ export default {
     annotate() {
       this.chars.forEach((char, idx) => {
         this.chars[idx].$data.charStyle.color = '#ff00ff';
-        this.chars[idx].$data.charStyle['font-weight'] = 'normal';
+        this.chars[idx].$data.charStyle['font-weight'] = 'bold';
       });
     },
     resetAnnotation() {
