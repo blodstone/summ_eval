@@ -43,6 +43,14 @@ class Result(db.Model):
     result_json = db.Column(db.Text, nullable=False)
     status_id = db.Column(db.Integer, db.ForeignKey('doc_status.id'), nullable=False)
 
+    @classmethod
+    def create_result(cls, **kwargs):
+        result = Result(
+            result_json=json.dumps(kwargs['result_json']), status_id=kwargs['status_id'])
+        db.session.add(result)
+        db.session.commit()
+        return result
+
 
 class Dataset(db.Model):
     __tablename__ = 'dataset'

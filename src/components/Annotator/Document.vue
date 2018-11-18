@@ -3,6 +3,11 @@
         <div ref="document" v-on:mouseup="showHighlightMenu"
              @contextmenu.prevent="deleteHighlightGroup" v-on:click="showMentions">
         </div>
+        <hr>
+        <div align="center">
+            <a class="button is-primary" :disabled="timer.isRunning"
+                    v-on:click="saveAnnotation()">{{ timenow }}</a>
+        </div>
         <div v-bind:style="floatMenu">
             <img v-on:click="highlightSelection"
                  src="../../assets/highlight_menu.png"
@@ -17,10 +22,9 @@ import Char from '@/components/Component/Char.vue';
 import LineBreaker from '@/components/Component/LineBreaker.vue';
 import Vue from 'vue';
 
+const waitTimeForButton = 5;
 // const randomColor = require('randomcolor');
 const axios = require('axios');
-
-const waitTimeForButton = 5;
 
 function createAndMountWord(sent, token, wordIndex, isSourceAndCorefID) {
   const WordClass = Vue.extend(Word);
@@ -32,7 +36,6 @@ function createAndMountWord(sent, token, wordIndex, isSourceAndCorefID) {
       index: wordIndex,
       compIndex: this.components.length,
       type: 'word',
-      // eslint-disable-next-line
       isSource: isSourceAndCorefID.isSource,
     },
   });
@@ -169,7 +172,8 @@ function parseDoc(textJSON) {
 function getFile() {
   axios.get(`project/${this.project_id}/single_doc`)
     .then((response) => {
-      parseDoc.call(this, JSON.parse(response.data));
+      parseDoc.call(this, JSON.parse(response.data.doc_json));
+      this.doc_status_id = response.data.doc_status_id;
     })
     .catch((error) => {
       console.log(error);
@@ -177,9 +181,12 @@ function getFile() {
 }
 
 function sendResult(resultJSON) {
-  axios.post('save_annotation', resultJSON)
-    .then((response) => {
-      console.log(response);
+  axios.post('project/save_annotation', resultJSON)
+    .then(() => {
+      this.$toast.open({
+        message: 'Submission successful.',
+        type: 'is-success',
+      });
     })
     .catch((error) => {
       console.log(error);
@@ -259,13 +266,13 @@ export default {
   props: ['project_id'],
   data() {
     return {
+      doc_status_id: '',
       timer: {
         now: Math.trunc(new Date().getTime() / 1000),
         date: Math.trunc(new Date().getTime() / 1000),
         isRunning: true,
         timer: null,
       },
-
       components: [],
       // A collection of Word components
       words: {},
@@ -313,33 +320,37 @@ export default {
   methods: {
     saveAnnotation() {
       const resultJSON = {
-        highlights: {},
-        components: [],
-        words: [],
+        project_id: this.project_id,
+        status_id: this.doc_status_id,
+        result_json: {
+          highlights: {},
+          components: [],
+          words: [],
+        },
       };
       for (let i = 0; i < Object.keys(this.groups).length; i += 1) {
         const key = Object.keys(this.groups)[i];
         let text = '';
-        resultJSON.highlights[key] = {
+        resultJSON.result_json.highlights[key] = {
           indexes: [],
         };
         for (let j = 0; j < this.groups[key].length; j += 1) {
           const component = this.groups[key][j];
           if (component.$props.type === 'word') {
             text = `${text} ${component.$props.word}`.trim();
-            resultJSON.highlights[key].indexes.push(component.$props.index);
+            resultJSON.result_json.highlights[key].indexes.push(component.$props.index);
           }
         }
-        resultJSON.highlights[key].text = text;
+        resultJSON.result_json.highlights[key].text = text;
       }
       for (let i = 0; i < this.components.length; i += 1) {
         if (this.components[i].type === 'word') {
-          resultJSON.components.push({
+          resultJSON.result_json.components.push({
             type: this.components[i].type,
             word: this.components[i].word,
           });
         } else {
-          resultJSON.components.push({
+          resultJSON.result_json.components.push({
             type: this.components[i].type,
             word: ' ',
           });
@@ -347,7 +358,7 @@ export default {
       }
       for (let i = 0; i < Object.keys(this.words).length; i += 1) {
         const wordIndex = Object.keys(this.words)[i];
-        resultJSON.words[wordIndex] = {
+        resultJSON.result_json.words[wordIndex] = {
           word: this.words[wordIndex].word,
         };
       }

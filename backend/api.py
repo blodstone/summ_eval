@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from backend.models import User, Document, Project, Result, Dataset, DocStatus, db
 
-api = Blueprint('api', 'api', url_prefix='', static_folder='../../instance/dist/static')
+api = Blueprint('api', 'api', url_prefix='', static_folder='/instance/dist/static')
 
 
 # API
@@ -44,7 +44,8 @@ def api_project_single_doc(project_id):
                 continue
             else:
                 doc_json = Document.get_dict(doc_status.doc_id)
-                return jsonify(doc_json)
+                return jsonify(dict(doc_json=doc_json,
+                                    doc_status_id=doc_status.id))
 
 
 @api.route('/project', methods=['POST'])
@@ -65,6 +66,16 @@ def api_project_get(project_id):
         return '', http.HTTPStatus.NO_CONTENT
     else:
         return jsonify(project)
+
+
+@api.route('/project/save_annotation', methods=['POST'])
+def save_annotation():
+    data = request.get_json()
+    result = Result.create_result(**data)
+    if result:
+        return '', http.HTTPStatus.CREATED
+    else:
+        return '', http.HTTPStatus.CONFLICT
 
 
 @api.route('/project/progress', methods=['GET'])
@@ -132,15 +143,7 @@ def send_json():
     return jsonify(data)
 
 
-@api.route('/save_annotation', methods=['POST'])
-def save_annotation():
-    result = request.get_json('highlights')
-    if result:
-        file = open(os.path.join(api.static_folder, "gold_doc/annotated.json"), "w")
-        json.dump(result, file, sort_keys=False, indent=2)
-    else:
-        print('Empty result')
-    return '', 204
+
 
 
 @api.route('/register/', methods=['POST'])

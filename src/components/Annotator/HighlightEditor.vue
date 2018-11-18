@@ -31,11 +31,8 @@
             <h2>Summary</h2>
             <h4 class="my-title">Words left</h4>
             <p>{{wordsLeft}} words.</p>
-            <h5 class="my-title">Phrases:</h5>
+            <h5 class="my-title">Phrases that you've selected:</h5>
             <p v-html="summaries"></p>
-            <!--<p class="my-text" v-html="rawSummariesHTML"></p>-->
-            <!--<button class="is-primary" :disabled="timer.isRunning"-->
-                    <!--v-on:click="saveAnnotation()">{{ timenow }}</button>-->
           </div>
         </div>
       </div>
@@ -47,8 +44,6 @@
 /* eslint no-unused-vars: ["error", { "args": "none" }] */
 /* eslint no-continue: "off" */
 import Document from '@/components/Annotator/Document.vue';
-
-
 // const randomColor = require('randomcolor');
 
 export default {
@@ -76,21 +71,15 @@ export default {
 <style scoped lang="scss">
 .document {
   font-family: 'Lora', serif;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   line-height: 1.5rem;
 }
-.words-left {
-  font-family: 'Lora', serif;
-  font-size: 21px;
-  line-height: 33px;
-  padding-right: 40px;
-}
 .my-title {
-    font-size: 0.9rem;
+    font-size: 1rem;
     text-decoration: underline;
 }
 .my-text {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 .summary {
     position: sticky;
