@@ -35,21 +35,8 @@
       }
     ]
   },
-  "paragraphs": {
+  "paragraph": {
     "endSentIndex":[3, 5, 8]
   },
-  "annotations": {
-    "highlights": {
 
-    },
-    "components": [
-      {
-        "type": "word",
-        "word": "U.S"
-      }
-    ],
-    "words": {
-      "1": "U.S",
-    }
-  }
 }
