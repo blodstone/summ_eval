@@ -8,6 +8,7 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
+
 @manager.shell
 def shell_ctx():
     return dict(app=app,

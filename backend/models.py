@@ -34,6 +34,7 @@ class DocStatus(db.Model):
     totalExpResults = db.Column(db.Integer, nullable=False)
     results = db.relationship('Result', backref='doc_status', lazy=True)
 
+
 class Result(db.Model):
     __tablename__ = 'result'
 
@@ -58,26 +59,29 @@ class Project(db.Model):
     __tablename__ = 'project'
 
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
-    title = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(25), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=False)
 
     @classmethod
-    def create_project(cls, dataset_name, totalExpResults, **kwargs):
-        dataset = Dataset.query.filter_by(name=dataset_name).first()
+    def create_project(cls, **kwargs):
+        dataset = Dataset.query.filter_by(name=kwargs['dataset_name']).first()
         if not dataset:
             return None
         else:
-            project = Project(title=kwargs['title'], type=kwargs['type'], dataset_id=dataset.id)
+            project = Project(name=kwargs['name'], type=kwargs['type'], dataset_id=dataset.id)
             db.session.add(project)
             db.session.commit()
             for document in dataset.documents:
                 doc_status = DocStatus(
-                    proj_id=project.id, doc_id=document.doc_id, totalExpResults=totalExpResults)
+                    proj_id=project.id,
+                    doc_id=document.doc_id,
+                    totalExpResults=kwargs['totalExpResults'])
                 db.session.add(doc_status)
                 db.session.commit()
             return project
+
 
 class User(db.Model):
     __tablename__ = 'user'

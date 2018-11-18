@@ -6,7 +6,11 @@ import SurveyForm from './views/SurveyForm.vue';
 import Login from './views/Login.vue';
 import Home from './views/Home.vue';
 import ManageProject from './components/Home/ManageProject.vue';
+import NewProject from './components/Home/NewProject.vue';
 import Status from './components/Home/Status.vue';
+import Highlight from './components/Home/NewProject/Highlight.vue';
+import Evaluation from './components/Home/NewProject/Evaluation.vue';
+import Fluency from './components/Home/NewProject/Fluency.vue';
 
 Vue.use(Router);
 
@@ -16,16 +20,36 @@ export default new Router({
       path: '/',
       name: 'home',
       component: Home,
+    },
+    {
+      path: '/new',
+      component: NewProject,
       children: [
         {
-          path: 'manage',
-          component: ManageProject,
+          path: '',
+          component: Highlight,
         },
         {
-          path: 'status',
-          component: Status,
+          path: 'highlight',
+          component: Highlight,
+        },
+        {
+          path: 'evaluation',
+          component: Evaluation,
+        },
+        {
+          path: 'fluency',
+          component: Fluency,
         },
       ],
+    },
+    {
+      path: '/manage',
+      component: ManageProject,
+    },
+    {
+      path: '/status',
+      component: Status,
     },
     {
       path: '/annotation',
