@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from backend.models import User, Document, Project, Result, Dataset, DocStatus, db
 
-api = Blueprint('api', 'api', url_prefix='', static_folder='/instance/dist/static')
+api = Blueprint('api', 'api', url_prefix='', static_folder='../../instance/dist/static')
 
 
 # API
