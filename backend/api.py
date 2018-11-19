@@ -14,7 +14,7 @@ api = Blueprint('api', 'api', url_prefix='', static_folder='../../instance/dist/
 @api.route('/document/<doc_id>', methods=['GET'])
 def api_document_get(doc_id):
     if request.method == 'GET':
-        doc_json = Document.get_dict(doc_id)
+        doc_json = json.dumps(Document.get_dict(doc_id))
         if doc_json:
             return jsonify(doc_json), http.HTTPStatus.Ok
 
@@ -43,7 +43,7 @@ def api_project_single_doc(project_id):
             if doc_status.total_exp_results == n_results:
                 continue
             else:
-                doc_json = Document.get_dict(doc_status.doc_id)
+                doc_json = json.dumps(Document.get_dict(doc_status.doc_id))
                 return jsonify(dict(doc_json=doc_json,
                                     doc_status_id=doc_status.id))
 
