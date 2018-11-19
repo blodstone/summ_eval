@@ -1,54 +1,72 @@
 <template>
-    <div>
-        <header>
-          <nav class="navbar fixed-top">
-            <a class="navbar-brand" href="#">Manual Evaluation: Assessment Form</a>
-          </nav>
-        </header>
-        <div class="card instruction">
-          <div class="card-header my-header">
-              Instructions
-          </div>
-            <!-- eslint-disable -->
-          <div class="card-body">
-            <h5 class="card-title my-title">Task Description</h5>
-            <p class="card-text my-text">Your task is to assess the quality of the summary based on the article.</p>
-          </div>
-            <!-- eslint-enable -->
-        </div>
-        <div class="d-flex flex-row justify-content-center">
-            <div ref="document" class='p-2 col-lg-5 document'>
+    <div class="container is-fluid">
+        <div class="columns">
+            <div class="column is-3">
+                <div class="box instruction">
+                    <div class="content">
+                        <h2>
+                            Instructions
+                        </h2>
+                        <!-- eslint-disable -->
+                        <h5 class="my-title">Task Description</h5>
+                        <p class="my-text">Your task is to assess the quality of the summary based on the article.</p>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="card summary">
-          <div class="card-header my-header">
-              Summary To Be Assessed
-          </div>
-            <!-- eslint-disable -->
-          <div class="card-body">
-            <p class="card-text my-text">u.s and european officials may impose a 4th round of sanctions on tehran when the u.n , security council considers the issue of iran 's nuclear energy program most likely in september 2007 .</p>
-          </div>
-            <!-- eslint-enable -->
-        </div>
-        <div class="card assessment">
-          <div class="card-header my-header">
-              Your Assessment
-          </div>
-            <!-- eslint-disable -->
-          <div class="card-body">
-            <h5 class="card-title my-title">Information Coverage</h5>
-            <p class="card-text my-text">Is the summary missing information from the document?</p>
-            <label for="" class="float-left">Everything is missing</label>
-              <label for="" class="float-right">Nothing is missing</label>
-              <input type="range" min="1" max="100" value=50 class="slider">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title my-title">Information Redundancy</h5>
-            <p class="card-text my-text"> How much of the information in the summary is not important?</p>
-            <label for="" class="float-left">Everything is not important</label>
-              <label for="" class="float-right">Nothing is not importang</label>
-              <input type="range" min="1" max="100" value=50 cl3ass="slider">
-          </div>
+            <div class="column">
+                <div class="box document">
+                    <div ref="document">
+                    </div>
+                </div>
+            </div>
+            <div class="column is-3">
+                <div class="box summary">
+                    <div class="content">
+                        <h1>Assessment</h1>
+                        <h5 class="my-header">Summary to be assessed</h5>
+                        <p class="my-text">summary</p>
+                        <hr>
+                        <h5 class="my-header">
+                            Your Assessment
+                        </h5>
+                        <h5 class="my-title">Question #1</h5>
+                        <p class="my-text"> Is the summary missing important information?</p>
+                        <p class="my-text">
+                            <strong>{{ coverage }} % </strong> of information is missing
+                        </p>
+                        <div class="level" align="center">
+                            <span class="level-left">
+                                <label class="label is-small">Nothing is <br> missing</label>
+                            </span>
+                            <span class="level-item">
+                            <input type="range" min="0" max="100"
+                                   v-model="coverage" class="my-slider slider is-info is-fullwidth ">
+                            </span>
+                            <span class="level-right">
+                                <label class="label is-small">Everything <br> is missing</label>
+                            </span>
+                        </div>
+                        <h5 class="my-title">Question #2</h5>
+                        <p class="my-text"> Does the summary contain only important information?</p>
+                        <p class="my-text">
+                            <strong>{{ redundancy }} % </strong> of information is important
+                        </p>
+                        <div class="level" align="center">
+                            <span class="level-left">
+                                <label class="label is-small">Nothing is <br> important</label>
+                            </span>
+                            <span class="level-item">
+                            <input type="range" min="0" max="100"
+                                   v-model="redundancy" class="my-slider slider is-info is-fullwidth ">
+                            </span>
+                            <span class="level-right">
+                                <label class="label is-small">Everything <br> is important</label>
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
             <!-- eslint-enable -->
         </div>
     </div>
@@ -57,6 +75,7 @@
 <script>
 import Word from '@/components/Component/Word.vue';
 import Char from '@/components/Component/Char.vue';
+import LineBreaker from '@/components/Component/LineBreaker.vue';
 import Vue from 'vue';
 
 // const randomColor = require('randomcolor');
@@ -64,43 +83,101 @@ const axios = require('axios');
 
 // const waitTimeForButton = 1;
 
-function createAndMountWord(wordText, wordIndex) {
+
+function createAndMountWord(sent, token, wordIndex, opacities) {
   const WordClass = Vue.extend(Word);
   const word = new WordClass({
     propsData: {
-      word: wordText,
+      sentIndex: sent.index,
+      tokenIndex: token.index,
+      word: token.word,
       index: wordIndex,
+      compIndex: this.components.length,
       type: 'word',
     },
   });
   word.$mount();
-  this.words[this.words.length] = word;
+  this.components.push(word);
+  if (this.components.length in opacities) {
+    word.highlight('#ff0000', opacities[this.components.length]);
+  }
+  this.words[wordIndex] = word;
+  this.words2Groups[wordIndex] = [];
   this.$refs.document.appendChild(word.$el);
 }
 
-function createAndMountWhitespace(whitespaceIndex) {
+function createAndMountWhitespace(whitespace, whitespaceIndex, opacities) {
   const CharClass = Vue.extend(Char);
   const char = new CharClass({
     propsData: {
       bgColor: '#ffffff',
       type: 'whitespace',
       index: whitespaceIndex,
+      compIndex: this.components.length,
     },
   });
-  char.$slots.default = [' '];
+  char.$slots.default = [whitespace];
   char.$mount();
+  this.components.push(char);
+  if (this.components.length in opacities) {
+    char.highlight('#ff0000', opacities[this.components.length]);
+  }
   this.whitespaces[whitespaceIndex] = char;
+  this.whitespaces2Groups[whitespaceIndex] = [];
   this.$refs.document.appendChild(char.$el);
 }
 
-function parseDoc(textJSON) {
-  for (let i = 0; i < textJSON.components.length; i += 1) {
-    const comp = textJSON.components[i];
-    if (comp.type === 'word') {
-      createAndMountWord.call(this, comp.word, i);
+function createAndMountLineBreaker() {
+  const LineBreakerClass = Vue.extend(LineBreaker);
+  const lineBreaker = new LineBreakerClass();
+  lineBreaker.$mount();
+  this.$refs.document.appendChild(lineBreaker.$el);
+}
+
+function collectAndCountHighlight(results) {
+  const opacities = {};
+  let max = -1;
+  for (let i = 0; i < Object.keys(results).length; i += 1) {
+    const result = results[Object.keys(results)[i]];
+    for (let j = 0; j < Object.keys(result.highlights).length; j += 1) {
+      const highlight = result.highlights[Object.keys(result.highlights)[j]];
+      for (let k = 0; k < highlight.indexes.length; k += 1) {
+        if (Object.keys(opacities).includes(highlight.indexes[k])) {
+          opacities[highlight.indexes[k]] += 1;
+        } else {
+          opacities[highlight.indexes[k]] = 1;
+        }
+        if (opacities[highlight.indexes[k]] > max) {
+          max = opacities[highlight.indexes[k]];
+        }
+      }
     }
-    if (comp.type === 'whitespace') {
-      createAndMountWhitespace.call(this, comp.word, i);
+  }
+  for (let i = 0; i < Object.keys(opacities).length; i += 1) {
+    opacities[Object.keys(opacities)[i]] /= max;
+  }
+  return opacities;
+}
+
+function parseDoc(textJSON) {
+  const opacities = collectAndCountHighlight(textJSON.results);
+  let wordIndex = 0;
+  let whitespaceIndex = 0;
+  const { endSentIndex } = textJSON.paragraph;
+  for (let i = 0; i < textJSON.sentences.length; i += 1) {
+    const sent = textJSON.sentences[i];
+    for (let j = 0; j < sent.tokens.length; j += 1) {
+      const token = sent.tokens[j];
+      createAndMountWord.call(this, sent, token, wordIndex, opacities);
+      // check is last element
+      if (j !== sent.tokens.length - 2) {
+        createAndMountWhitespace.call(this, ' ', whitespaceIndex, opacities);
+        whitespaceIndex += 1;
+      }
+      wordIndex += 1;
+    }
+    if (endSentIndex.includes(sent.index + 1)) {
+      createAndMountLineBreaker.call(this);
     }
   }
 }
@@ -117,13 +194,16 @@ function highlightDoc(textJSON) {
 }
 
 function getFile() {
-  axios.post('annotation_json')
+  axios.get(`project/${this.project_id}/single_doc`)
     .then((response) => {
-      parseDoc.call(this, response.data);
-      highlightDoc.call(this, response.data);
+      parseDoc.call(this, JSON.parse(response.data.doc_json));
+      this.doc_status_id = response.data.doc_status_id;
     })
     .catch((error) => {
-      console.log(error);
+      this.$toast.open({
+        message: `${error}`,
+        type: 'is-danger',
+      });
     });
 }
 
@@ -131,8 +211,18 @@ export default {
   name: 'InformativenessEval',
   data() {
     return {
+      components: [],
+      // A collection of Word components
       words: {},
+      // A collection of Char components
       whitespaces: {},
+      // A mapping of whitespace index to group index
+      whitespaces2Groups: {},
+      // A mapping of word index to group index
+      words2Groups: {},
+      redundancy: 50,
+      coverage: 50,
+      project_id: this.$route.params.project_id,
     };
   },
   mounted: function onMounted() {
@@ -144,68 +234,27 @@ export default {
 <style scoped>
 .document {
   font-family: 'Lora', serif;
-  font-size: 21px;
-  line-height: 33px;
+  font-size: 1.2rem;
+  line-height: 1.5rem;
 }
 .summary {
-    position: fixed;
-    top: 70px;
-    left: 1400px;
-    width: 450px;
-}
-.assessment {
-    position: fixed;
-    top: 300px;
-    left: 1400px;
-    width: 450px;
+  position: sticky;
+  position: -webkit-sticky;
+  top: 70px;
 }
 .instruction {
-  position: fixed;
+  position: sticky;
+  position: -webkit-sticky;
   top: 70px;
-  left: 20px;
-  width: 450px;
 }
 .my-header {
-  font-size: 20px;
+  font-size: 1.1rem;
 }
 .my-title {
-    font-size: 18px;
+    font-size: 1rem;
     text-decoration: underline;
 }
 .my-text {
-    font-size: 16px;
-}
-/* The slider itself */
-.slider {
-    -webkit-appearance: none;  /* Override default CSS styles */
-    appearance: none;
-    width: 100%; /* Full-width */
-    height: 25px; /* Specified height */
-    background: #d3d3d3; /* Grey background */
-    outline: none; /* Remove outline */
-    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-    transition: opacity .2s;
-}
-
-/* Mouse-over effects */
-.slider:hover {
-    opacity: 1; /* Fully shown on mouse-over */
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Override default look */
-    appearance: none;
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
-    background: #4CAF50; /* Green background */
-    cursor: pointer; /* Cursor on hover */
-}
-
-.slider::-moz-range-thumb {
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
-    background: #4CAF50; /* Green background */
-    cursor: pointer; /* Cursor on hover */
+    font-size: 0.9rem;
 }
 </style>

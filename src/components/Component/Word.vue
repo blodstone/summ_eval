@@ -37,14 +37,16 @@ export default {
         });
       }
     },
-    highlight(color) {
+    highlight(color, opacity = 1.0) {
       this.chars.forEach((char, idx) => {
         this.chars[idx].$data.charStyle['background-color'] = color;
+        this.chars[idx].$data.charStyle.opacity = opacity;
       });
     },
     rmHighlight() {
       this.chars.forEach((char, idx) => {
         this.chars[idx].$data.charStyle['background-color'] = '#ffffff';
+        this.chars[idx].$data.charStyle.opacity = 1.0;
       });
     },
   },

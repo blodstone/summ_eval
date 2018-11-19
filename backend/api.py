@@ -39,13 +39,14 @@ def api_project_single_doc(project_id):
         return '', http.HTTPStatus.NO_CONTENT
     else:
         for doc_status in project.doc_statuses:
-            n_results = len(Result.query.filter_by(id=doc_status.id).all())
+            n_results = len(Result.query.filter_by(status_id=doc_status.id).all())
             if doc_status.total_exp_results == n_results:
                 continue
             else:
                 doc_json = json.dumps(Document.get_dict(doc_status.doc_id))
                 return jsonify(dict(doc_json=doc_json,
                                     doc_status_id=doc_status.id))
+        return '', http.HTTPStatus.NO_CONTENT
 
 
 @api.route('/project', methods=['POST'])
@@ -88,7 +89,7 @@ def api_project_close(project_id):
             results = Result.query.filter_by(status_id=doc_status.id).all()
             results_json = {}
             for result in results:
-                results_json[result.id] = result.result_json
+                results_json[result.id] = json.loads(result.result_json)
             if len(results_json) != 0:
                 Document.add_results(doc_status.doc_id, results_json)
                 DocStatus.close(doc_status.id)
