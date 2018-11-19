@@ -4,12 +4,22 @@
             <div class="column is-3">
                 <div class="box instruction">
                     <div class="content">
-                        <h2>
-                            Instructions
-                        </h2>
+                        <h1>
+                            Instructions & Controls
+                        </h1>
                         <!-- eslint-disable -->
+                        <h5 class="my-header">Instruction</h5>
                         <h5 class="my-title">Task Description</h5>
                         <p class="my-text">Your task is to assess the quality of the summary based on the article.</p>
+                        <hr>
+                        <h5 class="my-header">Controls</h5>
+                        <h5 class="my-title">Heatmap</h5>
+                        <p class="my-text">Phrases that are important in the document have been marked using heatmap coloring. The higher the intensity the greater the phrases' importance. You can view certain intensities range by changing the slider below.</p>
+                        <div style="margin-bottom: 1.8rem; margin-top: 1.8rem">
+                            <vue-slider v-model="intensitySlider.value"
+                                        v-bind="intensitySlider.options"
+                                        v-on:input="on_slider_input"></vue-slider>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -77,6 +87,7 @@ import Word from '@/components/Component/Word.vue';
 import Char from '@/components/Component/Char.vue';
 import LineBreaker from '@/components/Component/LineBreaker.vue';
 import Vue from 'vue';
+import vueSlider from 'vue-slider-component';
 
 // const randomColor = require('randomcolor');
 const axios = require('axios');
@@ -84,7 +95,7 @@ const axios = require('axios');
 // const waitTimeForButton = 1;
 
 
-function createAndMountWord(sent, token, wordIndex, opacities) {
+function createAndMountWord(sent, token, wordIndex) {
   const WordClass = Vue.extend(Word);
   const word = new WordClass({
     propsData: {
@@ -98,15 +109,12 @@ function createAndMountWord(sent, token, wordIndex, opacities) {
   });
   word.$mount();
   this.components.push(word);
-  if (this.components.length in opacities) {
-    word.highlight('#ff0000', opacities[this.components.length]);
-  }
   this.words[wordIndex] = word;
   this.words2Groups[wordIndex] = [];
   this.$refs.document.appendChild(word.$el);
 }
 
-function createAndMountWhitespace(whitespace, whitespaceIndex, opacities) {
+function createAndMountWhitespace(whitespace, whitespaceIndex) {
   const CharClass = Vue.extend(Char);
   const char = new CharClass({
     propsData: {
@@ -119,9 +127,6 @@ function createAndMountWhitespace(whitespace, whitespaceIndex, opacities) {
   char.$slots.default = [whitespace];
   char.$mount();
   this.components.push(char);
-  if (this.components.length in opacities) {
-    char.highlight('#ff0000', opacities[this.components.length]);
-  }
   this.whitespaces[whitespaceIndex] = char;
   this.whitespaces2Groups[whitespaceIndex] = [];
   this.$refs.document.appendChild(char.$el);
@@ -134,33 +139,49 @@ function createAndMountLineBreaker() {
   this.$refs.document.appendChild(lineBreaker.$el);
 }
 
-function collectAndCountHighlight(results) {
-  const opacities = {};
-  let max = -1;
+function getIntensities(results) {
   for (let i = 0; i < Object.keys(results).length; i += 1) {
     const result = results[Object.keys(results)[i]];
     for (let j = 0; j < Object.keys(result.highlights).length; j += 1) {
       const highlight = result.highlights[Object.keys(result.highlights)[j]];
       for (let k = 0; k < highlight.indexes.length; k += 1) {
-        if (Object.keys(opacities).includes(highlight.indexes[k])) {
-          opacities[highlight.indexes[k]] += 1;
+        if ((highlight.indexes[k] in this.highlight.intensities)) {
+          this.highlight.intensities[highlight.indexes[k]] += 1;
         } else {
-          opacities[highlight.indexes[k]] = 1;
+          this.highlight.intensities[highlight.indexes[k]] = 0;
         }
-        if (opacities[highlight.indexes[k]] > max) {
-          max = opacities[highlight.indexes[k]];
+        if (this.highlight.intensities[highlight.indexes[k]] > this.highlight.max) {
+          this.highlight.max = this.highlight.intensities[highlight.indexes[k]];
         }
       }
     }
   }
-  for (let i = 0; i < Object.keys(opacities).length; i += 1) {
-    opacities[Object.keys(opacities)[i]] /= max;
+  for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
+    this.highlight.intensities[Object.keys(this.highlight.intensities)[i]] /= this.highlight.max;
   }
-  return opacities;
+  // Slider setting
+  for (let i = 0; i <= this.highlight.max; i += 1) {
+    this.intensitySlider.options.data.push(i);
+  }
+  this.intensitySlider.value = [0, this.highlight.max];
+}
+
+function redrawHighlight() {
+  for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
+    const index = parseInt(Object.keys(this.highlight.intensities)[i], 10);
+    const intensity = this.highlight.intensities[Object.keys(this.highlight.intensities)[i]];
+    const nLow = this.intensitySlider.value[0] / this.highlight.max;
+    const nHigh = this.intensitySlider.value[1] / this.highlight.max;
+    if (intensity <= nHigh && intensity >= nLow) {
+      this.components[index].highlight(`rgba(255, ${255 - (intensity * 255)}, 0)`);
+    } else {
+      this.components[index].rmHighlight();
+    }
+  }
 }
 
 function parseDoc(textJSON) {
-  const opacities = collectAndCountHighlight(textJSON.results);
+  getIntensities.call(this, textJSON.results);
   let wordIndex = 0;
   let whitespaceIndex = 0;
   const { endSentIndex } = textJSON.paragraph;
@@ -168,27 +189,16 @@ function parseDoc(textJSON) {
     const sent = textJSON.sentences[i];
     for (let j = 0; j < sent.tokens.length; j += 1) {
       const token = sent.tokens[j];
-      createAndMountWord.call(this, sent, token, wordIndex, opacities);
+      createAndMountWord.call(this, sent, token, wordIndex);
       // check is last element
       if (j !== sent.tokens.length - 2) {
-        createAndMountWhitespace.call(this, ' ', whitespaceIndex, opacities);
+        createAndMountWhitespace.call(this, ' ', whitespaceIndex);
         whitespaceIndex += 1;
       }
       wordIndex += 1;
     }
     if (endSentIndex.includes(sent.index + 1)) {
       createAndMountLineBreaker.call(this);
-    }
-  }
-}
-
-function highlightDoc(textJSON) {
-  for (let i = 0; i < Object.keys(textJSON.highlights).length; i += 1) {
-    const key = Object.keys(textJSON.highlights)[i];
-    const highlight = textJSON.highlights[key];
-    for (let j = 0; j < highlight.indexes.length; j += 1) {
-      const index = highlight.indexes[j];
-      this.words[index].highlight('#ff0000');
     }
   }
 }
@@ -207,10 +217,62 @@ function getFile() {
     });
 }
 
+function getColor(val) {
+  return 255 - ((val / this.highlight.max) * 255);
+}
+
 export default {
   name: 'InformativenessEval',
+  components: {
+    vueSlider,
+  },
+  methods: {
+    on_slider_input() {
+      const first = getColor.call(this, this.intensitySlider.value[0]);
+      const second = getColor.call(this, this.intensitySlider.value[1]);
+      this.intensitySlider.options.processStyle.backgroundImage =
+        `-webkit-linear-gradient(left, rgba(255,${first},0,1), rgba(255,${second},0,1))`;
+      this.intensitySlider.options.sliderStyle = [
+        {
+          backgroundColor: `rgba(255,${first},0,1)`,
+        },
+        {
+          backgroundColor: `rgba(255,${second},0,1)`,
+        }];
+      redrawHighlight.call(this);
+    },
+  },
   data() {
     return {
+      highlight: {
+        intensities: {},
+        max: -1,
+      },
+      intensitySlider: {
+        value: [0, 2],
+        options: {
+          tooltip: 'always',
+          tooltipDir: [
+            'bottom',
+            'top',
+          ],
+          piecewise: false,
+          piecewiseLabel: true,
+          data: [],
+          sliderStyle: [
+            {
+              backgroundColor: 'rgba(255,255,0,1)',
+            },
+            {
+              backgroundColor: 'rgba(255,0,0,1)',
+            },
+          ],
+          processStyle: {
+            backgroundImage:
+              '-webkit-linear-gradient(left, rgba(255,255,0,1), rgba(255,0,0,1))',
+          },
+        },
+      },
       components: [],
       // A collection of Word components
       words: {},
