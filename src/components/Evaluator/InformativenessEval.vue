@@ -59,10 +59,10 @@ import Word from '@/components/Component/Word.vue';
 import Char from '@/components/Component/Char.vue';
 import Vue from 'vue';
 
-const randomColor = require('randomcolor');
+// const randomColor = require('randomcolor');
 const axios = require('axios');
 
-const waitTimeForButton = 1;
+// const waitTimeForButton = 1;
 
 function createAndMountWord(wordText, wordIndex) {
   const WordClass = Vue.extend(Word);
@@ -128,7 +128,7 @@ function getFile() {
 }
 
 export default {
-  name: 'Survey',
+  name: 'InformativenessEval',
   data() {
     return {
       words: {},

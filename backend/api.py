@@ -136,16 +136,6 @@ def api_doc_status_progress(doc_status_id):
     return jsonify(dict(progress=progress))
 
 
-@api.route('/json', methods=['POST'])
-def send_json():
-    file = open(os.path.join(api.static_folder, "gold_doc/doc.json"), "r")
-    data = json.load(file)
-    return jsonify(data)
-
-
-
-
-
 @api.route('/register/', methods=['POST'])
 def register():
     data = request.get_json()

@@ -1,16 +1,16 @@
 <template>
   <div class='container, home'>
-    <Survey/>
+    <Informativeness/>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import Survey from '@/components/Survey/Survey.2.vue';
+import Informativeness from '@/components/Evaluator/InformativenessEval.vue';
 
 export default {
   components: {
-    Survey,
+    Informativeness,
   },
 };
 </script>

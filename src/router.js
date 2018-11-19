@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import store from './store';
 import Annotation from './views/Annotation.vue';
-import SurveyForm from './views/SurveyForm.vue';
+import Informativeness from './views/Informativeness.vue';
 import Login from './views/Login.vue';
 import Home from './views/Home.vue';
 import ManageProject from './components/Home/ManageProject.vue';
@@ -57,9 +57,9 @@ export default new Router({
       component: Annotation,
     },
     {
-      path: '/survey',
-      name: 'surveyForm',
-      component: SurveyForm,
+      path: '/evaluation',
+      name: 'evaluation',
+      component: Informativeness,
       beforeEnter(to, from, next) {
         if (!store.getters.isAuthenticated) {
           next('/login');
