@@ -8,7 +8,7 @@ def test_doc_status(test_client, init_db):
                                     name='Test_Doc_Status',
                                     dataset_name='Sample_BBC',
                                     type='highlight',
-                                    totalExpResults=3)
+                                    total_exp_results=3)
                                 ),
                                 content_type='application/json'
                                 )

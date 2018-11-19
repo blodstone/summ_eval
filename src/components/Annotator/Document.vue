@@ -176,7 +176,10 @@ function getFile() {
       this.doc_status_id = response.data.doc_status_id;
     })
     .catch((error) => {
-      console.log(error);
+      this.$toast.open({
+        message: `${error}`,
+        type: 'is-danger',
+      });
     });
 }
 
@@ -189,7 +192,10 @@ function sendResult(resultJSON) {
       });
     })
     .catch((error) => {
-      console.log(error);
+      this.$toast.open({
+        message: `${error}`,
+        type: 'is-danger',
+      });
     });
 }
 

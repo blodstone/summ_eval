@@ -1,6 +1,6 @@
 <template>
     <div>
-        <label class="label">Create Project for Highlighting Annotation</label>
+        <label class="label">Create Project for Informativeness Evaluation</label>
         <b-field horizontal label="Name" message="Please enter the project name">
             <b-input name="name" expanded v-model="project.name"></b-input>
         </b-field>
@@ -12,7 +12,7 @@
             </b-select>
         </b-field>
             <!--TODO: Handling error when user input 0-->
-        <b-field horizontal label="# of annotation" message="Number of annotation per document">
+        <b-field horizontal label="# of evaluation" message="Number of evaluation per document">
             <b-input name="total_exp_results"
                      v-model.number="project.total_exp_results" type="number"></b-input>
         </b-field>
@@ -29,7 +29,7 @@
 const axios = require('axios');
 
 export default {
-  name: 'Highlight',
+  name: 'Informativeness',
   data() {
     return {
       dataset: {
@@ -38,7 +38,7 @@ export default {
       project: {
         name: '',
         dataset_name: '',
-        type: 'Highlight',
+        type: 'Informativeness',
         total_exp_results: 1,
       },
     };
@@ -62,7 +62,7 @@ export default {
         });
     },
   },
-  beforeCreate() {
+  mounted() {
     axios.get('dataset')
       .then((response) => {
         if (response.status === 204) {

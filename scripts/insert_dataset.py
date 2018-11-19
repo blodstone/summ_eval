@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 def init_dataset(db):
-    dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset/xsum-extracts-from-downloads'
+    dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_Single/xsum-extracts-from-downloads'
     dataset = Dataset(name='Sample_BBC')
     db.session.add(dataset)
     db.session.commit()

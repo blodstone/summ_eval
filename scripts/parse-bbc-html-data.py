@@ -163,10 +163,10 @@ def get_download_file_name(url):
   return htmlfileid
 
 if __name__ == "__main__":
-  download_dir = "/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset"
-  map_webarxiv_bbcid_file = "/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset/BBCids.txt"
+  download_dir = "/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_Single"
+  map_webarxiv_bbcid_file = "/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_Single/BBCids.txt"
 
-  result_dir = "/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset/xsum-extracts-from-downloads"
+  result_dir = "/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_Single/xsum-extracts-from-downloads"
 
 
   # Get all bbcids

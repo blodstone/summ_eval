@@ -11,6 +11,7 @@ class Document(db.Model):
 
     doc_id = db.Column(db.String(25), primary_key=True, nullable=False)
     doc_json = db.Column(db.Text, nullable=False)
+    has_highlight = db.Column(db.Boolean, nullable=False, default=False)
     doc_statuses = db.relationship('DocStatus', backref='document', lazy=True)
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=True)
 
@@ -19,7 +20,16 @@ class Document(db.Model):
         if not doc_id:
             return None
         document = cls.query.filter_by(doc_id=doc_id).first()
-        return document.doc_json
+        return json.loads(document.doc_json)
+
+    @classmethod
+    def add_results(cls, doc_id, results):
+        document = cls.query.filter_by(doc_id=doc_id).first()
+        doc_json = json.loads(document.doc_json)
+        doc_json['results'] = results
+        document.doc_json = json.dumps(doc_json)
+        document.has_highlight = True
+        db.session.commit()
 
     def to_dict(self):
         return self.doc_json
@@ -29,10 +39,17 @@ class DocStatus(db.Model):
     __tablename__ = 'doc_status'
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
+    total_exp_results = db.Column(db.Integer, nullable=False)
+    is_closed = db.Column(db.Boolean, nullable=False, default=False)
     doc_id = db.Column(db.Integer, db.ForeignKey('document.doc_id'), nullable=False)
     proj_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
-    totalExpResults = db.Column(db.Integer, nullable=False)
     results = db.relationship('Result', backref='doc_status', lazy=True)
+
+    @classmethod
+    def close(cls, id):
+        doc_status = cls.query.filter_by(id=id).first()
+        doc_status.is_closed = True
+        db.session.commit()
 
 
 class Result(db.Model):
@@ -70,6 +87,7 @@ class Project(db.Model):
     name = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(25), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=False)
     doc_statuses = db.relationship('DocStatus', backref='project', lazy=True)
 
@@ -86,10 +104,16 @@ class Project(db.Model):
                 doc_status = DocStatus(
                     proj_id=project.id,
                     doc_id=document.doc_id,
-                    totalExpResults=kwargs['totalExpResults'])
+                    total_exp_results=kwargs['total_exp_results'])
                 db.session.add(doc_status)
                 db.session.commit()
             return project
+
+    @classmethod
+    def deactivate(cls, id):
+        project = cls.query.filter_by(id=id).first()
+        project.is_active = False
+        db.session.commit()
 
     def to_dict(self):
         return dict(id=self.id, name=self.name, type=self.type, created_at=self.created_at)

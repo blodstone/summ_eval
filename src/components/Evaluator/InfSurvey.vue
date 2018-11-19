@@ -47,7 +47,7 @@
             <p class="card-text my-text"> How much of the information in the summary is not important?</p>
             <label for="" class="float-left">Everything is not important</label>
               <label for="" class="float-right">Nothing is not importang</label>
-              <input type="range" min="1" max="100" value=50 class="slider">
+              <input type="range" min="1" max="100" value=50 cl3ass="slider">
           </div>
             <!-- eslint-enable -->
         </div>

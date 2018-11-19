@@ -10,7 +10,7 @@
                         </li>
                         <li v-bind:class="{ 'is-active': isActive.evaluation }"
                             v-on:click="toggleActive('evaluation')">
-                            <router-link to="/new/evaluation">Evaluation</router-link>
+                            <router-link to="/new/informativeness">Evaluation</router-link>
                         </li>
                         <li v-bind:class="{ 'is-active': isActive.fluency }"
                             v-on:click="toggleActive('fluency')">

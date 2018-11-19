@@ -6,8 +6,14 @@
                     <b-table-column field="no" label="No." width="40">
                         {{ props.row.no }}
                     </b-table-column>
+                    <b-table-column field="id" label="ID" width="40">
+                        {{ props.row.id }}
+                    </b-table-column>
                     <b-table-column field="name" label="Name">
                         {{ props.row.name }}
+                    </b-table-column>
+                    <b-table-column field="type" label="Type">
+                        {{ props.row.type }}
                     </b-table-column>
                     <b-table-column field="dataset_name" label="Dataset">
                         {{ props.row.dataset_name }}
@@ -16,9 +22,9 @@
                                     label="Created at" centered>
                         {{ new Date(props.row.created_at).toLocaleDateString() }}
                     </b-table-column>
-                    <b-table-column field="progress is-success" label="Progress">
+                    <b-table-column field="progress" label="Progress">
                         <progress
-                                class="progress"
+                                class="progress is-success"
                                 :value="props.row.progress" max="1">
                         </progress>
                         {{
@@ -42,6 +48,15 @@
                             <!--</p>-->
                         </b-field>
                     </b-table-column>
+                    <b-table-column field="id" label="Close Project">
+                        <a class="button is-danger is-outlined is-small"
+                           v-on:click="close_project(props.row.id)">
+                            <span>Close</span>
+                            <span class="icon is-small">
+                                <i class="fas fa-times"></i>
+                            </span>
+                        </a>
+                    </b-table-column>
                 </template>
             </b-table>
         </div>
@@ -62,12 +77,35 @@ export default {
       projects: [],
     };
   },
+  methods: {
+    close_project(id) {
+      this.$dialog.confirm({
+        message: `Do you want to close project ${id}?`,
+        onConfirm: () => {
+          axios.post(`project/${id}/close`)
+            .then(() => {
+              this.$toast.open({
+                message: `Project ${id} has been closed`,
+                type: 'is-success',
+              });
+            })
+            .catch((error) => {
+              this.$toast.open({
+                message: `${error}`,
+                type: 'is-danger',
+              });
+            });
+        },
+      });
+    },
+  },
   beforeCreate() {
-    axios.get('project/progress')
+    axios.get('project/all_progress')
       .then((response) => {
         if (response.status === 204) {
           this.$toast.open({
-            message: 'There is no project in database. Please create project first!',
+            message: 'There is no active project in database. ' +
+              'Please create project first!',
             type: 'is-danger',
           });
         } else {
@@ -75,7 +113,10 @@ export default {
         }
       })
       .catch((error) => {
-        console.log(error);
+        this.$toast.open({
+          message: `${error}`,
+          type: 'is-danger',
+        });
       });
   },
 };

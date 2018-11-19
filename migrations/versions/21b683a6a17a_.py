@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 1079c4113e63
+Revision ID: 21b683a6a17a
 Revises: 
-Create Date: 2018-11-18 16:59:50.039644
+Create Date: 2018-11-19 02:59:25.068124
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1079c4113e63'
+revision = '21b683a6a17a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -34,6 +34,7 @@ def upgrade():
     op.create_table('document',
     sa.Column('doc_id', sa.String(length=25), nullable=False),
     sa.Column('doc_json', sa.Text(), nullable=False),
+    sa.Column('has_highlight', sa.Boolean(), nullable=False),
     sa.Column('dataset_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['dataset_id'], ['dataset.id'], ),
     sa.PrimaryKeyConstraint('doc_id')
@@ -43,15 +44,17 @@ def upgrade():
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('type', sa.String(length=25), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('dataset_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['dataset_id'], ['dataset.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('doc_status',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('total_exp_results', sa.Integer(), nullable=False),
+    sa.Column('is_closed', sa.Boolean(), nullable=False),
     sa.Column('doc_id', sa.Integer(), nullable=False),
     sa.Column('proj_id', sa.Integer(), nullable=False),
-    sa.Column('totalExpResults', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['doc_id'], ['document.doc_id'], ),
     sa.ForeignKeyConstraint(['proj_id'], ['project.id'], ),
     sa.PrimaryKeyConstraint('id')

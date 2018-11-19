@@ -9,7 +9,7 @@ def test_project_create(test_client, init_db):
                                     name='Test_Create',
                                     dataset_name='Sample_BBC',
                                     type='highlight',
-                                    totalExpResults=3
+                                    total_exp_results=3
                                     )
                                 ),
                                 content_type='application/json'
@@ -20,7 +20,7 @@ def test_project_create(test_client, init_db):
 
 
 def test_project_get_progress(test_client, init_db):
-    response = test_client.get('/project/progress')
+    response = test_client.get('/project/all_progress')
     assert response.status_code == 200
     assert len(response.get_json()['projects']) > 0
     assert response.get_json()['projects'][0]['dataset_name'] == 'Sample_BBC'
@@ -33,7 +33,7 @@ def test_project_get_single_unfinished_doc(test_client, init_db):
                                     name='Test_Single',
                                     dataset_name='Sample_BBC',
                                     type='highlight',
-                                    totalExpResults=3
+                                    total_exp_results=3
                                 )
                                 ),
                                 content_type='application/json'
