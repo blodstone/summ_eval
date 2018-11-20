@@ -16,6 +16,16 @@ export default {
       },
     };
   },
+  methods: {
+    highlight(color, opacity = 1.0) {
+      this.charStyle['background-color'] = color;
+      this.charStyle.opacity = opacity;
+    },
+    rmHighlight() {
+      this.charStyle['background-color'] = '#ffffff';
+      this.charStyle.opacity = 1.0;
+    },
+  },
 
 };
 </script>

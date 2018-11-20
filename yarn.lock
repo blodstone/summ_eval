@@ -1742,6 +1742,11 @@ builtin-status-codes@^3.0.0:
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
   integrity sha1-hZgoeOIbmOHGZCXgPQF0eI9Wnug=
 
+bulma-slider@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/bulma-slider/-/bulma-slider-2.0.0.tgz#0be9b016228b62b8189891e67eafbf5aba846699"
+  integrity sha512-lXKMA/U43Fi1UnMkVYdNuEu0cGLo4JSWFUcnEyzNXkdpmDFic+d8H9oiaRoLbPiuGTC5SNoHMCP24T5544gnlQ==
+
 bulma@0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/bulma/-/bulma-0.7.1.tgz#73c2e3b2930c90cc272029cbd19918b493fca486"
@@ -8510,6 +8515,11 @@ vue-slide-bar@^1.1.6:
     postcss-import "^11.0.0"
     postcss-url "^7.3.0"
     vue "^2.5.2"
+
+vue-slider-component@^2.8.2:
+  version "2.8.2"
+  resolved "https://registry.yarnpkg.com/vue-slider-component/-/vue-slider-component-2.8.2.tgz#5bf9922f1d053ba1516026a3dbbf9b0e7fb3c151"
+  integrity sha512-asmA5KKGq1bdnJeAjzqBf4K5FRl1T4V9H57UizOFtPmTKOulKVGdQJCSDB8mS9mpmNUGXIs/i0wt+nUFvYVDLQ==
 
 vue-style-loader@^4.1.0:
   version "4.1.2"

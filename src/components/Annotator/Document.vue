@@ -344,8 +344,8 @@ export default {
           const component = this.groups[key][j];
           if (component.$props.type === 'word') {
             text = `${text} ${component.$props.word}`.trim();
-            resultJSON.result_json.highlights[key].indexes.push(component.$props.index);
           }
+          resultJSON.result_json.highlights[key].indexes.push(component.$props.compIndex);
         }
         resultJSON.result_json.highlights[key].text = text;
       }
