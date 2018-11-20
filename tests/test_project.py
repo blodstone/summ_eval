@@ -1,5 +1,5 @@
 import json
-from backend.models import Project
+from backend.models import AnnotationProject
 from tests.fixture import init_db, test_client
 
 
@@ -15,7 +15,7 @@ def test_project_create(test_client, init_db):
                                 content_type='application/json'
                                 )
     assert response.status_code == 201
-    project = Project.query.filter_by(name='Test_Create').first()
+    project = AnnotationProject.query.filter_by(name='Test_Create').first()
     assert project is not None
 
 
@@ -38,7 +38,7 @@ def test_project_get_single_unfinished_doc(test_client, init_db):
                                 ),
                                 content_type='application/json'
                                 )
-    project = Project.query.filter_by(name='Test_Create').first()
+    project = AnnotationProject.query.filter_by(name='Test_Create').first()
     assert response.status_code == 201
     print('Project ID'+str(project.id))
     response = test_client.get(

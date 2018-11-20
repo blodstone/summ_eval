@@ -2,7 +2,7 @@ import jwt
 from datetime import datetime, timedelta
 from flask import jsonify, request
 
-from backend.models import User, Document, Project, AnnotationResult, Dataset, DocStatus, db
+from backend.models import User, Document, AnnotationProject, AnnotationResult, Dataset, DocStatus, db
 from . import api
 
 

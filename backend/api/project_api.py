@@ -5,12 +5,12 @@ import urllib.parse
 from flask import jsonify, request
 
 from . import api
-from backend.models import Document, Project, AnnotationResult, Dataset, DocStatus, db
+from backend.models import Document, AnnotationProject, AnnotationResult, Dataset, DocStatus, db
 
 
 @api.route('/project/<project_id>/single_doc', methods=['GET'])
 def api_project_single_doc(project_id):
-    project = Project.query.filter_by(id=project_id).first()
+    project = AnnotationProject.query.filter_by(id=project_id).first()
     if not project:
         return '', http.HTTPStatus.NO_CONTENT
     else:
@@ -29,7 +29,7 @@ def api_project_single_doc(project_id):
 def api_project_create():
     if request.method == 'POST':
         data = request.get_json()
-        project = Project.create_project(**data)
+        project = AnnotationProject.create_project(**data)
         if project:
             return '', http.HTTPStatus.CREATED
         else:
@@ -38,7 +38,7 @@ def api_project_create():
 
 @api.route('/project/<project_id>', methods=['GET'])
 def api_project_get(project_id):
-    project = Project.query.filter_by(id=project_id).first()
+    project = AnnotationProject.query.filter_by(id=project_id).first()
     if not project:
         return '', http.HTTPStatus.NO_CONTENT
     else:
@@ -57,7 +57,7 @@ def api_project_save_annotation():
 
 @api.route('/project/<project_id>/close', methods=['POST'])
 def api_project_close(project_id):
-    project = Project.query.filter_by(id=project_id).first()
+    project = AnnotationProject.query.filter_by(id=project_id).first()
     if not project or project.is_active is False:
         return '', http.HTTPStatus.NOT_MODIFIED
     else:
@@ -69,13 +69,13 @@ def api_project_close(project_id):
             if len(results_json) != 0:
                 Document.add_results(doc_status.doc_id, results_json)
                 DocStatus.close(doc_status.id)
-        Project.deactivate(project_id)
+        AnnotationProject.deactivate(project_id)
         return '', http.HTTPStatus.OK
 
 
 @api.route('/project/all_progress', methods=['GET'])
 def api_project_progress():
-    projects = Project.query.filter_by(is_active=True).all()
+    projects = AnnotationProject.query.filter_by(is_active=True).all()
     if len(projects) == 0:
         return '', http.HTTPStatus.NO_CONTENT
     else:
