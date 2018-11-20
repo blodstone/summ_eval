@@ -43,7 +43,7 @@ class DocStatus(db.Model):
     is_closed = db.Column(db.Boolean, nullable=False, default=False)
     doc_id = db.Column(db.Integer, db.ForeignKey('document.doc_id'), nullable=False)
     proj_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
-    results = db.relationship('Result', backref='doc_status', lazy=True)
+    results = db.relationship('AnnotationResult', backref='doc_status', lazy=True)
 
     @classmethod
     def close(cls, id):
@@ -52,8 +52,54 @@ class DocStatus(db.Model):
         db.session.commit()
 
 
-class Result(db.Model):
-    __tablename__ = 'result'
+class SummaryGroup(db.Model):
+    __tablename__ = 'summary_group'
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    is_ref = db.Column(db.Boolean, nullable=False, default=False)
+    summaries = db.relationship('Summary', backref='summary_group', lazy=True)
+    dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=False)
+
+
+class Summary(db.Model):
+    __tablename__ = 'summary'
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    summary_group_id = db.Column(db.Integer, db.ForeignKey('summary_group.id'), nullable=False)
+    doc_id = db.Column(db.Integer, db.ForeignKey('document.doc_id'), nullable=False)
+    summary_statuses = db.relationship('SummaryStatus', backref='summary', lazy=True)
+
+
+class SummaryStatus(db.Model):
+    __tablename__ = 'summary_status'
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    summary_id = db.Column(db.Integer, db.ForeignKey('summary.id'), nullable=False)
+    total_exp_results = db.Column(db.Integer, nullable=False)
+    proj_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
+
+    @classmethod
+    def close(cls, id):
+        summary_status = cls.query.filter_by(id=id).first()
+        summary_status.is_closed = True
+        db.session.commit()
+
+
+class EvaluationResult(db.Model):
+    __tablename__ = 'evaluation_result'
+
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    finished_at = db.Column(db.DateTime, default=datetime.utcnow)
+    precision = db.Column(db.REAL, nullable=False, default=0.0)
+    recall = db.Column(db.REAL, nullable=False, default=0.0)
+    fluency = db.Column(db.REAL, nullable=False, default=0.0)
+    status_id = db.Column(db.Integer, db.ForeignKey('summary_status.id'), nullable=False)
+
+
+class AnnotationResult(db.Model):
+    __tablename__ = 'annotation_result'
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     finished_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -62,7 +108,7 @@ class Result(db.Model):
 
     @classmethod
     def create_result(cls, **kwargs):
-        result = Result(
+        result = AnnotationResult(
             result_json=json.dumps(kwargs['result_json']), status_id=kwargs['status_id'])
         db.session.add(result)
         db.session.commit()
@@ -90,6 +136,7 @@ class Project(db.Model):
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     dataset_id = db.Column(db.Integer, db.ForeignKey('dataset.id'), nullable=False)
     doc_statuses = db.relationship('DocStatus', backref='project', lazy=True)
+    summary_statuses = db.relationship('SummaryStatus', backref='project', lazy=True)
 
     @classmethod
     def create_project(cls, **kwargs):
@@ -101,12 +148,15 @@ class Project(db.Model):
             db.session.add(project)
             db.session.commit()
             for document in dataset.documents:
-                doc_status = DocStatus(
-                    proj_id=project.id,
-                    doc_id=document.doc_id,
-                    total_exp_results=kwargs['total_exp_results'])
-                db.session.add(doc_status)
-                db.session.commit()
+                if project.type == 'Highlight':
+                    doc_status = DocStatus(
+                        proj_id=project.id,
+                        doc_id=document.doc_id,
+                        total_exp_results=kwargs['total_exp_results'])
+                    db.session.add(doc_status)
+                    db.session.commit()
+                elif project.type == 'Evaluation':
+                    pass
             return project
 
     @classmethod

@@ -5,7 +5,7 @@ import jwt
 import urllib.parse
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
-from backend.models import User, Document, Project, Result, Dataset, DocStatus, db
+from backend.models import User, Document, Project, AnnotationResult, Dataset, DocStatus, db
 
 api = Blueprint('api', 'api', url_prefix='', static_folder='../../instance/dist/static')
 
@@ -24,7 +24,7 @@ def api_document_get_one():
     documents = Document.query.all()
     for document in documents:
         for doc_status in document.doc_statuses:
-            n_results = len(Result.query.filter_by(id=doc_status.id).all())
+            n_results = len(AnnotationResult.query.filter_by(id=doc_status.id).all())
             if doc_status.total_exp_results == n_results:
                 continue
             else:
@@ -39,7 +39,7 @@ def api_project_single_doc(project_id):
         return '', http.HTTPStatus.NO_CONTENT
     else:
         for doc_status in project.doc_statuses:
-            n_results = len(Result.query.filter_by(status_id=doc_status.id).all())
+            n_results = len(AnnotationResult.query.filter_by(status_id=doc_status.id).all())
             if doc_status.total_exp_results == n_results:
                 continue
             else:
@@ -72,7 +72,7 @@ def api_project_get(project_id):
 @api.route('/project/save_annotation', methods=['POST'])
 def api_project_save_annotation():
     data = request.get_json()
-    result = Result.create_result(**data)
+    result = AnnotationResult.create_result(**data)
     if result:
         return '', http.HTTPStatus.CREATED
     else:
@@ -86,7 +86,7 @@ def api_project_close(project_id):
         return '', http.HTTPStatus.NOT_MODIFIED
     else:
         for doc_status in project.doc_statuses:
-            results = Result.query.filter_by(status_id=doc_status.id).all()
+            results = AnnotationResult.query.filter_by(status_id=doc_status.id).all()
             results_json = {}
             for result in results:
                 results_json[result.id] = json.loads(result.result_json)
@@ -111,7 +111,7 @@ def api_project_progress():
             total_n_results = 0
             total_total_exp_results = 0
             for doc_status in project.doc_statuses:
-                n_results = Result.query.filter_by(status_id=doc_status.id).count()
+                n_results = AnnotationResult.query.filter_by(status_id=doc_status.id).count()
                 total_n_results += n_results
                 total_total_exp_results += doc_status.total_exp_results
             if project.type == 'Highlight':
@@ -155,7 +155,7 @@ def api_doc_status_progress(doc_status_id):
     doc_status = DocStatus.query.filter_by(id=doc_status_id).first()
     if not doc_status:
         return '', http.HTTPStatus.NO_CONTENT
-    n_results = len(Result.query.filter_by(id=doc_status.id).all())
+    n_results = len(AnnotationResult.query.filter_by(id=doc_status.id).all())
     progress = "{0:.2f}".format(n_results/doc_status.total_exp_results)
     return jsonify(dict(progress=progress))
 

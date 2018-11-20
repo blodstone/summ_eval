@@ -1,6 +1,6 @@
 <template>
     <div class="container is-fluid">
-        <div class="columns">
+        <div class="columns is-2 is-variable">
             <div class="column is-3">
                 <div class="box instruction">
                     <div class="content">
@@ -46,14 +46,14 @@
                         </p>
                         <div class="level" align="center">
                             <span class="level-left">
-                                <label class="label is-small">Nothing is <br> missing</label>
+                                <label class="label is-small">Nothing <br/> is <br/> missing</label>
                             </span>
                             <span class="level-item">
                             <input type="range" min="0" max="100"
-                                   v-model="coverage" class="my-slider slider is-info is-fullwidth ">
+                                   v-model="coverage" class="my-slider slider is-info is-fullwidth">
                             </span>
                             <span class="level-right">
-                                <label class="label is-small">Everything <br> is missing</label>
+                                <label class="label is-small">Everything <br/> is <br/> missing</label>
                             </span>
                         </div>
                         <h5 class="my-title">Question #2</h5>
@@ -63,17 +63,16 @@
                         </p>
                         <div class="level" align="center">
                             <span class="level-left">
-                                <label class="label is-small">Nothing is <br> important</label>
+                                <label class="label is-small">Nothing <br/> is <br/> important</label>
                             </span>
                             <span class="level-item">
                             <input type="range" min="0" max="100"
-                                   v-model="redundancy" class="my-slider slider is-info is-fullwidth ">
+                                   v-model="redundancy" class="my-slider slider is-info is-fullwidth">
                             </span>
                             <span class="level-right">
-                                <label class="label is-small">Everything <br> is important</label>
+                                <label class="label is-small">Everything <br/> is <br/> important</label>
                             </span>
                         </div>
-
                     </div>
                 </div>
             </div>
