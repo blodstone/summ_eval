@@ -2,7 +2,7 @@ import pytest
 from backend.app import create_app
 from backend.models import db
 from flask_sqlalchemy import SQLAlchemy
-from scripts.insert_dataset import init_dataset
+from scripts.insert_dataset import init_database
 
 
 flask_app = None
@@ -31,6 +31,6 @@ def init_db():
     db.init_app(app)
     db.create_all()
     db.session.commit()
-    init_dataset(db)
+    init_database(db)
     yield db
     db.drop_all()

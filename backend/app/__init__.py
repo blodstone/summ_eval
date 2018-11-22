@@ -82,6 +82,4 @@ def create_app(test_config=None):
             body = f.read()
         return make_response((body, headers))
 
-
-
     return app
