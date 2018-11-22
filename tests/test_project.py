@@ -105,7 +105,8 @@ def test_project_get_single_unfinished_doc_annotation(test_client, init_db):
 
 def test_project_get_single_unfinished_summ_evaluation(test_client, init_db):
     create_proj_resp(test_client, ProjectType.EVALUATION.value,
-                     name='Test_Single_Evaluation_Doc', project_category=ProjectCategory.INFORMATIVENESS_DOC.value)
+                     name='Test_Single_Evaluation_Doc',
+                     project_category=ProjectCategory.INFORMATIVENESS_DOC.value)
     project = EvaluationProject.query.filter_by(name='Test_Single_Evaluation_Doc').first()
     response = test_client.get(
         '/project/%s/%s/%s/single_doc' %
@@ -114,10 +115,20 @@ def test_project_get_single_unfinished_summ_evaluation(test_client, init_db):
     assert response.status_code == 200
 
     create_proj_resp(test_client, ProjectType.EVALUATION.value,
-                     name='Test_Single_Evaluation_Ref', project_category=ProjectCategory.INFORMATIVENESS_REF.value)
+                     name='Test_Single_Evaluation_Ref',
+                     project_category=ProjectCategory.INFORMATIVENESS_REF.value)
     project = EvaluationProject.query.filter_by(name='Test_Single_Evaluation_Ref').first()
     response = test_client.get(
         '/project/%s/%s/%s/single_doc' %
         (ProjectType.EVALUATION.value, ProjectCategory.INFORMATIVENESS_REF.value, project.id)
     )
     assert response.status_code == 200
+
+
+def test_doc_status(test_client, init_db):
+    create_proj_resp(test_client, ProjectType.ANNOTATION.value,
+                     name='Test_Doc_Status',
+                     project_category=ProjectCategory.HIGHLIGHT.value)
+    response = test_client.get('/doc_status/progress/1')
+    assert response.status_code == 200
+    assert response.get_json()['progress'] == '0.00'
