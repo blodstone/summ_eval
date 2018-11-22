@@ -6,9 +6,9 @@ import EvalInfRef from './views/EvalInfRef.vue';
 import EvalFluency from './views/EvalFluency.vue';
 import Login from './views/Login.vue';
 import Home from './views/Home.vue';
-import ManageProject from './components/Home/ManageProject.vue';
-import NewProject from './components/Home/NewProject.vue';
-import Status from './components/Home/Status.vue';
+import ManageProject from './views/ManageProject.vue';
+import NewProject from './views/NewProject.vue';
+import Status from './views/Status.vue';
 import NewAnnotation from './components/Home/NewProject/NewAnnotation.vue';
 import NewEvaluation from './components/Home/NewProject/NewEvaluation.vue';
 
