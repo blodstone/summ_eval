@@ -42,11 +42,13 @@ def api_project_single_doc(project_type, project_category, project_id):
                     doc_json = Document.get_dict(system_summary.doc_id)
                     if project_category.lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
                         ref_text = Summary.query.filter_by(id=summ_status.ref_summary_id).first().text
-                        return jsonify(dict(system_text=system_text, ref_text=ref_text))
+                        return jsonify(dict(system_text=system_text,
+                                            ref_text=ref_text, summ_status_id=summ_status.id))
                     elif project_category.lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
-                        return jsonify(dict(system_text=system_text, doc_json=doc_json))
+                        return jsonify(dict(system_text=system_text,
+                                            doc_json=doc_json, summ_status_id=summ_status.id))
                     elif project_category.lower() == ProjectCategory.FLUENCY.value.lower():
-                        return jsonify(dict(system_text=system_text))
+                        return jsonify(dict(system_text=system_text, summ_status_id=summ_status.id))
             return '', http.HTTPStatus.NO_CONTENT
     else:
         return '', http.HTTPStatus.BAD_REQUEST
@@ -69,13 +71,16 @@ def api_project_create(project_type):
             return '', http.HTTPStatus.CONFLICT
 
 
-# @api.route('/project/<project_id>', methods=['GET'])
-# def api_project_get(project_id):
-#     project = AnnotationProject.query.filter_by(id=project_id).first()
-#     if not project:
-#         return '', http.HTTPStatus.NO_CONTENT
-#     else:
-#         return jsonify(project)
+@api.route('/project/<project_name>', methods=['GET'])
+def api_project_get(project_name):
+    projects = AnnotationProject.query.filter_by(name=project_name).all()
+    if len(projects) == 0:
+        return '', http.HTTPStatus.NO_CONTENT
+    else:
+        result_json = {}
+        for project in projects:
+            result_json[project.id] = project.get_dict()
+        return jsonify(result_json)
 
 
 @api.route('/project/<project_type>/save_result', methods=['POST'])

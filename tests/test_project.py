@@ -1,4 +1,5 @@
 import json
+import http
 from backend.models import AnnotationProject, EvaluationProject,\
     ProjectCategory, ProjectType
 from tests.fixture import init_db, test_client
@@ -41,6 +42,44 @@ def create_proj_resp(test_client, project_type, name, project_category=''):
                                     )
 
 
+def test_project_annotation_result(test_client, init_db):
+    # Create project
+    response = create_proj_resp(
+        test_client,
+        ProjectType.ANNOTATION.value,
+        name='Test_Create_Result_Annotation'
+    )
+    assert response.status_code == http.HTTPStatus.CREATED
+    # Get project
+    response = test_client.get(
+        '/project/%s' % 'Test_Create_Annotation')
+    assert len(response.get_json()) > 0 is not None
+    project_id = list(response.get_json().keys())[0]
+    # Get document
+    response = test_client.get(
+        '/project/%s/%s/%s/single_doc' %
+        (ProjectType.ANNOTATION.value, ProjectCategory.HIGHLIGHT, project_id))
+    doc_status_id = response.get_json()['doc_status_id']
+    # Post result
+    annotation_result_json = {
+        'project_id': project_id,
+        'status_id': doc_status_id,
+        'result_json': {
+          'highlights': {},
+          'components': [],
+          'words': [],
+        }
+    }
+    response = test_client.post('project/annotation/save_result',
+                                data=json.dumps(annotation_result_json),
+                                content_type='application/json')
+    assert response.status_code == http.HTTPStatus.CREATED
+
+
+def test_project_eval_inf_doc_result(test_client, init_db):
+    pass
+
+
 def test_project_create_annotation(test_client, init_db):
     # Test Annotation Project
     response = create_proj_resp(
@@ -48,7 +87,7 @@ def test_project_create_annotation(test_client, init_db):
         ProjectType.ANNOTATION.value,
         name='Test_Create_Annotation'
     )
-    assert response.status_code == 201
+    assert response.status_code == http.HTTPStatus.CREATED
     project = AnnotationProject.query.filter_by(name='Test_Create_Annotation').first()
     assert project is not None
 
@@ -61,7 +100,7 @@ def test_project_create_evaluation(test_client, init_db):
         project_category=ProjectCategory.INFORMATIVENESS_DOC.value,
         name='Test_Create_Evaluation_Doc'
     )
-    assert response.status_code == 201
+    assert response.status_code == http.HTTPStatus.CREATED
     project = EvaluationProject.query.filter_by(name='Test_Create_Evaluation_Doc').first()
     assert project is not None
 
@@ -71,7 +110,7 @@ def test_project_create_evaluation(test_client, init_db):
         project_category=ProjectCategory.INFORMATIVENESS_REF.value,
         name='Test_Create_Evaluation_Ref'
     )
-    assert response.status_code == 201
+    assert response.status_code == http.HTTPStatus.CREATED
     project = EvaluationProject.query.filter_by(name='Test_Create_Evaluation_Ref').first()
     assert project is not None
 
@@ -79,7 +118,7 @@ def test_project_create_evaluation(test_client, init_db):
 def test_project_get_progress_annotation(test_client, init_db):
     create_proj_resp(test_client, ProjectType.ANNOTATION.value, 'Test_Progress_Annotation')
     response = test_client.get('/project/all_progress/annotation')
-    assert response.status_code == 200
+    assert response.status_code == http.HTTPStatus.OK
     assert len(response.get_json()['projects']) > 0
     assert response.get_json()['projects'][0]['dataset_name'] == 'Sample_BBC'
     assert 'progress' in response.get_json()['projects'][0]
@@ -88,7 +127,7 @@ def test_project_get_progress_annotation(test_client, init_db):
 def test_project_get_progress_evaluation(test_client, init_db):
     create_proj_resp(test_client, ProjectType.EVALUATION.value, 'Test_Progress_Evaluation')
     response = test_client.get('/project/all_progress/evaluation')
-    assert response.status_code == 200
+    assert response.status_code == http.HTTPStatus.OK
     assert len(response.get_json()['projects']) > 0
     assert response.get_json()['projects'][0]['dataset_name'] == 'Sample_BBC'
     assert 'progress' in response.get_json()['projects'][0]
@@ -100,7 +139,7 @@ def test_project_get_single_unfinished_doc_annotation(test_client, init_db):
     response = test_client.get(
         '/project/%s/%s/%s/single_doc' %
         (ProjectType.ANNOTATION.value, ProjectCategory.HIGHLIGHT, project.id))
-    assert response.status_code == 200
+    assert response.status_code == http.HTTPStatus.OK
 
 
 def test_project_get_single_unfinished_summ_evaluation(test_client, init_db):
@@ -112,7 +151,7 @@ def test_project_get_single_unfinished_summ_evaluation(test_client, init_db):
         '/project/%s/%s/%s/single_doc' %
         (ProjectType.EVALUATION.value, ProjectCategory.INFORMATIVENESS_DOC.value, project.id)
     )
-    assert response.status_code == 200
+    assert response.status_code == http.HTTPStatus.OK
 
     create_proj_resp(test_client, ProjectType.EVALUATION.value,
                      name='Test_Single_Evaluation_Ref',
@@ -122,13 +161,17 @@ def test_project_get_single_unfinished_summ_evaluation(test_client, init_db):
         '/project/%s/%s/%s/single_doc' %
         (ProjectType.EVALUATION.value, ProjectCategory.INFORMATIVENESS_REF.value, project.id)
     )
-    assert response.status_code == 200
+    assert response.status_code == http.HTTPStatus.OK
 
 
 def test_doc_status(test_client, init_db):
-    create_proj_resp(test_client, ProjectType.ANNOTATION.value,
+    response = create_proj_resp(test_client, ProjectType.ANNOTATION.value,
                      name='Test_Doc_Status',
                      project_category=ProjectCategory.HIGHLIGHT.value)
-    response = test_client.get('/doc_status/progress/1')
-    assert response.status_code == 200
+    assert response.status_code == http.HTTPStatus.CREATED
+    response = test_client.get(
+        '/project/%s' % 'Test_Doc_Status')
+    assert len(response.get_json()) > 0 is not None
+    project_id = list(response.get_json().keys())[0]
+    response = test_client.get('/doc_status/progress/%s' % project_id)
     assert response.get_json()['progress'] == '0.00'
