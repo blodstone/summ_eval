@@ -15,7 +15,8 @@ class ProjectType(Enum):
 
 
 class ProjectCategory(Enum):
-    INFORMATIVENESS = 'Informativeness'
+    INFORMATIVENESS_REF = 'Informativeness_Ref'
+    INFORMATIVENESS_DOC = 'Informativeness_Doc'
     FLUENCY = 'Fluency'
     HIGHLIGHT = 'Highlight'
 
@@ -110,6 +111,7 @@ class SummaryStatus(db.Model):
     id = db.Column(db.INTEGER, primary_key=True, nullable=False)
     total_exp_results = db.Column(db.Integer, nullable=False)
 
+    ref_summary_id = db.Column(db.INTEGER, nullable=True)
     summary_id = db.Column(db.INTEGER, db.ForeignKey('summary.id'), nullable=False)
     proj_id = db.Column(db.INTEGER, db.ForeignKey('evaluation_project.id'), nullable=False)
 
@@ -245,16 +247,32 @@ class EvaluationProject(BaseProject, db.Model):
             return None
         # noinspection PyArgumentList
         project = EvaluationProject(
-            name=kwargs['name'], category=kwargs['category'], dataset_id=dataset.id, summ_group_id=summ_group.id)
+            name=kwargs['name'], category=kwargs['category'],
+            dataset_id=dataset.id, summ_group_id=summ_group.id)
         db.session.add(project)
         db.session.commit()
-        for summary in summ_group.summaries:
-            summ_status = SummaryStatus(
-                proj_id=project.id,
-                summary_id=summary.id,
-                total_exp_results=kwargs['total_exp_results'])
-            db.session.add(summ_status)
-            db.session.commit()
+        if kwargs['category'].lower() == ProjectCategory.FLUENCY.value.lower() \
+            or kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
+            for summary in summ_group.summaries:
+                summ_status = SummaryStatus(
+                    proj_id=project.id,
+                    summary_id=summary.id,
+                    total_exp_results=kwargs['total_exp_results']
+                )
+                db.session.add(summ_status)
+                db.session.commit()
+        elif kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
+            for system_summary in summ_group.summaries:
+                summaries_pairs = SummariesPair.query.filter_by(system_summary_id=system_summary.id).all()
+                for summaries_pair in summaries_pairs:
+                    summ_status = SummaryStatus(
+                        proj_id=project.id,
+                        summary_id=system_summary.id,
+                        total_exp_results=kwargs['total_exp_results'],
+                        ref_summary_id=summaries_pair.ref_summary_id
+                    )
+                    db.session.add(summ_status)
+                    db.session.commit()
         return project
 
 

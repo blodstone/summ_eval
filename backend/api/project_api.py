@@ -8,11 +8,11 @@ from . import api
 from backend.models import \
     Document, AnnotationProject, AnnotationResult, \
     Dataset, DocStatus, ProjectType, EvaluationResult, \
-    EvaluationProject
+    EvaluationProject, Summary, ProjectCategory
 
 
-@api.route('/project/<project_type>/<project_id>/single_doc', methods=['GET'])
-def api_project_single_doc(project_type, project_id):
+@api.route('/project/<project_type>/<project_category>/<project_id>/single_doc', methods=['GET'])
+def api_project_single_doc(project_type, project_category, project_id):
     if project_type.lower() == ProjectType.ANNOTATION.value.lower():
         project = AnnotationProject.query.get(project_id)
         if not project:
@@ -37,7 +37,13 @@ def api_project_single_doc(project_type, project_id):
                 if summ_status.total_exp_results == n_results:
                     continue
                 else:
-                    pass
+                    system_text = Summary.query.get(summ_status.summary_id).text
+                    if project_category.lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
+                        ref_text = Summary.query.filter_by(id=summ_status.ref_summary_id).first().text
+                        return jsonify(dict(system_text=system_text, ref_text=ref_text))
+                    elif project_category.lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
+                        return jsonify(dict(system_text=system_text))
+            return '', http.HTTPStatus.NO_CONTENT
     else:
         return '', http.HTTPStatus.BAD_REQUEST
 
