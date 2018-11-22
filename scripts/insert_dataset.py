@@ -62,7 +62,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 def init_database(db):
-    dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset/Sample_BBC'
+    dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_Single/Sample_BBC'
     dataset_name = os.path.split(dataset_path)[1]
 
     summaries_path = os.path.join(dataset_path, 'summaries')
@@ -102,8 +102,9 @@ def init_database(db):
         for file in os.listdir(ref_path):
             with open(os.path.join(ref_path, file), 'r') as infile:
                 text = ' '.join(infile.readlines()).strip()
+                document = db.session.query(Document).filter_by(doc_id=os.path.splitext(file)[0]).first()
                 summary = Summary(
-                    doc_id=os.path.splitext(file)[0],
+                    doc_id=document.id,
                     text=text,
                     summary_group_id=summary_group.id
                 )

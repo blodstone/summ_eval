@@ -170,7 +170,7 @@ function parseDoc(textJSON) {
 }
 
 function getFile() {
-  axios.get(`project/${this.project_id}/single_doc`)
+  axios.get(`project/annotation/highlight/${this.project_id}/single_doc`)
     .then((response) => {
       parseDoc.call(this, JSON.parse(response.data.doc_json));
       this.doc_status_id = response.data.doc_status_id;
@@ -523,7 +523,7 @@ export default {
           sumOfWords += 1;
         }
       }
-      if (sumOfWords <= 100) {
+      if (sumOfWords <= 30) {
         highlightAndAddComponentToGroup.call(
           this, whitespaceSelectedComponents, wordSelectedComponents,
           color, groupKey,

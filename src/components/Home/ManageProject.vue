@@ -1,7 +1,10 @@
 <template>
     <div class="container">
+        <div class="content">
+            <h3>Annotation Projects</h3>
+        </div>
         <div>
-            <b-table :data="projects">
+            <b-table :data="annotation_projects" striped="true">
                 <template slot-scope="props">
                     <b-table-column field="no" label="No." width="40">
                         {{ props.row.no }}
@@ -12,8 +15,8 @@
                     <b-table-column field="name" label="Name">
                         {{ props.row.name }}
                     </b-table-column>
-                    <b-table-column field="type" label="Type">
-                        {{ props.row.type }}
+                    <b-table-column field="category" label="Category">
+                        {{ props.row.category }}
                     </b-table-column>
                     <b-table-column field="dataset_name" label="Dataset">
                         {{ props.row.dataset_name }}
@@ -58,6 +61,101 @@
                         </a>
                     </b-table-column>
                 </template>
+                <template slot="empty">
+                    <section class="section">
+                        <div class="content has-text-grey has-text-centered">
+                            <p>
+                                <b-icon
+                                    icon="frown"
+                                    pack="fas"
+                                    size="is-large">
+                                </b-icon>
+                            </p>
+                            <p>There is no active annotation project in database.</p>
+                        </div>
+                    </section>
+            </template>
+            </b-table>
+        </div>
+        <hr>
+        <div class="content">
+            <h3>Evaluation Projects</h3>
+        </div>
+        <div>
+            <b-table :data="evaluation_projects" striped="true">
+                <template slot-scope="props">
+                    <b-table-column field="no" label="No." width="40">
+                        {{ props.row.no }}
+                    </b-table-column>
+                    <b-table-column field="id" label="ID" width="40">
+                        {{ props.row.id }}
+                    </b-table-column>
+                    <b-table-column field="name" label="Name">
+                        {{ props.row.name }}
+                    </b-table-column>
+                    <b-table-column field="category" label="Category">
+                        {{ props.row.category }}
+                    </b-table-column>
+                    <b-table-column field="dataset_name" label="Dataset">
+                        {{ props.row.dataset_name }}
+                    </b-table-column>
+                    <b-table-column field="summ_group_name" label="Summary Group">
+                        {{ props.row.summ_group_name }}
+                    </b-table-column>
+                    <b-table-column field="created_at"
+                                    label="Created at" centered>
+                        {{ new Date(props.row.created_at).toLocaleDateString() }}
+                    </b-table-column>
+                    <b-table-column field="progress" label="Progress">
+                        <progress
+                                class="progress is-success"
+                                :value="props.row.progress" max="1">
+                        </progress>
+                        {{
+                          props.row.progress
+                          .toLocaleString(
+                            "en",
+                            {style: "percent", maximumSignificantDigits: 2},
+                          )
+                        }}
+                    </b-table-column>
+                    <b-table-column label="Link for Participants">
+                        <b-field>
+                            <b-input icon-pack="fas" icon="link"
+                                :value="props.row.link"
+                                readonly size="is-small">
+                            </b-input>
+                            <!--<p class="control">-->
+                                <!--<button size="icon is-small is-primary">-->
+                                    <!--<i class="fas fa-clipboard"></i>-->
+                                <!--</button>-->
+                            <!--</p>-->
+                        </b-field>
+                    </b-table-column>
+                    <b-table-column field="id" label="Close Project">
+                        <a class="button is-danger is-outlined is-small"
+                           v-on:click="close_project(props.row.id)">
+                            <span>Close</span>
+                            <span class="icon is-small">
+                                <i class="fas fa-times"></i>
+                            </span>
+                        </a>
+                    </b-table-column>
+                </template>
+                <template slot="empty">
+                    <section class="section">
+                        <div class="content has-text-grey has-text-centered">
+                            <p>
+                                <b-icon
+                                    icon="frown"
+                                    pack="fas"
+                                    size="is-large">
+                                </b-icon>
+                            </p>
+                            <p>There is no active evaluation project in database.</p>
+                        </div>
+                    </section>
+            </template>
             </b-table>
         </div>
     </div>
@@ -74,7 +172,8 @@ export default {
   components: { BTableColumn, BTable },
   data() {
     return {
-      projects: [],
+      annotation_projects: [],
+      evaluation_projects: [],
     };
   },
   methods: {
@@ -100,17 +199,19 @@ export default {
     },
   },
   beforeCreate() {
-    axios.get('project/all_progress')
+    axios.get('project/all_progress/annotation')
       .then((response) => {
-        if (response.status === 204) {
-          this.$toast.open({
-            message: 'There is no active project in database. ' +
-              'Please create project first!',
-            type: 'is-danger',
-          });
-        } else {
-          this.projects = response.data.projects;
-        }
+        this.annotation_projects = response.data.projects;
+      })
+      .catch((error) => {
+        this.$toast.open({
+          message: `${error}`,
+          type: 'is-danger',
+        });
+      });
+    axios.get('project/all_progress/evaluation')
+      .then((response) => {
+        this.evaluation_projects = response.data.projects;
       })
       .catch((error) => {
         this.$toast.open({

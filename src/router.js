@@ -1,15 +1,16 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Annotation from './views/Annotation.vue';
-import InfEvaluation from './views/InfEvaluation.vue';
+import EvalInfDoc from './views/EvalInfDoc.vue';
+import EvalInfRef from './views/EvalInfRef.vue';
+import EvalFluency from './views/EvalFluency.vue';
 import Login from './views/Login.vue';
 import Home from './views/Home.vue';
 import ManageProject from './components/Home/ManageProject.vue';
 import NewProject from './components/Home/NewProject.vue';
 import Status from './components/Home/Status.vue';
-import Highlight from './components/Home/NewProject/Highlight.vue';
-import Informativeness from './components/Home/NewProject/Informativeness.vue';
-import Fluency from './components/Home/NewProject/Fluency.vue';
+import NewAnnotation from './components/Home/NewProject/NewAnnotation.vue';
+import NewEvaluation from './components/Home/NewProject/NewEvaluation.vue';
 
 Vue.use(Router);
 
@@ -26,24 +27,21 @@ export default new Router({
       children: [
         {
           path: '',
-          component: Highlight,
+          component: NewAnnotation,
         },
         {
-          path: 'highlight',
-          component: Highlight,
+          path: 'annotation',
+          component: NewAnnotation,
         },
         {
-          path: 'informativeness',
-          component: Informativeness,
-        },
-        {
-          path: 'fluency',
-          component: Fluency,
+          path: 'evaluation',
+          component: NewEvaluation,
         },
       ],
     },
     {
       path: '/manage',
+      name: 'manage',
       component: ManageProject,
     },
     {
@@ -51,14 +49,24 @@ export default new Router({
       component: Status,
     },
     {
-      path: '/annotation/:project_id',
+      path: '/annotation/highlight/:project_id',
       name: 'annotation',
       component: Annotation,
     },
     {
-      path: '/inf_eval/:project_id',
-      name: 'inf_eval',
-      component: InfEvaluation,
+      path: '/evaluation/informativeness_doc/:project_id',
+      name: 'evalinfdoc',
+      component: EvalInfDoc,
+    },
+    {
+      path: '/evaluation/informativeness_ref/:project_id',
+      name: 'evalinfref',
+      component: EvalInfRef,
+    },
+    {
+      path: '/evaluation/fluency/:project_id',
+      name: 'fluency',
+      component: EvalFluency,
     },
     {
       path: '/login',

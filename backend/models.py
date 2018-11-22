@@ -42,7 +42,7 @@ class Document(db.Model):
 
     @classmethod
     def add_results(cls, doc_id, results):
-        document = cls.query.filter_by(doc_id=doc_id).first()
+        document = cls.query.filter_by(id=doc_id).first()
         doc_json = json.loads(document.doc_json)
         doc_json['results'] = results
         document.doc_json = json.dumps(doc_json)

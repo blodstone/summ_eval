@@ -4,17 +4,13 @@
             <div class="tile is-parent">
                 <div class="tile is-child tabs">
                     <ul>
-                        <li v-bind:class="{ 'is-active': isActive.highlight }"
-                            v-on:click="toggleActive('highlight')">
-                            <router-link to="/new/highlight">Highlight</router-link>
+                        <li v-bind:class="{ 'is-active': isActive.annotation }"
+                            v-on:click="toggleActive('annotation')">
+                            <router-link to="/new/annotation">Annotation</router-link>
                         </li>
                         <li v-bind:class="{ 'is-active': isActive.evaluation }"
                             v-on:click="toggleActive('evaluation')">
-                            <router-link to="/new/informativeness">Evaluation</router-link>
-                        </li>
-                        <li v-bind:class="{ 'is-active': isActive.fluency }"
-                            v-on:click="toggleActive('fluency')">
-                            <router-link to="/new/fluency">Fluency</router-link>
+                            <router-link to="/new/evaluation">Evaluation</router-link>
                         </li>
                     </ul>
                 </div>
@@ -36,23 +32,19 @@ export default {
   data() {
     return {
       isActive: {
-        highlight: true,
+        annotation: true,
         evaluation: false,
-        fluency: false,
       },
     };
   },
   methods: {
     toggleActive(name) {
-      this.isActive.highlight = false;
-      this.isActive.evaluation = false;
-      this.isActive.fluency = false;
-      if (name === 'highlight') {
-        this.isActive.highlight = true;
+      if (name === 'annotation') {
+        this.isActive.annotation = true;
+        this.isActive.evaluation = false;
       } else if (name === 'evaluation') {
         this.isActive.evaluation = true;
-      } else if (name === 'fluency') {
-        this.isActive.fluency = true;
+        this.isActive.annotation = false;
       }
     },
   },

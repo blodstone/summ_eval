@@ -10,7 +10,7 @@
              <!-- eslint-disable -->
              <h5 class="my-title">Task Description</h5>
              <p class="my-text">Your task is to select important phrases from the document by highlighting them.</p>
-             <p class="my-text">Select phrases that are the most informative, optionally you may follow the 5W1H (who, what, when, where, why and how) guidance.</p>
+             <p class="my-text">Select phrases that are the most informative, use the 5W1H (who, what, when, where, why and how) guidance the determine the informativeness of a phrase.</p>
              <h5 class="my-title">Create Highlights and Delete Them: How-To</h5>
              <p class="my-text">To highlight, use your mouse to select phrases from the document, when you have finished, selected words will automatically count as a group of highlight.</p>
              <p class="my-text">To delete a group of highlights, right click on the highlight.</p>
@@ -54,13 +54,13 @@ export default {
   data() {
     return {
       project_id: this.$route.params.project_id,
-      wordsLeft: 100,
+      wordsLeft: 30,
       summaries: '',
     };
   },
   methods: {
     updateSummaryBox(data) {
-      this.wordsLeft = 100 - data.words;
+      this.wordsLeft = 30 - data.words;
       this.summaries = data.summaries;
     },
   },

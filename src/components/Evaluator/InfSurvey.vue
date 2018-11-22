@@ -10,7 +10,9 @@
                         <!-- eslint-disable -->
                         <h5 class="my-header">Instruction</h5>
                         <h5 class="my-title">Task Description</h5>
-                        <p class="my-text">Your task is to assess the quality of the summary based on the article.</p>
+                        <p class="my-text">
+                            Your task is to assess the quality of the summary based on the article.
+                        </p>
                         <hr>
                         <h5 class="my-header">Controls</h5>
                         <h5 class="my-title">Heatmap</h5>
@@ -34,7 +36,7 @@
                     <div class="content">
                         <h1>Assessment</h1>
                         <h5 class="my-header">Summary to be assessed</h5>
-                        <p class="my-text">summary</p>
+                        <p class="my-summary">{{ system_text }}</p>
                         <hr>
                         <h5 class="my-header">
                             Your Assessment
@@ -203,10 +205,11 @@ function parseDoc(textJSON) {
 }
 
 function getFile() {
-  axios.get(`project/${this.project_id}/single_doc`)
+  axios.get(`project/evaluation/informativeness_doc/${this.project_id}/single_doc`)
     .then((response) => {
-      parseDoc.call(this, JSON.parse(response.data.doc_json));
-      this.doc_status_id = response.data.doc_status_id;
+      parseDoc.call(this, response.data.doc_json);
+      this.system_text = response.data.system_text;
+      // this.doc_status_id = response.data.doc_status_id;
     })
     .catch((error) => {
       this.$toast.open({
@@ -284,6 +287,7 @@ export default {
       redundancy: 50,
       coverage: 50,
       project_id: this.$route.params.project_id,
+      system_text: '',
     };
   },
   mounted: function onMounted() {
@@ -317,5 +321,8 @@ export default {
 }
 .my-text {
     font-size: 0.9rem;
+}
+.my-summary{
+    font-size: 1.1rem;
 }
 </style>

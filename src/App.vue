@@ -2,8 +2,10 @@
   <div class="clearfix">
       <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="container is-fluid">
-          <div class="navbar-brand" href="#">
-            <a class="navbar-item">Summ-Eval</a>
+          <div class="navbar-brand">
+            <router-link to="/" class="navbar-item">
+              Summ-Eval
+            </router-link>
           </div>
             <div id="navbarBasicExample" class="navbar-menu">
               <div class="navbar-start">
@@ -11,7 +13,6 @@
                   <a class="navbar-link">
                     Projects
                   </a>
-
                   <div class="navbar-dropdown">
                     <router-link class="navbar-item" to="/new">
                       New...

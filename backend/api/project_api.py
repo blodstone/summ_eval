@@ -8,7 +8,7 @@ from . import api
 from backend.models import \
     Document, AnnotationProject, AnnotationResult, \
     Dataset, DocStatus, ProjectType, EvaluationResult, \
-    EvaluationProject, Summary, ProjectCategory
+    EvaluationProject, Summary, ProjectCategory, SummaryGroup
 
 
 @api.route('/project/<project_type>/<project_category>/<project_id>/single_doc', methods=['GET'])
@@ -37,11 +37,15 @@ def api_project_single_doc(project_type, project_category, project_id):
                 if summ_status.total_exp_results == n_results:
                     continue
                 else:
-                    system_text = Summary.query.get(summ_status.summary_id).text
+                    system_summary = Summary.query.get(summ_status.summary_id)
+                    system_text = system_summary.text
+                    doc_json = Document.get_dict(system_summary.doc_id)
                     if project_category.lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
                         ref_text = Summary.query.filter_by(id=summ_status.ref_summary_id).first().text
                         return jsonify(dict(system_text=system_text, ref_text=ref_text))
                     elif project_category.lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
+                        return jsonify(dict(system_text=system_text, doc_json=doc_json))
+                    elif project_category.lower() == ProjectCategory.FLUENCY.value.lower():
                         return jsonify(dict(system_text=system_text))
             return '', http.HTTPStatus.NO_CONTENT
     else:
@@ -136,10 +140,16 @@ def api_project_progress(project_type):
                     total_total_exp_results += summ_status.total_exp_results
             project_json['progress'] = total_n_results/total_total_exp_results
             project_json['no'] = len(result_json['projects']) + 1
-
+            if project_type == ProjectType.EVALUATION.value.lower():
+                summ_group = SummaryGroup.query.get(project.summ_group_id)
+                project_json['summ_group_name'] = summ_group.name
             project_json['link'] = urllib.parse.urljoin(
-                request.host_url,
-                '#/{form}/{id}'.format(id=project_json['id'], form=project.category))
+            request.host_url,
+            '#/{type}/{category}/{id}'.format(
+                type=project_type,
+                category=project.category,
+                id=project_json['id']
+                ))
             result_json['projects'].append(project_json)
         return jsonify(result_json)
 
