@@ -1,5 +1,5 @@
 <template>
-    <div class="container is-fluid">
+    <div class="container is-fluid home">
         <div class="columns is-2 is-variable">
             <div class="column is-3">
                 <div class="box instruction">
@@ -75,6 +75,8 @@
                                 <label class="label is-small">Everything <br/> is <br/> important</label>
                             </span>
                         </div>
+                        <a class="button is-primary" :disabled="timer.isRunning"
+                    v-on:click="saveAnnotation()">{{ timenow }}</a>
                     </div>
                 </div>
             </div>
@@ -89,12 +91,10 @@ import Char from '@/components/Component/Char.vue';
 import LineBreaker from '@/components/Component/LineBreaker.vue';
 import Vue from 'vue';
 import vueSlider from 'vue-slider-component';
-
 // const randomColor = require('randomcolor');
 const axios = require('axios');
 
-// const waitTimeForButton = 1;
-
+const waitTimeForButton = 5;
 
 function createAndMountWord(sent, token, wordIndex) {
   const WordClass = Vue.extend(Word);
@@ -224,9 +224,22 @@ function getColor(val) {
 }
 
 export default {
-  name: 'InformativenessEval',
+  name: 'EvalInfDoc',
   components: {
     vueSlider,
+  },
+  computed: {
+    timenow() {
+      if (this.timer.isRunning === true) {
+        if ((this.timer.now - this.timer.date) < waitTimeForButton) {
+          return `Wait ${waitTimeForButton - (this.timer.now - this.timer.date)} seconds`;
+        }
+        // eslint-disable-next-line
+        this.timer.isRunning = false;
+        window.clearInterval(this.timer.timer);
+      }
+      return 'Click to submit';
+    },
   },
   methods: {
     on_slider_input() {
@@ -243,12 +256,21 @@ export default {
         }];
       redrawHighlight.call(this);
     },
+    save_annotation() {
+
+    },
   },
   data() {
     return {
       highlight: {
         intensities: {},
         max: -1,
+      },
+      timer: {
+        now: Math.trunc(new Date().getTime() / 1000),
+        date: Math.trunc(new Date().getTime() / 1000),
+        isRunning: true,
+        timer: null,
       },
       intensitySlider: {
         value: [0, 2],
@@ -292,6 +314,9 @@ export default {
   },
   mounted: function onMounted() {
     getFile.call(this);
+    this.timer.timer = window.setInterval(() => {
+      this.timer.now = Math.trunc((new Date()).getTime() / 1000);
+    }, 1000);
   },
 };
 </script>
@@ -324,5 +349,8 @@ export default {
 }
 .my-summary{
     font-size: 1.1rem;
+}
+.home {
+    padding-top: 25px;
 }
 </style>

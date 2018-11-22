@@ -1,5 +1,5 @@
  <template>
-   <div class="container is-fluid">
+   <div class="container is-fluid home">
      <div class="columns">
        <div class="column is-3">
          <div class="box instruction">
@@ -90,5 +90,8 @@ export default {
     position: sticky;
     position: -webkit-sticky;
     top: 70px;
+}
+.home {
+  padding-top: 25px;
 }
 </style>
