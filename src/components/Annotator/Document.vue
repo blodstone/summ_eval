@@ -1,4 +1,5 @@
 <template>
+    <!--TODO: Fix empty highlight-->
     <div>
         <div ref="document" v-on:mouseup="showHighlightMenu"
              @contextmenu.prevent="deleteHighlightGroup" v-on:click="showMentions">
@@ -184,7 +185,7 @@ function getFile() {
 }
 
 function sendResult(resultJSON) {
-  axios.post('project/save_annotation', resultJSON)
+  axios.post('project/annotation/save_result', resultJSON)
     .then(() => {
       this.$toast.open({
         message: 'Submission successful.',

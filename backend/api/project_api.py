@@ -78,10 +78,13 @@ def api_project_create(project_type):
 #         return jsonify(project)
 
 
-@api.route('/project/save_annotation', methods=['POST'])
-def api_project_save_annotation():
+@api.route('/project/<project_type>/save_result', methods=['POST'])
+def api_project_save_result(project_type):
     data = request.get_json()
-    result = AnnotationResult.create_result(**data)
+    if project_type.lower() == ProjectType.ANNOTATION.value.lower():
+        result = AnnotationResult.create_result(**data)
+    elif project_type.lower() == ProjectType.EVALUATION.value.lower():
+        result = EvaluationResult.create_result(**data)
     if result:
         return '', http.HTTPStatus.CREATED
     else:
