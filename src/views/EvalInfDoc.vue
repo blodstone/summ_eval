@@ -332,6 +332,7 @@ export default {
       precision: 50,
       recall: 50,
       project_id: this.$route.params.project_id,
+      summ_status_id: '',
       system_text: '',
     };
   },
