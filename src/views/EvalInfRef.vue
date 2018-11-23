@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container home">
         <div class="columns is-2 is-variable">
             <div class="column is-5 is-offset-1">
                 <div class="box document">
