@@ -134,7 +134,6 @@ export default {
         category: 'fluency',
       };
       sendResult.call(this, resultJSON);
-
     },
   },
   computed: {
