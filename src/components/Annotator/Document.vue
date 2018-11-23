@@ -274,7 +274,7 @@ function highlightAndAddComponentToGroup(
 
 export default {
   name: 'Document',
-  props: ['project_id'],
+  props: ['project_id', 'maxWords'],
   data() {
     return {
       doc_status_id: '',
@@ -529,7 +529,7 @@ export default {
           sumOfWords += 1;
         }
       }
-      if (sumOfWords <= 30) {
+      if (sumOfWords <= this.maxWords) {
         highlightAndAddComponentToGroup.call(
           this, whitespaceSelectedComponents, wordSelectedComponents,
           color, groupKey,
@@ -541,7 +541,7 @@ export default {
         });
       } else {
         this.$toast.open({
-          message: 'Your highlights have passed the 100 words limit. Remove previous highlights or shorten the highlights.',
+          message: `Your highlights have passed the ${this.maxWords} words limit. Remove previous highlights or shorten the highlights.`,
           type: 'is-danger',
         });
         delete this.group2color[groupKey];

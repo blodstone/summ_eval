@@ -31,8 +31,7 @@
        <!-- eslint-enable -->
        <div class="column">
          <div class="box document">
-           <Document v-on:highlight="updateSummaryBox"
-                     v-on:submitSuccess="showClosing" :project_id="project_id"></Document>
+           <Document v-on:highlight="updateSummaryBox" v-on:submitSuccess="showClosing" :project_id="project_id" :maxWords="maxWords"></Document>
          </div>
        </div>
        <div class="column is-3">
@@ -64,7 +63,7 @@ import Document from '@/components/Annotator/Document.vue';
 import LandingHighlight from '@/components/Landing/LandingHighlight.vue';
 // const randomColor = require('randomcolor');
 
-const maxWords = 30;
+const maxWords = 90;
 
 export default {
   name: 'HighlightEditor',
@@ -82,6 +81,7 @@ export default {
         landing: 'block',
         closing: 'none',
       },
+      maxWords,
     };
   },
   methods: {
