@@ -23,7 +23,7 @@
                         <h5 class="my-title">Question #1</h5>
                         <p class="my-text"> Is the summary missing important information?</p>
                         <p class="my-text">
-                            <strong>{{ coverage }} % </strong> of information is missing
+                            <strong>{{ recall }} % </strong> of information is missing
                         </p>
                         <div class="level" align="center">
                             <span class="level-left">
@@ -31,7 +31,7 @@
                             </span>
                             <span class="level-item">
                             <input type="range" min="0" max="100"
-                                   v-model="coverage" class="my-slider slider is-info is-fullwidth">
+                                   v-model="recall" class="my-slider slider is-info is-fullwidth">
                             </span>
                             <span class="level-right">
                                 <label class="label is-small">
@@ -41,7 +41,7 @@
                         <h5 class="my-title">Question #2</h5>
                         <p class="my-text"> Does the summary contain only important information?</p>
                         <p class="my-text">
-                            <strong>{{ redundancy }} % </strong> of information is important
+                            <strong>{{ precision }} % </strong> of information is important
                         </p>
                         <div class="level" align="center">
                             <span class="level-left">
@@ -51,7 +51,7 @@
                             </span>
                             <span class="level-item">
                             <input type="range" min="0" max="100"
-                                   v-model="redundancy"
+                                   v-model="precision"
                                    class="my-slider slider is-info is-fullwidth">
                             </span>
                             <span class="level-right">
@@ -91,8 +91,8 @@ export default {
     return {
       system_text: '',
       ref_text: '',
-      redundancy: 50,
-      coverage: 50,
+      precision: 50,
+      recall: 50,
       project_id: this.$route.params.project_id,
     };
   },

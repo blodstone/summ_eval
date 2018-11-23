@@ -20,7 +20,7 @@
                         <div style="margin-bottom: 1.8rem; margin-top: 1.8rem">
                             <vue-slider v-model="intensitySlider.value"
                                         v-bind="intensitySlider.options"
-                                        v-on:input="on_slider_input"></vue-slider>
+                                        v-on:input="onSliderInput"></vue-slider>
                         </div>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                         <h5 class="my-title">Question #1</h5>
                         <p class="my-text"> Is the summary missing important information?</p>
                         <p class="my-text">
-                            <strong>{{ coverage }} % </strong> of information is missing
+                            <strong>{{ recall }} % </strong> of information is missing
                         </p>
                         <div class="level" align="center">
                             <span class="level-left">
@@ -52,7 +52,7 @@
                             </span>
                             <span class="level-item">
                             <input type="range" min="0" max="100"
-                                   v-model="coverage" class="my-slider slider is-info is-fullwidth">
+                                   v-model="recall" class="my-slider slider is-info is-fullwidth">
                             </span>
                             <span class="level-right">
                                 <label class="label is-small">Everything <br/> is <br/> missing</label>
@@ -61,7 +61,7 @@
                         <h5 class="my-title">Question #2</h5>
                         <p class="my-text"> Does the summary contain only important information?</p>
                         <p class="my-text">
-                            <strong>{{ redundancy }} % </strong> of information is important
+                            <strong>{{ precision }} % </strong> of information is important
                         </p>
                         <div class="level" align="center">
                             <span class="level-left">
@@ -69,14 +69,14 @@
                             </span>
                             <span class="level-item">
                             <input type="range" min="0" max="100"
-                                   v-model="redundancy" class="my-slider slider is-info is-fullwidth">
+                                   v-model="precision" class="my-slider slider is-info is-fullwidth">
                             </span>
                             <span class="level-right">
                                 <label class="label is-small">Everything <br/> is <br/> important</label>
                             </span>
                         </div>
                         <a class="button is-primary" :disabled="timer.isRunning"
-                    v-on:click="saveAnnotation()">{{ timenow }}</a>
+                    v-on:click="saveEvaluation()">{{ timenow }}</a>
                     </div>
                 </div>
             </div>
@@ -209,7 +209,7 @@ function getFile() {
     .then((response) => {
       parseDoc.call(this, response.data.doc_json);
       this.system_text = response.data.system_text;
-      // this.doc_status_id = response.data.doc_status_id;
+      this.summ_status_id = response.data.summ_status_id;
     })
     .catch((error) => {
       this.$toast.open({
@@ -221,6 +221,22 @@ function getFile() {
 
 function getColor(val) {
   return 255 - ((val / this.highlight.max) * 255);
+}
+
+function sendResult(resultJSON) {
+  axios.post('project/save_result/evaluation', resultJSON)
+    .then(() => {
+      this.$toast.open({
+        message: 'Submission successful.',
+        type: 'is-success',
+      });
+    })
+    .catch((error) => {
+      this.$toast.open({
+        message: `${error}`,
+        type: 'is-danger',
+      });
+    });
 }
 
 export default {
@@ -242,7 +258,7 @@ export default {
     },
   },
   methods: {
-    on_slider_input() {
+    onSliderInput() {
       const first = getColor.call(this, this.intensitySlider.value[0]);
       const second = getColor.call(this, this.intensitySlider.value[1]);
       this.intensitySlider.options.processStyle.backgroundImage =
@@ -256,8 +272,15 @@ export default {
         }];
       redrawHighlight.call(this);
     },
-    save_annotation() {
-
+    saveEvaluation() {
+      const resultJSON = {
+        project_id: this.project_id,
+        status_id: this.summ_status_id,
+        precision: this.precision,
+        recall: this.recall,
+        category: 'Informativeness_Doc',
+      };
+      sendResult.call(this, resultJSON);
     },
   },
   data() {
@@ -306,8 +329,8 @@ export default {
       whitespaces2Groups: {},
       // A mapping of word index to group index
       words2Groups: {},
-      redundancy: 50,
-      coverage: 50,
+      precision: 50,
+      recall: 50,
       project_id: this.$route.params.project_id,
       system_text: '',
     };
