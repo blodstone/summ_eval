@@ -34,9 +34,7 @@ def api_project_single_doc(project_type, project_category, project_id):
         else:
             for summ_status in project.summ_statuses:
                 n_results = len(EvaluationResult.query.filter_by(status_id=summ_status.id).all())
-                if summ_status.total_exp_results == n_results:
-                    continue
-                else:
+                if summ_status.total_exp_results != n_results:
                     system_summary = Summary.query.get(summ_status.summary_id)
                     system_text = system_summary.text
                     doc_json = Document.get_dict(system_summary.doc_id)
@@ -71,9 +69,14 @@ def api_project_create(project_type):
             return '', http.HTTPStatus.CONFLICT
 
 
-@api.route('/project/<project_name>', methods=['GET'])
-def api_project_get(project_name):
-    projects = AnnotationProject.query.filter_by(name=project_name).all()
+@api.route('/project/get/<project_type>/<project_name>', methods=['GET'])
+def api_project_get(project_type, project_name):
+    if project_type.lower() == ProjectType.ANNOTATION.value.lower():
+        projects = AnnotationProject.query.filter_by(name=project_name).all()
+    elif project_type.lower() == ProjectType.EVALUATION.value.lower():
+        projects = EvaluationProject.query.filter_by(name=project_name).all()
+    else:
+        return '', http.HTTPStatus.BAD_REQUEST
     if len(projects) == 0:
         return '', http.HTTPStatus.NO_CONTENT
     else:
@@ -83,7 +86,7 @@ def api_project_get(project_name):
         return jsonify(result_json)
 
 
-@api.route('/project/<project_type>/save_result', methods=['POST'])
+@api.route('/project/save_result/<project_type>', methods=['POST'])
 def api_project_save_result(project_type):
     data = request.get_json()
     if project_type.lower() == ProjectType.ANNOTATION.value.lower():

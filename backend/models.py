@@ -1,5 +1,4 @@
 import json
-import uuid
 from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -144,7 +143,7 @@ class EvaluationResult(db.Model):
                 precision=kwargs['precision'], recall=kwargs['recall'], status_id=kwargs['status_id'])
             db.session.add(result)
             db.session.commit()
-        elif kwargs['category'] == ProjectCategory.FLUENCY:
+        elif kwargs['category'].lower() == ProjectCategory.FLUENCY.value.lower():
             result = EvaluationResult(fluency=kwargs['fluency'], status_id=kwargs['status_id'])
             db.session.add(result)
             db.session.commit()
