@@ -1,6 +1,15 @@
 <template>
   <div class="container home">
-        <div class="columns is-2 is-variable">
+        <div class="columns" :style="{ display: display.landing }">
+            <div class="column is-8 is-offset-2 box content">
+                <LandingInfRef></LandingInfRef>
+                <div align="center">
+                    <a class="button is-primary"
+                    v-on:click="closeLanding()">I consent</a>
+                </div>
+            </div>
+        </div>
+        <div class="columns" :style="{ display: display.content }">
             <div class="column is-5 is-offset-1">
                 <div class="box document">
                     <div class="content">
@@ -71,6 +80,8 @@
 
 <script>
 // @ is an alias to /src
+import LandingInfRef from '@/components/Landing/LandingInfRef.vue';
+
 const axios = require('axios');
 
 const waitTimeForButton = 5;
@@ -107,6 +118,9 @@ function sendResult(resultJSON) {
 }
 
 export default {
+  components: {
+    LandingInfRef,
+  },
   data() {
     return {
       system_text: '',
@@ -121,9 +135,18 @@ export default {
       recall: 50,
       project_id: this.$route.params.project_id,
       summ_status_id: '',
+      display: {
+        content: 'none',
+        landing: 'block',
+      },
     };
   },
   methods: {
+    closeLanding() {
+      this.display.content = 'flex';
+      this.display.landing = 'none';
+      window.scrollTo(0, 0);
+    },
     saveEvaluation() {
       const resultJSON = {
         project_id: this.project_id,

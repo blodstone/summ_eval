@@ -1,6 +1,15 @@
  <template>
    <div class="container is-fluid home">
-     <div class="columns">
+     <div class="columns" :style="{ display: display.landing }">
+            <div class="column is-8 is-offset-2 box content">
+                <LandingHighlight></LandingHighlight>
+                <div align="center">
+                    <a class="button is-primary"
+                    v-on:click="closeLanding()">I consent</a>
+                </div>
+            </div>
+        </div>
+     <div class="columns" :style="{ display: display.content }">
        <div class="column is-3">
          <div class="box instruction">
            <div class="content">
@@ -44,23 +53,36 @@
 /* eslint no-unused-vars: ["error", { "args": "none" }] */
 /* eslint no-continue: "off" */
 import Document from '@/components/Annotator/Document.vue';
+import LandingHighlight from '@/components/Landing/LandingHighlight.vue';
 // const randomColor = require('randomcolor');
+
+const maxWords = 30;
 
 export default {
   name: 'HighlightEditor',
   components: {
+    LandingHighlight,
     Document,
   },
   data() {
     return {
       project_id: this.$route.params.project_id,
-      wordsLeft: 30,
+      wordsLeft: maxWords,
       summaries: '',
+      display: {
+        content: 'none',
+        landing: 'block',
+      },
     };
   },
   methods: {
+    closeLanding() {
+      this.display.content = 'flex';
+      this.display.landing = 'none';
+      window.scrollTo(0, 0);
+    },
     updateSummaryBox(data) {
-      this.wordsLeft = 30 - data.words;
+      this.wordsLeft = maxWords - data.words;
       this.summaries = data.summaries;
     },
   },

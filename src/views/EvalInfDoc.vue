@@ -1,6 +1,15 @@
 <template>
     <div class="container is-fluid home">
-        <div class="columns is-2 is-variable">
+        <div class="columns" :style="{ display: display.landing }">
+            <div class="column is-8 is-offset-2 box content">
+                <LandingInfDoc></LandingInfDoc>
+                <div align="center">
+                    <a class="button is-primary"
+                    v-on:click="closeLanding()">I consent</a>
+                </div>
+            </div>
+        </div>
+        <div class="columns" :style="{ display: display.content }">
             <div class="column is-3">
                 <div class="box instruction">
                     <div class="content">
@@ -89,6 +98,7 @@
 import Word from '@/components/Component/Word.vue';
 import Char from '@/components/Component/Char.vue';
 import LineBreaker from '@/components/Component/LineBreaker.vue';
+import LandingInfDoc from '@/components/Landing/LandingInfDoc.vue';
 import Vue from 'vue';
 import vueSlider from 'vue-slider-component';
 // const randomColor = require('randomcolor');
@@ -243,6 +253,7 @@ export default {
   name: 'EvalInfDoc',
   components: {
     vueSlider,
+    LandingInfDoc,
   },
   computed: {
     timenow() {
@@ -258,6 +269,11 @@ export default {
     },
   },
   methods: {
+    closeLanding() {
+      this.display.content = 'flex';
+      this.display.landing = 'none';
+      window.scrollTo(0, 0);
+    },
     onSliderInput() {
       const first = getColor.call(this, this.intensitySlider.value[0]);
       const second = getColor.call(this, this.intensitySlider.value[1]);
@@ -319,6 +335,10 @@ export default {
               '-webkit-linear-gradient(left, rgba(255,255,0,1), rgba(255,0,0,1))',
           },
         },
+      },
+      display: {
+        content: 'none',
+        landing: 'block',
       },
       components: [],
       // A collection of Word components
