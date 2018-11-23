@@ -15,6 +15,7 @@
                  width="35" alt="Highlight">
         </div>
     </div>
+
 </template>
 
 <script>
@@ -190,6 +191,9 @@ function sendResult(resultJSON) {
       this.$toast.open({
         message: 'Submission successful.',
         type: 'is-success',
+      });
+      this.$emit('submitSuccess', {
+        submitSuccess: true,
       });
     })
     .catch((error) => {
