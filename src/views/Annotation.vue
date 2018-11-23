@@ -31,7 +31,8 @@
        <!-- eslint-enable -->
        <div class="column">
          <div class="box document">
-           <Document v-on:highlight="updateSummaryBox" :project_id="project_id"></Document>
+           <Document v-on:highlight="updateSummaryBox"
+                     v-on:submitSuccess="showClosing" :project_id="project_id"></Document>
          </div>
        </div>
        <div class="column is-3">
@@ -46,6 +47,13 @@
          </div>
        </div>
      </div>
+        <div class="columns" :style="{ display: display.closing }">
+            <div class="column is-8 is-offset-2 box content">
+                <div align="center">
+                    <h1>Thank you for submitting!</h1>
+                </div>
+            </div>
+        </div>
    </div>
 </template>
 
@@ -72,6 +80,7 @@ export default {
       display: {
         content: 'none',
         landing: 'block',
+        closing: 'none',
       },
     };
   },
@@ -80,6 +89,10 @@ export default {
       this.display.content = 'flex';
       this.display.landing = 'none';
       window.scrollTo(0, 0);
+    },
+    showClosing() {
+      this.display.content = 'none';
+      this.display.closing = 'flex';
     },
     updateSummaryBox(data) {
       this.wordsLeft = maxWords - data.words;

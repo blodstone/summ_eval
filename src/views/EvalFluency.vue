@@ -45,6 +45,13 @@
             </div>
             <!-- eslint-enable -->
         </div>
+        <div class="columns" :style="{ display: display.closing }">
+            <div class="column is-8 is-offset-2 box content">
+                <div align="center">
+                    <h1>Thank you for submitting!</h1>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -78,6 +85,8 @@ function sendResult(resultJSON) {
         message: 'Submission successful.',
         type: 'is-success',
       });
+      this.display.content = 'none';
+      this.display.closing = 'flex';
     })
     .catch((error) => {
       this.$toast.open({
@@ -106,7 +115,8 @@ export default {
       is_landing: true,
       display: {
         content: 'none',
-        landing: 'block',
+        landing: 'flex',
+        closing: 'none',
       },
     };
   },

@@ -63,7 +63,7 @@ export default {
             message: 'Project created!',
             type: 'is-success',
           });
-          // this.$router.replace('/evaluation');
+          this.$router.push({ name: 'manage' });
         })
         .catch((error) => {
           this.$toast.open({
