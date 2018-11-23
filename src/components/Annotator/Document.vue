@@ -1,4 +1,5 @@
 <template>
+    <!--TODO: Fix empty highlight-->
     <div>
         <div ref="document" v-on:mouseup="showHighlightMenu"
              @contextmenu.prevent="deleteHighlightGroup" v-on:click="showMentions">
@@ -184,7 +185,7 @@ function getFile() {
 }
 
 function sendResult(resultJSON) {
-  axios.post('project/save_annotation', resultJSON)
+  axios.post('project/save_result/annotation', resultJSON)
     .then(() => {
       this.$toast.open({
         message: 'Submission successful.',
@@ -333,6 +334,7 @@ export default {
           components: [],
           words: [],
         },
+        category: 'highlight',
       };
       for (let i = 0; i < Object.keys(this.groups).length; i += 1) {
         const key = Object.keys(this.groups)[i];

@@ -1,5 +1,4 @@
 import json
-import uuid
 from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -138,12 +137,13 @@ class EvaluationResult(db.Model):
     @classmethod
     def create_result(cls, **kwargs):
         result = None
-        if kwargs['category'] == ProjectCategory.INFORMATIVENESS:
+        if kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower() \
+           or kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
             result = EvaluationResult(
                 precision=kwargs['precision'], recall=kwargs['recall'], status_id=kwargs['status_id'])
             db.session.add(result)
             db.session.commit()
-        elif kwargs['category'] == ProjectCategory.FLUENCY:
+        elif kwargs['category'].lower() == ProjectCategory.FLUENCY.value.lower():
             result = EvaluationResult(fluency=kwargs['fluency'], status_id=kwargs['status_id'])
             db.session.add(result)
             db.session.commit()
@@ -214,6 +214,11 @@ class AnnotationProject(db.Model, BaseProject):
 
     doc_statuses = db.relationship('DocStatus', backref='project', lazy=True)
 
+    def get_dict(self):
+        return dict(id=self.id, name=self.name, category=self.category,
+                    created_at=self.created_at, finished_at=self.finished_at,
+                    is_active=self.is_active)
+
     @classmethod
     def create_project(cls, **kwargs):
         dataset = Dataset.query.filter_by(name=kwargs['dataset_name']).first()
@@ -236,6 +241,11 @@ class EvaluationProject(BaseProject, db.Model):
 
     summ_group_id = db.Column(db.INTEGER, db.ForeignKey('summary_group.id'), nullable=False)
     summ_statuses = db.relationship('SummaryStatus', backref='project', lazy=True)
+
+    def get_dict(self):
+        return dict(id=self.id, name=self.name, category=self.category,
+                    created_at=self.created_at, finished_at=self.finished_at,
+                    is_active=self.is_active, summ_group_id=self.summ_group_id)
 
     @classmethod
     def create_project(cls, **kwargs):
