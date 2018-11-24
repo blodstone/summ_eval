@@ -37,7 +37,7 @@
         <p>All the information that we collect about you during the course of the research will be kept strictly confidential and will only be accessible to members of the research team. It will not be possible to be identified in any reports or publications unless you have given us your explicit consent for this. We will not share any of your information to other parties.</p>
 
         <p>According to data protection legislation, we are required to inform you that the legal basis we are applying in order to process your personal data is that ‘processing is necessary for the performance of a task carried out in the public interest’ (Article 6(1)(e)).</p>
-        <p>Further information can be found in the <a href="https://www.sheffield.ac.uk/govern/data-protection/privacy/general.">University’s Privacy Notice</a>
+        <p>Further information can be found in the <a target="_blank" href="https://www.sheffield.ac.uk/govern/data-protection/privacy/general.">University’s Privacy Notice</a>
         </p>
 
         <p>Thank you for reading this</p>

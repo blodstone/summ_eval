@@ -4,7 +4,7 @@
             <div class="column is-8 is-offset-2 box content">
                 <LandingInfDoc></LandingInfDoc>
                 <div align="center">
-                    <a class="button is-primary"
+                    <a class="button is-primary is-large" style="margin-bottom: 2rem"
                     v-on:click="closeLanding()">I consent</a>
                 </div>
             </div>
@@ -17,10 +17,8 @@
                             Instructions & Controls
                         </h1>
                         <!-- eslint-disable -->
-                        <h5 class="my-header">Instruction</h5>
-                        <h5 class="my-title">Task Description</h5>
                         <p class="my-text">
-                            Your task is to assess the quality of the summary based on the article.
+                            Your task is <strong>to assess the quality of the summary based on the article</strong>.
                         </p>
                         <hr>
                         <h5 class="my-header">Controls</h5>
@@ -236,9 +234,6 @@ function getFile() {
     });
 }
 
-function getColor(val) {
-  return 255 - ((val / this.highlight.max) * 255);
-}
 
 function sendResult(resultJSON) {
   axios.post('project/save_result/evaluation', resultJSON)
@@ -284,17 +279,6 @@ export default {
       window.scrollTo(0, 0);
     },
     onSliderInput() {
-      const first = getColor.call(this, this.intensitySlider.value[0]);
-      const second = getColor.call(this, this.intensitySlider.value[1]);
-      this.intensitySlider.options.processStyle.backgroundImage =
-        `-webkit-linear-gradient(left, rgba(255,${first},0,1), rgba(255,${second},0,1))`;
-      this.intensitySlider.options.sliderStyle = [
-        {
-          backgroundColor: `rgba(255,${first},0,1)`,
-        },
-        {
-          backgroundColor: `rgba(255,${second},0,1)`,
-        }];
       redrawHighlight.call(this);
     },
     saveEvaluation() {
@@ -321,28 +305,16 @@ export default {
         timer: null,
       },
       intensitySlider: {
-        value: [0, 2],
+        value: 0,
         options: {
           tooltip: 'always',
-          tooltipDir: [
-            'bottom',
-            'top',
-          ],
-          piecewise: false,
-          piecewiseLabel: true,
+          piecewise: true,
           data: [],
-          sliderStyle: [
-            {
-              backgroundColor: 'rgba(255,255,0,1)',
-            },
-            {
-              backgroundColor: 'rgba(255,0,0,1)',
-            },
-          ],
-          processStyle: {
-            backgroundImage:
-              '-webkit-linear-gradient(left, rgba(255,255,0,1), rgba(255,0,0,1))',
-          },
+          speed: 0.3,
+          min: 1,
+          max: 0,
+          piecewiseLabel: true,
+          reverse: true,
         },
       },
       display: {

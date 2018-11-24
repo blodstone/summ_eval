@@ -13,6 +13,9 @@
             <img v-on:click="highlightSelection"
                  src="../../assets/highlight_menu.png"
                  width="35" alt="Highlight">
+            <div style="background-color: #32A0C1; color: white" align="center">
+                {{ selectedTokens }}
+            </div>
         </div>
     </div>
 
@@ -274,7 +277,7 @@ function highlightAndAddComponentToGroup(
 
 export default {
   name: 'Document',
-  props: ['project_id', 'maxWords'],
+  props: ['project_id', 'maxTokens'],
   data() {
     return {
       doc_status_id: '',
@@ -284,6 +287,8 @@ export default {
         isRunning: true,
         timer: null,
       },
+      selectedTokens: 0,
+      // A collection of Word + Char components
       components: [],
       // A collection of Word components
       words: {},
@@ -379,9 +384,13 @@ export default {
     showMentions(event) {
       let corefID = -1;
       if (event.target.parentElement.dataset.type === 'word') {
-        corefID = this.words2corefID[event.target.parentElement.dataset.index];
+        if (event.target.parentElement.dataset.index in this.words2corefID) {
+          corefID = this.words2corefID[event.target.parentElement.dataset.index];
+        }
       } else if (event.target.parentElement.dataset.type === 'char') {
-        corefID = this.words2corefID[event.target.parentElement.parentElement.dataset.index];
+        if (event.target.parentElement.parentElement.dataset.index in this.words2corefID) {
+          corefID = this.words2corefID[event.target.parentElement.parentElement.dataset.index];
+        }
       }
       if (corefID !== -1) {
         for (let i = 0; i < this.annotatedWords.length; i += 1) {
@@ -432,7 +441,7 @@ export default {
                     this.whitespaces2Groups[component.$props.index].splice(i, 1);
                     if (this.whitespaces2Groups[component.$props.index].length === 0) {
                     // eslint-disable-next-line
-                    component.$data.charStyle['background-color'] = '#ffffff';
+                        component.$data.charStyle['background-color'] = '#ffffff';
                     }
                     break;
                   }
@@ -443,7 +452,7 @@ export default {
                     this.words2Groups[component.$props.index].splice(i, 1);
                     if (this.words2Groups[component.$props.index].length === 0) {
                     // eslint-disable-next-line
-                    component.rmHighlight();
+                        component.rmHighlight();
                     }
                     break;
                   }
@@ -453,16 +462,16 @@ export default {
             if (groupIndex in this.groups) {
               delete this.groups[groupIndex];
             }
-            let sumOfWords = 0;
+            let sumOfTokens = 0;
             // eslint-disable-next-line
-          for (const key in this.words2Groups) {
+            for (const key in this.words2Groups) {
               if (this.words2Groups[key].length > 0) {
-                sumOfWords += 1;
+                sumOfTokens += this.words[key].getTokensLength();
               }
             }
             generateRawHTMLSummaries.call(this);
             this.$emit('highlight', {
-              words: sumOfWords,
+              tokens: sumOfTokens,
               summaries: this.rawSummariesHTML,
             });
           },
@@ -514,34 +523,42 @@ export default {
               wordSelectedComponents.concat(tempStoreComponent.call(this, this.words[index], 'word', groupKey));
           }
         }
+        if (iterator.referenceNode.parentElement.dataset.type === 'char') {
+          // eslint-disable-next-line
+          const index = iterator.referenceNode.parentElement.dataset.index;
+          if (!(wordSelectedComponents.includes(this.words[index]))) {
+            wordSelectedComponents =
+              wordSelectedComponents.concat(tempStoreComponent.call(this, this.words[index], 'word', groupKey));
+          }
+        }
         if (iterator.referenceNode === range.endContainer) break;
       }
-      let sumOfWords = 0;
+      let sumOfTokens = 0;
       // eslint-disable-next-line
       for (const key in this.words2Groups) {
         if (this.words2Groups[key].length > 0) {
-          sumOfWords += 1;
+          sumOfTokens += this.words[key].getTokensLength();
         }
       }
       for (let i = 0; i < wordSelectedComponents.length; i += 1) {
         const word = wordSelectedComponents[i];
         if (this.words2Groups[word.index].length === 0) {
-          sumOfWords += 1;
+          sumOfTokens += this.words[word.index].getTokensLength();
         }
       }
-      if (sumOfWords <= this.maxWords) {
+      if (sumOfTokens <= this.maxTokens) {
         highlightAndAddComponentToGroup.call(
           this, whitespaceSelectedComponents, wordSelectedComponents,
           color, groupKey,
         );
         generateRawHTMLSummaries.call(this);
         this.$emit('highlight', {
-          words: sumOfWords,
+          tokens: sumOfTokens,
           summaries: this.rawSummariesHTML,
         });
       } else {
         this.$toast.open({
-          message: `Your highlights have passed the ${this.maxWords} words limit. Remove previous highlights or shorten the highlights.`,
+          message: `Your highlights have passed the ${this.maxTokens} characters limit. Remove previous highlights or shorten the highlights.`,
           type: 'is-danger',
         });
         delete this.group2color[groupKey];
@@ -559,6 +576,42 @@ export default {
         this.floatMenu.position = 'fixed';
         this.$set(this.floatMenu, 'left', `${event.pageX - 10}px`);
         this.$set(this.floatMenu, 'top', `${event.pageY - (window.scrollY - 20)}px`);
+        const range = selection.getRangeAt(0);
+        const iterator = document.createNodeIterator(
+          range.commonAncestorContainer,
+          NodeFilter.SHOW_ALL, // pre-filter
+          {
+            acceptNode() {
+              return NodeFilter.FILTER_ACCEPT;
+            },
+          },
+        );
+        const nodes = [];
+        // Add selected component to storage
+        let wordsSelected = [];
+        while (iterator.nextNode()) {
+        // eslint-disable-next-line
+        if (nodes.length === 0 && iterator.referenceNode !== range.startContainer) continue;
+          nodes.push(iterator.referenceNode);
+          // eslint-disable-next-line
+          if (iterator.referenceNode.parentElement.dataset.type === 'word') {
+            const { index } = iterator.referenceNode.parentElement.dataset;
+            if (!wordsSelected.includes(index)) {
+              wordsSelected = wordsSelected.concat(index);
+            }
+          }
+          if (iterator.referenceNode.parentElement.dataset.type === 'char') {
+            const { index } = iterator.referenceNode.parentElement.dataset;
+            if (!wordsSelected.includes(index)) {
+              wordsSelected = wordsSelected.concat(index);
+            }
+          }
+          if (iterator.referenceNode === range.endContainer) break;
+        }
+        this.selectedTokens = 0;
+        for (let i = 0; i < wordsSelected.length; i += 1) {
+          this.selectedTokens += this.words[wordsSelected[i]].getTokensLength();
+        }
       } else {
         this.floatMenu.display = 'none';
       }

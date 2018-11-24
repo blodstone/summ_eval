@@ -187,6 +187,7 @@ export default {
                 message: `Project ${id} has been closed`,
                 type: 'is-success',
               });
+              this.$router.push({ name: 'manage' });
             })
             .catch((error) => {
               this.$toast.open({

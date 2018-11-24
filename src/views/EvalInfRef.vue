@@ -4,7 +4,7 @@
             <div class="column is-8 is-offset-2 box content">
                 <LandingInfRef></LandingInfRef>
                 <div align="center">
-                    <a class="button is-primary"
+                    <a class="button is-primary is-large" style="margin-bottom: 2rem"
                     v-on:click="closeLanding()">I consent</a>
                 </div>
             </div>
