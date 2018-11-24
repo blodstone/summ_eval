@@ -14,28 +14,42 @@
                 <div class="box summary">
                     <div class="content">
                         <h1>Assessment</h1>
-                        <h5 class="my-header">Summary to be assessed</h5>
+                        <h5 class="my-header">Assess the following summary</h5>
                         <p class="my-summary">{{ system_text }}</p>
                         <hr>
                         <h5 class="my-header">
-                            Your Assessment
+                        <strong>How strongly agree are you on the following statements?</strong>
                         </h5>
-                        <h5 class="my-title">Fluency</h5>
-                        <p class="my-text"> Is there any grammatical mistake in the text?</p>
                         <p class="my-text">
-                            <strong>{{ fluency }} % </strong> of text has grammatical mistake
+                            The summary is <strong>fluent</strong>.
                         </p>
-                        <div class="level" align="center">
+                        <div class="level" align="center"
+                             style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
                             <span class="level-left">
-                                <label class="label is-small">No grammatical <br> mistake</label>
+                                <label class="label is-small">Strongly <br/> disagree</label>
                             </span>
                             <span class="level-item">
-                            <input type="range" min="0" max="100"
-                                   v-model="fluency" class="my-slider slider is-info is-fullwidth">
+                            <vue-slider min="1" max="100" v-model="fluency"
+                                        v-if="show" width="100%"></vue-slider>
                             </span>
                             <span class="level-right">
-                                <label class="label is-small">
-                                   Too many <br> grammatical mistake</label>
+                                <label class="label is-small">Strongly <br/> agree</label>
+                            </span>
+                        </div>
+                        <p class="my-text">
+                            The summary is <strong>clear</strong>.
+                        </p>
+                        <div class="level" align="center"
+                             style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
+                            <span class="level-left">
+                                <label class="label is-small">Strongly <br/> disagree</label>
+                            </span>
+                            <span class="level-item">
+                            <vue-slider min="1" max="100" v-model="clarity"
+                                        v-if="show" width="100%"></vue-slider>
+                            </span>
+                            <span class="level-right">
+                                <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
                         <a class="button is-primary" :disabled="timer.isRunning"
@@ -58,6 +72,7 @@
 <script>
 // @ is an alias to /src
 import LandingFluency from '@/components/Landing/LandingFluency.vue';
+import vueSlider from 'vue-slider-component';
 
 const axios = require('axios');
 
@@ -99,12 +114,15 @@ function sendResult(resultJSON) {
 export default {
   components: {
     LandingFluency,
+    vueSlider,
   },
   data() {
     return {
+      show: false,
       system_text: '',
       ref_text: '',
       fluency: 50,
+      clarity: 50,
       project_id: this.$route.params.project_id,
       timer: {
         now: Math.trunc(new Date().getTime() / 1000),
@@ -125,12 +143,14 @@ export default {
       this.display.content = 'flex';
       this.display.landing = 'none';
       window.scrollTo(0, 0);
+      this.show = true;
     },
     saveEvaluation() {
       const resultJSON = {
         project_id: this.project_id,
         status_id: this.summ_status_id,
         fluency: this.fluency,
+        clarity: this.clarity,
         category: 'fluency',
       };
       sendResult.call(this, resultJSON);

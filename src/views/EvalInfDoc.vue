@@ -21,12 +21,11 @@
                             Your task is <strong>to assess the quality of the summary based on the article</strong>.
                         </p>
                         <hr>
-                        <h5 class="my-header">Controls</h5>
-                        <h5 class="my-title">Heatmap</h5>
-                        <p class="my-text">Phrases that are important in the document have been marked using heatmap coloring. The higher the intensity the greater the phrases' importance. You can view certain intensities range by changing the slider below.</p>
-                        <div style="margin-bottom: 1.8rem; margin-top: 1.8rem">
-                            <vue-slider v-model="intensitySlider.value"
-                                        v-bind="intensitySlider.options"
+                        <p class="my-text">Phrases that are important in the document have been marked using heatmap coloring. The higher the color intensity the greater the phrases' importance.</p>
+                        <p class="my-text">The following slider indicates the number of highlights in the document. You can remove less important phrases by sliding the slider to the right.</p>
+                        <div style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
+                            <vue-slider ref="slider" v-model="intensitySlider.value"
+                                        v-bind="intensitySlider.options" v-if="show"
                                         v-on:input="onSliderInput"></vue-slider>
                         </div>
                     </div>
@@ -42,44 +41,39 @@
                 <div class="box summary">
                     <div class="content">
                         <h1>Assessment</h1>
-                        <h5 class="my-header">Summary to be assessed</h5>
+                        <h5 class="my-header">Assess the following summary.</h5>
                         <p class="my-summary">{{ system_text }}</p>
                         <hr>
                         <h5 class="my-header">
-                            Your Assessment
+                        <strong>How strongly agree are you on the following statements?</strong>
                         </h5>
-                        <h5 class="my-title">Question #1</h5>
-                        <p class="my-text"> Is the summary missing important information?</p>
                         <p class="my-text">
-                            <strong>{{ recall }} % </strong> of information is missing
+                            <strong>All important information</strong> from the document is present in the summary
                         </p>
-                        <div class="level" align="center">
+                        <div class="level" align="center" style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
                             <span class="level-left">
-                                <label class="label is-small">Nothing <br/> is <br/> missing</label>
+                                <label class="label is-small">Strongly <br/> disagree</label>
                             </span>
                             <span class="level-item">
-                            <input type="range" min="0" max="100"
-                                   v-model="recall" class="my-slider slider is-info is-fullwidth">
+                            <vue-slider min="1" max="100" v-model="recall"
+                                        v-if="show" width="100%"></vue-slider>
                             </span>
                             <span class="level-right">
-                                <label class="label is-small">Everything <br/> is <br/> missing</label>
+                                <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
-                        <h5 class="my-title">Question #2</h5>
-                        <p class="my-text"> Does the summary contain only important information?</p>
                         <p class="my-text">
-                            <strong>{{ precision }} % </strong> of information is important
-                        </p>
-                        <div class="level" align="center">
+                            <strong>Only important information</strong> from the document is present in the summary.</p>
+                        <div class="level" align="center" style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
                             <span class="level-left">
-                                <label class="label is-small">Nothing <br/> is <br/> important</label>
+                                <label class="label is-small">Strongly <br/> disagree</label>
                             </span>
                             <span class="level-item">
-                            <input type="range" min="0" max="100"
-                                   v-model="precision" class="my-slider slider is-info is-fullwidth">
+                           <vue-slider min="1" max="100" v-model="precision"
+                                       v-if="show" width="100%"></vue-slider>
                             </span>
                             <span class="level-right">
-                                <label class="label is-small">Everything <br/> is <br/> important</label>
+                                <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
                         <a class="button is-primary" :disabled="timer.isRunning"
@@ -179,16 +173,17 @@ function getIntensities(results) {
   for (let i = 0; i <= this.highlight.max; i += 1) {
     this.intensitySlider.options.data.push(i);
   }
-  this.intensitySlider.value = [0, this.highlight.max];
+  this.intensitySlider.max = this.highlight.max;
+  this.intensitySlider.min = 1;
+  this.intensitySlider.value = this.highlight.max;
 }
 
 function redrawHighlight() {
   for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
     const index = parseInt(Object.keys(this.highlight.intensities)[i], 10);
     const intensity = this.highlight.intensities[Object.keys(this.highlight.intensities)[i]];
-    const nLow = this.intensitySlider.value[0] / this.highlight.max;
-    const nHigh = this.intensitySlider.value[1] / this.highlight.max;
-    if (intensity <= nHigh && intensity >= nLow) {
+    const nLow = (this.highlight.max - this.intensitySlider.value) / this.highlight.max;
+    if (intensity >= nLow) {
       this.components[index].highlight(`rgba(255, ${255 - (intensity * 255)}, 0)`);
     } else {
       this.components[index].rmHighlight();
@@ -277,6 +272,7 @@ export default {
       this.display.content = 'flex';
       this.display.landing = 'none';
       window.scrollTo(0, 0);
+      this.show = true;
     },
     onSliderInput() {
       redrawHighlight.call(this);
@@ -298,6 +294,7 @@ export default {
         intensities: {},
         max: -1,
       },
+      show: false,
       timer: {
         now: Math.trunc(new Date().getTime() / 1000),
         date: Math.trunc(new Date().getTime() / 1000),
@@ -319,7 +316,7 @@ export default {
       },
       display: {
         content: 'none',
-        landing: 'block',
+        landing: 'flex',
         closing: 'none',
       },
       components: [],

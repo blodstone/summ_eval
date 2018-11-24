@@ -185,6 +185,7 @@ def test_project_eval_fluency_result(test_client, init_db):
         'project_id': project_id,
         'status_id': summ_status_id,
         'fluency': 1.0,
+        'clarity': 1.0,
         'category': ProjectCategory.FLUENCY.value,
     }
     response = test_client.post('project/save_result/evaluation',
