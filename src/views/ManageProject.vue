@@ -90,7 +90,7 @@
                     <b-table-column field="id" label="ID" width="40">
                         {{ props.row.id }}
                     </b-table-column>
-                    <b-table-column field="name" label="Name">
+                    <b-table-column field="name" label="Name" width="100">
                         {{ props.row.name }}
                     </b-table-column>
                     <b-table-column field="category" label="Category">
@@ -99,7 +99,7 @@
                     <b-table-column field="dataset_name" label="Dataset">
                         {{ props.row.dataset_name }}
                     </b-table-column>
-                    <b-table-column field="summ_group_name" label="Summary Group">
+                    <b-table-column field="summ_group_name" label="Summary Group" width="100">
                         {{ props.row.summ_group_name }}
                     </b-table-column>
                     <b-table-column field="created_at"

@@ -65,12 +65,11 @@ export default {
           });
           this.$router.push({ name: 'manage' });
         })
-        .catch((error) => {
+        .catch(() => {
           this.$toast.open({
             message: 'Project is not created! Something is wrong',
             type: 'is-danger',
           });
-          console.log(error);
         });
     },
   },
@@ -87,7 +86,10 @@ export default {
         }
       })
       .catch((error) => {
-        console.log(error);
+        this.$toast.open({
+          message: `${error}`,
+          type: 'is-danger',
+        });
       });
     axios.get('summ_group')
       .then((response) => {
@@ -101,7 +103,10 @@ export default {
         }
       })
       .catch((error) => {
-        console.log(error);
+        this.$toast.open({
+          message: `${error}`,
+          type: 'is-danger',
+        });
       });
   },
 };

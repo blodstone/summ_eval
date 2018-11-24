@@ -30,7 +30,7 @@
                         </h5>
                         <p class="my-text">
                             <strong>All important information
-                            </strong> from the document is present in the summary
+                            </strong> from the left panel's sentence is present in the summary
                         </p>
                         <div class="level" align="center"
                              style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
@@ -47,7 +47,7 @@
                         </div>
                         <p class="my-text">
                             <strong>Only important information</strong>
-                            from the document is present in the summary.</p>
+                            from the left panel's sentence is present in the summary.</p>
                         <div class="level" align="center"
                              style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
                             <span class="level-left">

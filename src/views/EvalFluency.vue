@@ -22,6 +22,15 @@
                         </h5>
                         <p class="my-text">
                             The summary is <strong>fluent</strong>.
+                            <b-tooltip
+                                    label="E.g. are there any grammatical mistakes?
+                                    are the sentence sounds natural?">
+                                <b-icon
+                                    pack="fas"
+                                    icon="info-circle"
+                                    size="is-small">
+                                </b-icon>
+                            </b-tooltip>
                         </p>
                         <div class="level" align="center"
                              style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
@@ -38,6 +47,15 @@
                         </div>
                         <p class="my-text">
                             The summary is <strong>clear</strong>.
+                            <b-tooltip
+                                    label="E.g. are nouns, pronouns or personal
+                                    names well-specified?">
+                                <b-icon
+                                    pack="fas"
+                                    icon="info-circle"
+                                    size="is-small">
+                                </b-icon>
+                            </b-tooltip>
                         </p>
                         <div class="level" align="center"
                              style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
