@@ -1,5 +1,6 @@
 <template>
-    <span :style="charStyle" v-bind:data-type="type" v-bind:data-index="index"><slot></slot></span>
+    <span :style="charStyle" v-bind:data-type="type"
+          v-bind:data-index="index"><slot></slot></span>
 </template>
 
 <script>

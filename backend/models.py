@@ -131,7 +131,7 @@ class EvaluationResult(db.Model):
     precision = db.Column(db.REAL, nullable=False, default=0.0)
     recall = db.Column(db.REAL, nullable=False, default=0.0)
     fluency = db.Column(db.REAL, nullable=False, default=0.0)
-
+    clarity = db.Column(db.REAL, nullable=False, default=0.0)
     status_id = db.Column(db.INTEGER, db.ForeignKey('summary_status.id'), nullable=False)
 
     @classmethod
@@ -144,7 +144,8 @@ class EvaluationResult(db.Model):
             db.session.add(result)
             db.session.commit()
         elif kwargs['category'].lower() == ProjectCategory.FLUENCY.value.lower():
-            result = EvaluationResult(fluency=kwargs['fluency'], status_id=kwargs['status_id'])
+            result = EvaluationResult(fluency=kwargs['fluency'], clarity=kwargs['clarity'],
+                                      status_id=kwargs['status_id'])
             db.session.add(result)
             db.session.commit()
         return result

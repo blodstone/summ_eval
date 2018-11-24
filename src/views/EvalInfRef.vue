@@ -4,7 +4,7 @@
             <div class="column is-8 is-offset-2 box content">
                 <LandingInfRef></LandingInfRef>
                 <div align="center">
-                    <a class="button is-primary"
+                    <a class="button is-primary is-large" style="margin-bottom: 2rem"
                     v-on:click="closeLanding()">I consent</a>
                 </div>
             </div>
@@ -13,8 +13,7 @@
             <div class="column is-5 is-offset-1">
                 <div class="box document">
                     <div class="content">
-                        <h1>Reference Text</h1>
-                        <h5 class="my-header">Read this text</h5>
+                        <h1>Read This Text</h1>
                         <p class="my-summary">{{ ref_text }}</p>
                     </div>
                 </div>
@@ -23,49 +22,43 @@
                 <div class="box summary">
                     <div class="content">
                         <h1>Assessment</h1>
-                        <h5 class="my-header">Summary to be assessed</h5>
+                        <h5 class="my-header">Assess the following summary.</h5>
                         <p class="my-summary">{{ system_text }}</p>
                         <hr>
                         <h5 class="my-header">
-                            Your Assessment
+                        <strong>How strongly agree are you on the following statements?</strong>
                         </h5>
-                        <h5 class="my-title">Question #1</h5>
-                        <p class="my-text"> Is the summary missing important information?</p>
                         <p class="my-text">
-                            <strong>{{ recall }} % </strong> of information is missing
+                            <strong>All important information
+                            </strong> from the left panel's sentence is present in the summary
                         </p>
-                        <div class="level" align="center">
+                        <div class="level" align="center"
+                             style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
                             <span class="level-left">
-                                <label class="label is-small">Nothing <br/> is <br/> missing</label>
+                                <label class="label is-small">Strongly <br/> disagree</label>
                             </span>
                             <span class="level-item">
-                            <input type="range" min="0" max="100"
-                                   v-model="recall" class="my-slider slider is-info is-fullwidth">
+                            <vue-slider min="1" max="100" v-model="recall"
+                                        v-if="show" width="100%"></vue-slider>
                             </span>
                             <span class="level-right">
-                                <label class="label is-small">
-                                    Everything <br/> is <br/> missing</label>
+                                <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
-                        <h5 class="my-title">Question #2</h5>
-                        <p class="my-text"> Does the summary contain only important information?</p>
                         <p class="my-text">
-                            <strong>{{ precision }} % </strong> of information is important
-                        </p>
-                        <div class="level" align="center">
+                            <strong>Only important information</strong>
+                            from the left panel's sentence is present in the summary.</p>
+                        <div class="level" align="center"
+                             style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
                             <span class="level-left">
-                                <label class="label is-small">
-                                    Nothing <br/> is <br/> important
-                                </label>
+                                <label class="label is-small">Strongly <br/> disagree</label>
                             </span>
                             <span class="level-item">
-                            <input type="range" min="0" max="100"
-                                   v-model="precision"
-                                   class="my-slider slider is-info is-fullwidth">
+                           <vue-slider min="1" max="100" v-model="precision"
+                                       v-if="show" width="100%"></vue-slider>
                             </span>
                             <span class="level-right">
-                                <label class="label is-small">
-                                    Everything <br/> is <br/> important</label>
+                                <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
                         <a class="button is-primary" :disabled="timer.isRunning"
@@ -88,6 +81,7 @@
 <script>
 // @ is an alias to /src
 import LandingInfRef from '@/components/Landing/LandingInfRef.vue';
+import vueSlider from 'vue-slider-component';
 
 const axios = require('axios');
 
@@ -129,9 +123,11 @@ function sendResult(resultJSON) {
 export default {
   components: {
     LandingInfRef,
+    vueSlider,
   },
   data() {
     return {
+      show: false,
       system_text: '',
       ref_text: '',
       timer: {
@@ -156,6 +152,7 @@ export default {
       this.display.content = 'flex';
       this.display.landing = 'none';
       window.scrollTo(0, 0);
+      this.show = true;
     },
     saveEvaluation() {
       const resultJSON = {

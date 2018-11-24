@@ -16,6 +16,9 @@ export default {
     };
   },
   methods: {
+    getTokensLength() {
+      return this.chars.length;
+    },
     annotate() {
       this.chars.forEach((char, idx) => {
         this.chars[idx].$data.charStyle.color = '#ff00ff';
@@ -62,6 +65,7 @@ export default {
       }
       const char = new CharClass({
         propsData: {
+          index: this.index,
           bgColor: '#ffffff',
           fgColor,
           fontWeight,
