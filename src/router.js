@@ -5,12 +5,14 @@ import EvalInfDoc from './views/EvalInfDoc.vue';
 import EvalInfRef from './views/EvalInfRef.vue';
 import EvalFluency from './views/EvalFluency.vue';
 import Login from './views/Login.vue';
+import Admin from './views/Admin.vue';
 import Home from './views/Home.vue';
 import ManageProject from './views/ManageProject.vue';
 import NewProject from './views/NewProject.vue';
 import Status from './views/Status.vue';
 import NewAnnotation from './components/Home/NewProject/NewAnnotation.vue';
 import NewEvaluation from './components/Home/NewProject/NewEvaluation.vue';
+import store from './store';
 
 Vue.use(Router);
 
@@ -18,35 +20,58 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home,
+      redirect: {
+        name: 'admin',
+      },
     },
     {
-      path: '/new',
-      component: NewProject,
+      path: '/admin',
+      component: Admin,
       children: [
         {
           path: '',
-          component: NewAnnotation,
+          name: 'admin',
+          component: Home,
         },
         {
-          path: 'annotation',
-          component: NewAnnotation,
+          path: 'new',
+          component: NewProject,
+          children: [
+            {
+              path: '',
+              name: 'new',
+              component: NewAnnotation,
+            },
+            {
+              path: 'annotation',
+              name: 'newAnnotation',
+              component: NewAnnotation,
+            },
+            {
+              path: 'evaluation',
+              name: 'newEvaluation',
+              component: NewEvaluation,
+            },
+          ],
         },
         {
-          path: 'evaluation',
-          component: NewEvaluation,
+          path: 'manage',
+          name: 'manage',
+          component: ManageProject,
+        },
+        {
+          path: 'status',
+          name: 'status',
+          component: Status,
         },
       ],
-    },
-    {
-      path: '/manage',
-      name: 'manage',
-      component: ManageProject,
-    },
-    {
-      path: '/status',
-      component: Status,
+      beforeEnter(to, from, next) {
+        if (!store.getters.isAuthenticated) {
+          next('/login');
+        } else {
+          next();
+        }
+      },
     },
     {
       path: '/annotation/highlight/:project_id',

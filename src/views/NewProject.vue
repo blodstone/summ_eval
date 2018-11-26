@@ -6,11 +6,11 @@
                     <ul>
                         <li v-bind:class="{ 'is-active': isActive.annotation }"
                             v-on:click="toggleActive('annotation')">
-                            <router-link to="/new/annotation">Annotation</router-link>
+                            <router-link :to="{name: 'newAnnotation'}">Annotation</router-link>
                         </li>
                         <li v-bind:class="{ 'is-active': isActive.evaluation }"
                             v-on:click="toggleActive('evaluation')">
-                            <router-link to="/new/evaluation">Evaluation</router-link>
+                            <router-link :to="{name: 'newEvaluation'}">Evaluation</router-link>
                         </li>
                     </ul>
                 </div>
