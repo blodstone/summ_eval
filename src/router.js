@@ -9,7 +9,7 @@ import Admin from './views/Admin.vue';
 import Home from './views/Home.vue';
 import ManageProject from './views/ManageProject.vue';
 import NewProject from './views/NewProject.vue';
-import Status from './views/AnnotatingStatus.vue';
+import AnnotationStatus from './views/AnnotationStatus.vue';
 import NewAnnotation from './components/Home/NewProject/NewAnnotation.vue';
 import NewEvaluation from './components/Home/NewProject/NewEvaluation.vue';
 import store from './store';
@@ -60,18 +60,18 @@ export default new Router({
           component: ManageProject,
         },
         {
-          path: 'status',
-          name: 'status',
-          component: Status,
+          path: 'annotation_status/:project_id',
+          name: 'annotation_status',
+          component: AnnotationStatus,
         },
       ],
-      beforeEnter(to, from, next) {
-        if (!store.getters.isAuthenticated) {
-          next('/login');
-        } else {
-          next();
-        }
-      },
+      // beforeEnter(to, from, next) {
+      //   if (!store.getters.isAuthenticated) {
+      //     next('/login');
+      //   } else {
+      //     next();
+      //   }
+      // },
     },
     {
       path: '/annotation/highlight/:project_id',

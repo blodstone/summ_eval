@@ -4,7 +4,7 @@
             <h3>Annotation Projects</h3>
         </div>
         <div>
-            <b-table :data="annotation_projects" striped="true">
+            <b-table :data="annotation_projects">
                 <template slot-scope="props">
                     <b-table-column field="no" label="No." width="40">
                         {{ props.row.no }}
@@ -13,7 +13,9 @@
                         {{ props.row.id }}
                     </b-table-column>
                     <b-table-column field="name" label="Name">
-                        {{ props.row.name }}
+                        <a :href="'/#/admin/annotation_status/' + props.row.id">
+                            {{ props.row.name }}
+                        </a>
                     </b-table-column>
                     <b-table-column field="category" label="Category">
                         {{ props.row.category }}
@@ -26,17 +28,23 @@
                         {{ new Date(props.row.created_at).toLocaleDateString() }}
                     </b-table-column>
                     <b-table-column field="progress" label="Progress">
-                        <progress
-                                class="progress is-success"
-                                :value="props.row.progress" max="1">
-                        </progress>
-                        {{
-                          props.row.progress
-                          .toLocaleString(
-                            "en",
-                            {style: "percent", maximumSignificantDigits: 2},
-                          )
-                        }}
+                        <div class="columns level">
+                            <div class="column is-10 level-item">
+                                <progress
+                                    class="progress is-success"
+                                    :value="props.row.progress" max="1">
+                                </progress>
+                            </div>
+                            <div class="column is-2 level-item">
+                                {{
+                                  props.row.progress
+                                  .toLocaleString(
+                                    "en",
+                                    {style: "percent", maximumSignificantDigits: 2},
+                                  )
+                                }}
+                            </div>
+                        </div>
                     </b-table-column>
                     <b-table-column label="Link for Participants">
                         <b-field>
@@ -107,17 +115,23 @@
                         {{ new Date(props.row.created_at).toLocaleDateString() }}
                     </b-table-column>
                     <b-table-column field="progress" label="Progress">
-                        <progress
-                                class="progress is-success"
-                                :value="props.row.progress" max="1">
-                        </progress>
-                        {{
-                          props.row.progress
-                          .toLocaleString(
-                            "en",
-                            {style: "percent", maximumSignificantDigits: 2},
-                          )
-                        }}
+                        <div class="columns level">
+                            <div class="column is-10 level-item">
+                                <progress
+                                    class="progress is-success"
+                                    :value="props.row.progress" max="1">
+                                </progress>
+                            </div>
+                            <div class="column is-2 level-item">
+                                {{
+                                  props.row.progress
+                                  .toLocaleString(
+                                    "en",
+                                    {style: "percent", maximumSignificantDigits: 2},
+                                  )
+                                }}
+                            </div>
+                        </div>
                     </b-table-column>
                     <b-table-column label="Link for Participants">
                         <b-field>

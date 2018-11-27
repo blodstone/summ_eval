@@ -1,7 +1,9 @@
 <template>
     <div class="container">
-        This is status page
-        <b-table :data="annotation_results" striped="true">
+        <div class="content">
+            <h3>Project {{ $route.params.project_id }} Status</h3>
+        </div>
+        <b-table :data="annotation_results">
             <template slot-scope="props">
                 <b-table-column field="no" label="No." width="40">
                     {{ props.row.no }}
@@ -10,22 +12,28 @@
                     {{ props.row.name }}
                 </b-table-column>
                 <b-table-column field="progress" label="Progress">
-                    <progress
+                    <div class="columns level">
+                        <div class="column is-10 level-item">
+                            <progress
                                 class="progress is-success"
                                 :value="props.row.progress" max="1">
-                        </progress>
-                        {{
-                          props.row.progress
-                          .toLocaleString(
-                            "en",
-                            {style: "percent", maximumSignificantDigits: 2},
-                          )
-                        }}
+                            </progress>
+                        </div>
+                        <div class="column is-2 level-item">
+                            {{
+                              props.row.progress
+                              .toLocaleString(
+                                "en",
+                                {style: "percent", maximumSignificantDigits: 2},
+                              )
+                            }}
+                        </div>
+                    </div>
                 </b-table-column>
                 <b-table-column field="id" label="Export Result">
-                    <a class="button is-danger is-outlined is-small"
+                    <a class="button is-primary is-outlined is-small"
                            v-on:click="export_result(props.row.id)">
-                            <span>Close</span>
+                            <span>Export</span>
                             <span class="icon is-small">
                                 <i class="fas fa-file-export"></i>
                             </span>
@@ -81,6 +89,18 @@ export default {
           });
         });
     },
+  },
+  beforeCreate() {
+    axios.get(`project/progress/annotation/${this.$route.params.project_id}`)
+      .then((response) => {
+        this.annotation_results = response.data.documents;
+      })
+      .catch((error) => {
+        this.$toast.open({
+          message: `${error}`,
+          type: 'is-danger',
+        });
+      });
   },
 };
 </script>

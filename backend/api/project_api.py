@@ -218,7 +218,6 @@ def api_project_progress(project_type, project_id):
             return jsonify(progress_json)
         else:
             return '', http.HTTPStatus.BAD_REQUEST
-        return '', http.HTTPStatus.NO_CONTENT
 
 
 @api.route('/doc_status/progress/<doc_status_id>', methods=['GET'])
