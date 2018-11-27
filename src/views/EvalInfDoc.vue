@@ -363,10 +363,6 @@ export default {
 .my-header {
   font-size: 1.1rem;
 }
-.my-title {
-    font-size: 1rem;
-    text-decoration: underline;
-}
 .my-text {
     font-size: 0.9rem;
 }

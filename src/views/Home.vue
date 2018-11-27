@@ -20,5 +20,10 @@ export default {
 </script>
 
 <style scoped>
-
+.title {
+  font-size: 3rem;
+}
+.subtitle {
+  font-size: 1.5rem;
+}
 </style>

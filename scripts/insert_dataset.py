@@ -1,7 +1,7 @@
 import json
 import os
 
-from backend.models import Document, Dataset, Summary, SummaryGroup, SummariesPair
+from backend.models import Document, Dataset, Summary, SummaryGroup, SummariesPair, User
 from backend.app import create_app
 from flask_sqlalchemy import SQLAlchemy
 
@@ -62,6 +62,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 def init_database(db):
+
+    user = User(email='admin@localhost', password='localhost')
+    db.session.add(user)
+    db.session.commit()
+
     dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset/Sample_BBC'
     dataset_name = os.path.split(dataset_path)[1]
 
@@ -149,6 +154,7 @@ def init_database(db):
     #                 )
     #                 db.session.add(summary)
     #                 db.session.commit()
+
 
 if __name__ == '__main__':
     app = create_app()
