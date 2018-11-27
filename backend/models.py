@@ -128,10 +128,10 @@ class EvaluationResult(db.Model):
 
     id = db.Column(db.INTEGER, primary_key=True, nullable=False)
     finished_at = db.Column(db.DateTime, default=datetime.utcnow)
-    precision = db.Column(db.REAL, nullable=False, default=0.0)
-    recall = db.Column(db.REAL, nullable=False, default=0.0)
-    fluency = db.Column(db.REAL, nullable=False, default=0.0)
-    clarity = db.Column(db.REAL, nullable=False, default=0.0)
+    precision = db.Column(db.REAL, nullable=False, default=-1.0)
+    recall = db.Column(db.REAL, nullable=False, default=-1.0)
+    fluency = db.Column(db.REAL, nullable=False, default=-1.0)
+    clarity = db.Column(db.REAL, nullable=False, default=-1.0)
     status_id = db.Column(db.INTEGER, db.ForeignKey('summary_status.id'), nullable=False)
 
     @classmethod

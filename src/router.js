@@ -9,7 +9,7 @@ import Admin from './views/Admin.vue';
 import Home from './views/Home.vue';
 import ManageProject from './views/ManageProject.vue';
 import NewProject from './views/NewProject.vue';
-import Status from './views/Status.vue';
+import Status from './views/AnnotatingStatus.vue';
 import NewAnnotation from './components/Home/NewProject/NewAnnotation.vue';
 import NewEvaluation from './components/Home/NewProject/NewEvaluation.vue';
 import store from './store';

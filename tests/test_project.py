@@ -229,8 +229,8 @@ def test_project_create_evaluation(test_client, init_db):
     assert project is not None
 
 
-def test_project_get_progress_annotation(test_client, init_db):
-    create_proj_resp(test_client, ProjectType.ANNOTATION.value, 'Test_Progress_Annotation')
+def test_project_get_all_progress_annotation(test_client, init_db):
+    create_proj_resp(test_client, ProjectType.ANNOTATION.value, 'Test_Progress_All_Annotation')
     response = test_client.get('/project/all_progress/annotation')
     assert response.status_code == http.HTTPStatus.OK
     assert len(response.get_json()['projects']) > 0
@@ -238,8 +238,8 @@ def test_project_get_progress_annotation(test_client, init_db):
     assert 'progress' in response.get_json()['projects'][0]
 
 
-def test_project_get_progress_evaluation(test_client, init_db):
-    create_proj_resp(test_client, ProjectType.EVALUATION.value, 'Test_Progress_Evaluation')
+def test_project_get_all_progress_evaluation(test_client, init_db):
+    create_proj_resp(test_client, ProjectType.EVALUATION.value, 'Test_Progress_All_Evaluation')
     response = test_client.get('/project/all_progress/evaluation')
     assert response.status_code == http.HTTPStatus.OK
     assert len(response.get_json()['projects']) > 0
@@ -292,3 +292,13 @@ def test_doc_status(test_client, init_db):
     project_id = list(response.get_json().keys())[0]
     response = test_client.get('/doc_status/progress/%s' % project_id)
     assert response.get_json()['progress'] == '0.00'
+
+
+def test_project_get_progress_annotation(test_client, init_db):
+    response = create_proj_resp(test_client, ProjectType.ANNOTATION.value, 'Test_Progress_Annotation')
+    assert response.status_code == http.HTTPStatus.CREATED
+    project = AnnotationProject.query.filter_by(name='Test_Progress_Annotation').first()
+    response = test_client.get('/project/progress/annotation/%s' % project.id)
+    assert response.status_code == http.HTTPStatus.OK
+    assert 'documents' in response.get_json()
+    assert len(response.get_json()['documents']) > 0

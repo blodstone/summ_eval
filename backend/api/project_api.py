@@ -118,7 +118,7 @@ def api_project_close(project_id):
 
 
 @api.route('/project/all_progress/<project_type>', methods=['GET'])
-def api_project_progress(project_type):
+def api_project_progress_all(project_type):
     project_type = project_type.lower()
     if project_type == ProjectType.ANNOTATION.value.lower():
         projects = AnnotationProject.query.filter_by(is_active=True).all()
@@ -163,6 +163,62 @@ def api_project_progress(project_type):
                 ))
             result_json['projects'].append(project_json)
         return jsonify(result_json)
+
+
+@api.route('/project/progress/<project_type>/<project_id>', methods=['GET'])
+def api_project_progress(project_type, project_id):
+    project_type = project_type.lower()
+    if project_type == ProjectType.ANNOTATION.value.lower():
+        project = AnnotationProject.query.get(project_id)
+    elif project_type == ProjectType.EVALUATION.value.lower():
+        project = EvaluationProject.query.get(project_id)
+    else:
+        return '', http.HTTPStatus.BAD_REQUEST
+    if not project:
+        return '', http.HTTPStatus.CONFLICT
+    else:
+        progress_json = None
+        if project_type == ProjectType.ANNOTATION.value.lower():
+            progress_json = {'documents': []}
+        elif project_type == ProjectType.EVALUATION.value.lower():
+            progress_json = {'systems': []}
+        if project_type == ProjectType.ANNOTATION.value.lower():
+            for doc_status in project.doc_statuses:
+                document = Document.query.get(doc_status.doc_id)
+                result_jsons = []
+                for result in doc_status.results:
+                    result_jsons.append(result.result_json)
+                exp_results = doc_status.total_exp_results
+                progress_json['documents'].append({
+                    'no': len(progress_json['documents']) + 1,
+                    'name': document.doc_id,
+                    'progress': len(doc_status.results)/exp_results,
+                    'result_jsons': result_jsons
+                })
+            return jsonify(progress_json)
+        elif project_type == ProjectType.EVALUATION.value.lower():
+            for summ_status in project.summ_statuses:
+                summary = Summary.query.get(summ_status.summary_id)
+                document = Document.query.get(summary.doc_id)
+                result_jsons = []
+                for result in summ_status.results:
+                    result_jsons.append({
+                        'precision': result.precision,
+                        'recall': result.recall,
+                        'clarity': result.clarity,
+                        'fluency': result.fluency
+                    })
+                exp_results = summ_status.total_exp_results
+                progress_json['systems'].append({
+                    'no': len(progress_json['documents']) + 1,
+                    'name': document.doc_id,
+                    'progress': len(summ_status.results) / exp_results,
+                    'result_jsons': result_jsons
+                })
+            return jsonify(progress_json)
+        else:
+            return '', http.HTTPStatus.BAD_REQUEST
+        return '', http.HTTPStatus.NO_CONTENT
 
 
 @api.route('/doc_status/progress/<doc_status_id>', methods=['GET'])

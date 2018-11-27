@@ -74,7 +74,7 @@
                             <p>There is no active annotation project in database.</p>
                         </div>
                     </section>
-            </template>
+                </template>
             </b-table>
         </div>
         <hr>
