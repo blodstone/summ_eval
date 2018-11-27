@@ -180,11 +180,12 @@ function getFile() {
       parseDoc.call(this, JSON.parse(response.data.doc_json));
       this.doc_status_id = response.data.doc_status_id;
     })
-    .catch((error) => {
-      this.$toast.open({
-        message: `${error}`,
-        type: 'is-danger',
-      });
+    .catch(() => {
+      this.$emit('noDocument');
+      // this.$toast.open({
+      //   message: `${error}`,
+      //   type: 'is-danger',
+      // });
     });
 }
 
@@ -195,9 +196,7 @@ function sendResult(resultJSON) {
         message: 'Submission successful.',
         type: 'is-success',
       });
-      this.$emit('submitSuccess', {
-        submitSuccess: true,
-      });
+      this.$emit('submitSuccess');
     })
     .catch((error) => {
       this.$toast.open({

@@ -31,7 +31,9 @@
        <div class="column">
          <div class="box document">
            <Document v-on:highlight="updateSummaryBox"
-                     v-on:submitSuccess="showClosing" :project_id="project_id"
+                     v-on:submitSuccess="showMessage('Thank you for submitting!')"
+                     v-on:noDocument="showMessage('There are no more documents available!')"
+                     :project_id="project_id"
                      :maxTokens="maxTokens"></Document>
          </div>
        </div>
@@ -48,10 +50,10 @@
          </div>
        </div>
      </div>
-        <div class="columns" :style="{ display: display.closing }">
+        <div class="columns" :style="{ display: display.message }">
             <div class="column is-8 is-offset-2 box content">
                 <div align="center">
-                    <h1>Thank you for submitting!</h1>
+                    <h1>{{ message }}</h1>
                 </div>
             </div>
         </div>
@@ -68,7 +70,7 @@ import LandingHighlight from '@/components/Landing/LandingHighlight.vue';
 const maxTokens = 90;
 
 export default {
-  name: 'HighlightEditor',
+  name: 'Annotation',
   components: {
     LandingHighlight,
     Document,
@@ -81,9 +83,10 @@ export default {
       display: {
         content: 'none',
         landing: 'block',
-        closing: 'none',
+        message: 'none',
       },
       maxTokens,
+      message: '',
     };
   },
   methods: {
@@ -92,9 +95,11 @@ export default {
       this.display.landing = 'none';
       window.scrollTo(0, 0);
     },
-    showClosing() {
+    showMessage(message) {
+      this.display.landing = 'none';
       this.display.content = 'none';
-      this.display.closing = 'flex';
+      this.display.message = 'flex';
+      this.message = message;
     },
     updateSummaryBox(data) {
       this.tokensLeft = maxTokens - data.tokens;

@@ -83,10 +83,10 @@
             </div>
             <!-- eslint-enable -->
         </div>
-        <div class="columns" :style="{ display: display.closing }">
+        <div class="columns" :style="{ display: display.message }">
             <div class="column is-8 is-offset-2 box content">
                 <div align="center">
-                    <h1>Thank you for submitting!</h1>
+                    <h1>{{ message }}</h1>
                 </div>
             </div>
         </div>
@@ -221,11 +221,8 @@ function getFile() {
       this.system_text = response.data.system_text;
       this.summ_status_id = response.data.summ_status_id;
     })
-    .catch((error) => {
-      this.$toast.open({
-        message: `${error}`,
-        type: 'is-danger',
-      });
+    .catch(() => {
+      this.showMessage('There are no more documents available!');
     });
 }
 
@@ -237,8 +234,7 @@ function sendResult(resultJSON) {
         message: 'Submission successful.',
         type: 'is-success',
       });
-      this.display.content = 'none';
-      this.display.closing = 'flex';
+      this.showMessage('Thank you for submitting!');
     })
     .catch((error) => {
       this.$toast.open({
@@ -268,6 +264,12 @@ export default {
     },
   },
   methods: {
+    showMessage(message) {
+      this.display.landing = 'none';
+      this.display.content = 'none';
+      this.display.message = 'flex';
+      this.message = message;
+    },
     closeLanding() {
       this.display.content = 'flex';
       this.display.landing = 'none';
@@ -317,7 +319,7 @@ export default {
       display: {
         content: 'none',
         landing: 'flex',
-        closing: 'none',
+        message: 'none',
       },
       components: [],
       // A collection of Word components
@@ -333,6 +335,7 @@ export default {
       project_id: this.$route.params.project_id,
       summ_status_id: '',
       system_text: '',
+      message: '',
     };
   },
   mounted: function onMounted() {

@@ -77,10 +77,10 @@
             </div>
             <!-- eslint-enable -->
         </div>
-        <div class="columns" :style="{ display: display.closing }">
+        <div class="columns" :style="{ display: display.message }">
             <div class="column is-8 is-offset-2 box content">
                 <div align="center">
-                    <h1>Thank you for submitting!</h1>
+                    <h1>{{ message }}</h1>
                 </div>
             </div>
         </div>
@@ -103,11 +103,8 @@ function getFile() {
       this.ref_text = response.data.ref_text;
       this.summ_status_id = response.data.summ_status_id;
     })
-    .catch((error) => {
-      this.$toast.open({
-        message: `${error}`,
-        type: 'is-danger',
-      });
+    .catch(() => {
+      this.showMessage('There are no more documents available!');
     });
 }
 
@@ -118,8 +115,7 @@ function sendResult(resultJSON) {
         message: 'Submission successful.',
         type: 'is-success',
       });
-      this.display.content = 'none';
-      this.display.closing = 'flex';
+      this.showMessage('Thank you for submitting!');
     })
     .catch((error) => {
       this.$toast.open({
@@ -152,11 +148,18 @@ export default {
       display: {
         content: 'none',
         landing: 'flex',
-        closing: 'none',
+        message: 'none',
       },
+      message: '',
     };
   },
   methods: {
+    showMessage(message) {
+      this.display.landing = 'none';
+      this.display.content = 'none';
+      this.display.message = 'flex';
+      this.message = message;
+    },
     closeLanding() {
       this.display.content = 'flex';
       this.display.landing = 'none';

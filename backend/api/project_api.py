@@ -16,7 +16,7 @@ def api_project_single_doc(project_type, project_category, project_id):
     if project_type.lower() == ProjectType.ANNOTATION.value.lower():
         project = AnnotationProject.query.get(project_id)
         if not project:
-            return '', http.HTTPStatus.NO_CONTENT
+            return '', http.HTTPStatus.NOT_FOUND
         else:
             for doc_status in project.doc_statuses:
                 n_results = len(AnnotationResult.query.filter_by(status_id=doc_status.id).all())
@@ -26,11 +26,11 @@ def api_project_single_doc(project_type, project_category, project_id):
                     doc_json = json.dumps(Document.get_dict(doc_status.doc_id))
                     return jsonify(dict(doc_json=doc_json,
                                         doc_status_id=doc_status.id))
-            return '', http.HTTPStatus.NO_CONTENT
+            return '', http.HTTPStatus.NOT_FOUND
     elif project_type.lower() == ProjectType.EVALUATION.value.lower():
         project = EvaluationProject.query.get(project_id)
         if not project:
-            return '', http.HTTPStatus.NO_CONTENT
+            return '', http.HTTPStatus.NOT_FOUND
         else:
             for summ_status in project.summ_statuses:
                 n_results = len(EvaluationResult.query.filter_by(status_id=summ_status.id).all())
@@ -47,7 +47,7 @@ def api_project_single_doc(project_type, project_category, project_id):
                                             doc_json=doc_json, summ_status_id=summ_status.id))
                     elif project_category.lower() == ProjectCategory.FLUENCY.value.lower():
                         return jsonify(dict(system_text=system_text, summ_status_id=summ_status.id))
-            return '', http.HTTPStatus.NO_CONTENT
+            return '', http.HTTPStatus.NOT_FOUND
     else:
         return '', http.HTTPStatus.BAD_REQUEST
 
@@ -78,7 +78,7 @@ def api_project_get(project_type, project_name):
     else:
         return '', http.HTTPStatus.BAD_REQUEST
     if len(projects) == 0:
-        return '', http.HTTPStatus.NO_CONTENT
+        return '', http.HTTPStatus.NOT_FOUND
     else:
         result_json = {}
         for project in projects:
@@ -128,7 +128,7 @@ def api_project_progress_all(project_type):
         return '', http.HTTPStatus.BAD_REQUEST
 
     if len(projects) == 0:
-        return '', http.HTTPStatus.NO_CONTENT
+        return '', http.HTTPStatus.NOT_FOUND
     else:
         result_json = {'projects': []}
         for project in projects:
@@ -231,7 +231,7 @@ def api_project_progress(project_type, project_id):
 def api_doc_status_progress(doc_status_id):
     doc_status = DocStatus.query.filter_by(id=doc_status_id).first()
     if not doc_status:
-        return '', http.HTTPStatus.NO_CONTENT
+        return '', http.HTTPStatus.NOT_FOUND
     n_results = len(AnnotationResult.query.filter_by(id=doc_status.id).all())
     progress = "{0:.2f}".format(n_results/doc_status.total_exp_results)
     return jsonify(dict(progress=progress))
