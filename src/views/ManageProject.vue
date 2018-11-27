@@ -99,7 +99,9 @@
                         {{ props.row.id }}
                     </b-table-column>
                     <b-table-column field="name" label="Name" width="100">
+                        <a :href="'/#/admin/evaluation_status/' + props.row.id">
                         {{ props.row.name }}
+                        </a>
                     </b-table-column>
                     <b-table-column field="category" label="Category">
                         {{ props.row.category }}

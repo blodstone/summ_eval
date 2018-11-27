@@ -179,9 +179,16 @@ def api_project_progress(project_type, project_id):
     else:
         progress_json = None
         if project_type == ProjectType.ANNOTATION.value.lower():
-            progress_json = {'documents': []}
+            progress_json = {
+                'documents': [],
+                'name': ''
+            }
         elif project_type == ProjectType.EVALUATION.value.lower():
-            progress_json = {'systems': []}
+            progress_json = {
+                'systems': [],
+                'name': '',
+                'summ_group_name': ''
+            }
         if project_type == ProjectType.ANNOTATION.value.lower():
             for doc_status in project.doc_statuses:
                 document = Document.query.get(doc_status.doc_id)
@@ -195,11 +202,10 @@ def api_project_progress(project_type, project_id):
                     'progress': len(doc_status.results)/exp_results,
                     'result_jsons': result_jsons
                 })
+            progress_json['name'] = project.name
             return jsonify(progress_json)
         elif project_type == ProjectType.EVALUATION.value.lower():
             for summ_status in project.summ_statuses:
-                summary = Summary.query.get(summ_status.summary_id)
-                document = Document.query.get(summary.doc_id)
                 result_jsons = []
                 for result in summ_status.results:
                     result_jsons.append({
@@ -210,11 +216,12 @@ def api_project_progress(project_type, project_id):
                     })
                 exp_results = summ_status.total_exp_results
                 progress_json['systems'].append({
-                    'no': len(progress_json['documents']) + 1,
-                    'name': document.doc_id,
+                    'no': len(progress_json['systems']) + 1,
+                    'name': summ_status.summary_id,
                     'progress': len(summ_status.results) / exp_results,
                     'result_jsons': result_jsons
                 })
+            progress_json['name'] = project.name
             return jsonify(progress_json)
         else:
             return '', http.HTTPStatus.BAD_REQUEST

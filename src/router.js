@@ -10,6 +10,7 @@ import Home from './views/Home.vue';
 import ManageProject from './views/ManageProject.vue';
 import NewProject from './views/NewProject.vue';
 import AnnotationStatus from './views/AnnotationStatus.vue';
+import EvaluationStatus from './views/EvaluationStatus.vue';
 import NewAnnotation from './components/Home/NewProject/NewAnnotation.vue';
 import NewEvaluation from './components/Home/NewProject/NewEvaluation.vue';
 import store from './store';
@@ -63,6 +64,11 @@ export default new Router({
           path: 'annotation_status/:project_id',
           name: 'annotation_status',
           component: AnnotationStatus,
+        },
+        {
+          path: 'evaluation_status/:project_id',
+          name: 'evaluation_status',
+          component: EvaluationStatus,
         },
       ],
       // beforeEnter(to, from, next) {

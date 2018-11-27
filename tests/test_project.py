@@ -302,3 +302,15 @@ def test_project_get_progress_annotation(test_client, init_db):
     assert response.status_code == http.HTTPStatus.OK
     assert 'documents' in response.get_json()
     assert len(response.get_json()['documents']) > 0
+
+
+def test_project_get_progress_evaluation(test_client, init_db):
+    response = create_proj_resp(test_client, ProjectType.EVALUATION.value,
+                                project_category=ProjectCategory.INFORMATIVENESS_DOC.value,
+                                name='Test_Progress_Evaluation')
+    assert response.status_code == http.HTTPStatus.CREATED
+    project = EvaluationProject.query.filter_by(name='Test_Progress_Evaluation').first()
+    response = test_client.get('/project/progress/evaluation/%s' % project.id)
+    assert response.status_code == http.HTTPStatus.OK
+    assert 'systems' in response.get_json()
+    assert len(response.get_json()['systems']) > 0

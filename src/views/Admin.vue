@@ -22,9 +22,6 @@
                   </router-link>
                 </div>
               </div>
-              <router-link class="navbar-item" :to="{name: 'status'}">
-                Status
-              </router-link>
             </div>
           </div>
         </div>
