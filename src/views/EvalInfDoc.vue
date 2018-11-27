@@ -23,12 +23,13 @@
                         <hr>
                         <p class="my-text">Phrases that are important in the document have been marked using heatmap coloring. The higher the color intensity the greater the phrases' importance.</p>
                         <p class="my-text">The following slider indicates the number of highlights in the document. You can remove less important phrases by sliding the slider to the right.</p>
-                        <div style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
+                    </div>
+                    <div style="margin-bottom: 1.8rem; margin-top: 1.8rem; flex: 1;">
                             <vue-slider ref="slider" v-model="intensitySlider.value"
                                         v-bind="intensitySlider.options" v-if="show"
                                         v-on:input="onSliderInput"></vue-slider>
-                        </div>
                     </div>
+
                 </div>
             </div>
             <div class="column">
@@ -158,23 +159,29 @@ function getIntensities(results) {
         if ((highlight.indexes[k] in this.highlight.intensities)) {
           this.highlight.intensities[highlight.indexes[k]] += 1;
         } else {
-          this.highlight.intensities[highlight.indexes[k]] = 0;
+          this.highlight.intensities[highlight.indexes[k]] = 1;
         }
         if (this.highlight.intensities[highlight.indexes[k]] > this.highlight.max) {
           this.highlight.max = this.highlight.intensities[highlight.indexes[k]];
+        }
+        if (this.highlight.intensities[highlight.indexes[k]] < this.highlight.min) {
+          this.highlight.min = this.highlight.intensities[highlight.indexes[k]];
         }
       }
     }
   }
   for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
-    this.highlight.intensities[Object.keys(this.highlight.intensities)[i]] /= this.highlight.max;
+    const intensity = this.highlight.intensities[Object.keys(this.highlight.intensities)[i]];
+    const normIntensity = (intensity - this.highlight.min) /
+      (this.highlight.max - this.highlight.min);
+    this.highlight.intensities[Object.keys(this.highlight.intensities)[i]] = normIntensity;
   }
   // Slider setting
-  for (let i = 0; i <= this.highlight.max; i += 1) {
+  for (let i = this.highlight.min; i <= this.highlight.max; i += 1) {
     this.intensitySlider.options.data.push(i);
   }
   this.intensitySlider.max = this.highlight.max;
-  this.intensitySlider.min = 1;
+  this.intensitySlider.min = this.highlight.min;
   this.intensitySlider.value = this.highlight.max;
 }
 
@@ -182,8 +189,9 @@ function redrawHighlight() {
   for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
     const index = parseInt(Object.keys(this.highlight.intensities)[i], 10);
     const intensity = this.highlight.intensities[Object.keys(this.highlight.intensities)[i]];
-    const nLow = (this.highlight.max - this.intensitySlider.value) / this.highlight.max;
-    if (intensity >= nLow) {
+    const low = 1 - ((this.intensitySlider.value - this.highlight.min) /
+      (this.highlight.max - this.highlight.min));
+    if (intensity >= low) {
       this.components[index].highlight(`rgba(255, ${255 - (intensity * 255)}, 0)`);
     } else {
       this.components[index].rmHighlight();
@@ -295,6 +303,7 @@ export default {
       highlight: {
         intensities: {},
         max: -1,
+        min: 999,
       },
       show: false,
       timer: {
@@ -307,12 +316,12 @@ export default {
         value: 0,
         options: {
           tooltip: 'always',
-          piecewise: true,
           data: [],
           speed: 0.3,
           min: 1,
           max: 0,
           piecewiseLabel: true,
+          piecewise: true,
           reverse: true,
         },
       },
@@ -348,6 +357,9 @@ export default {
 </script>
 
 <style scoped>
+.content li + li {
+  margin: 0;
+}
 .document {
   font-family: 'Lora', serif;
   font-size: 1.2rem;

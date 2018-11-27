@@ -67,7 +67,7 @@ def init_database(db):
     db.session.add(user)
     db.session.commit()
 
-    dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset/Sample_BBC'
+    dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_Single/Sample_BBC'
     dataset_name = os.path.split(dataset_path)[1]
 
     summaries_path = os.path.join(dataset_path, 'summaries')

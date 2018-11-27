@@ -193,6 +193,16 @@ export default {
     };
   },
   methods: {
+    get_progress() {
+      axios.get('project/all_progress/annotation')
+        .then((response) => {
+          this.annotation_projects = response.data.projects;
+        });
+      axios.get('project/all_progress/evaluation')
+        .then((response) => {
+          this.evaluation_projects = response.data.projects;
+        });
+    },
     close_project(id) {
       this.$dialog.confirm({
         message: `Do you want to close project ${id}?`,
@@ -203,7 +213,7 @@ export default {
                 message: `Project ${id} has been closed`,
                 type: 'is-success',
               });
-              this.$router.push({ name: 'manage' });
+              this.get_progress();
             })
             .catch((error) => {
               this.$toast.open({
@@ -215,27 +225,8 @@ export default {
       });
     },
   },
-  beforeCreate() {
-    axios.get('project/all_progress/annotation')
-      .then((response) => {
-        this.annotation_projects = response.data.projects;
-      })
-      .catch((error) => {
-        this.$toast.open({
-          message: `${error}`,
-          type: 'is-danger',
-        });
-      });
-    axios.get('project/all_progress/evaluation')
-      .then((response) => {
-        this.evaluation_projects = response.data.projects;
-      })
-      .catch((error) => {
-        this.$toast.open({
-          message: `${error}`,
-          type: 'is-danger',
-        });
-      });
+  beforeMount() {
+    this.get_progress();
   },
 };
 </script>
