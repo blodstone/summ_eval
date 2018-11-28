@@ -4,8 +4,8 @@
             <div class="column is-8 is-offset-2 box content">
                 <LandingInfDoc></LandingInfDoc>
                 <div align="center">
-                    <a class="button is-primary is-large" style="margin-bottom: 2rem"
-                    v-on:click="closeLanding()">I consent</a>
+                    <button class="button is-primary is-large" style="margin-bottom: 2rem"
+                    v-on:click="closeLanding()">I consent</button>
                 </div>
             </div>
         </div>

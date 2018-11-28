@@ -1,13 +1,12 @@
 <template>
-    <!--TODO: Fix empty highlight-->
     <div>
         <div ref="document" v-on:mouseup="showHighlightMenu"
              @contextmenu.prevent="deleteHighlightGroup" v-on:click="showMentions">
         </div>
         <hr>
         <div align="center">
-            <a class="button is-primary" :disabled="timer.isRunning"
-                    v-on:click="saveAnnotation()">{{ timenow }}</a>
+            <button class="button is-primary" :disabled="timer.isRunning"
+                    v-on:click="saveAnnotation()">{{ timenow }}</button>
         </div>
         <div v-bind:style="floatMenu">
             <img v-on:click="highlightSelection"
@@ -160,6 +159,34 @@ function getIsSourceAndcorefID(sent, token) {
   return false;
 }
 
+function getRandom(min, max) {
+  return Math.floor((Math.random() * (max - min)) + min);
+}
+
+function createTestPrompt(textJSON) {
+  let min = 0;
+  if (textJSON.sentences.length - 1 > 5) {
+    min = textJSON.sentences.length - 6;
+  }
+  const sent = textJSON.sentences[getRandom(min, textJSON.sentences.length - 1)];
+  for (let j = 0; j < sent.tokens.length; j += 1) {
+    this.test_sentence = `${this.test_sentence} ${sent.tokens[j].word}`;
+  }
+  this.test_sentence.replace('-LRB-', '(');
+  this.test_sentence.replace('-RRB-', ')');
+  this.test_sentence.replace('``', '"');
+  this.test_sentence.replace('\'\'', '"');
+  let prompt = 'The statement below';
+  if (Math.random() > 0.5) {
+    prompt = `${prompt} <strong>appears</strong> in the document. <br/>`;
+    this.answer = true;
+  } else {
+    prompt = `${prompt} <strong>doesn't appear</strong> in the document. <br/>`;
+    this.answer = false;
+  }
+  this.test_sentence = `${prompt}<blockquote>${this.test_sentence}</blockquote>`;
+}
+
 function parseDoc(textJSON) {
   let wordIndex = 0;
   let whitespaceIndex = 0;
@@ -182,6 +209,7 @@ function parseDoc(textJSON) {
       createAndMountLineBreaker.call(this);
     }
   }
+  createTestPrompt.call(this, textJSON);
 }
 
 function getFile() {
@@ -196,23 +224,6 @@ function getFile() {
       //   message: `${error}`,
       //   type: 'is-danger',
       // });
-    });
-}
-
-function sendResult(resultJSON) {
-  axios.post('project/save_result/annotation', resultJSON)
-    .then(() => {
-      this.$toast.open({
-        message: 'Submission successful.',
-        type: 'is-success',
-      });
-      this.$emit('submitSuccess');
-    })
-    .catch((error) => {
-      this.$toast.open({
-        message: `${error}`,
-        type: 'is-danger',
-      });
     });
 }
 
@@ -327,6 +338,8 @@ export default {
       // A mapping between group Key (this.group index) to color
       group2color: {},
       rawSummariesHTML: '',
+      test_sentence: '',
+      answer: '',
     };
   },
   computed: {
@@ -388,7 +401,11 @@ export default {
           word: this.words[wordIndex].word,
         };
       }
-      sendResult.call(this, resultJSON);
+      this.$emit('annotationDone', {
+        resultJSON,
+        test_sentence: this.test_sentence,
+        answer: this.answer,
+      });
     },
     showMentions(event) {
       let corefID = -1;

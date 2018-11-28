@@ -132,6 +132,7 @@ class EvaluationResult(db.Model):
     recall = db.Column(db.REAL, nullable=False, default=-1.0)
     fluency = db.Column(db.REAL, nullable=False, default=-1.0)
     clarity = db.Column(db.REAL, nullable=False, default=-1.0)
+    email = db.Column(db.String(255), nullable=False)
     status_id = db.Column(db.INTEGER, db.ForeignKey('summary_status.id'), nullable=False)
 
     @classmethod
@@ -157,13 +158,18 @@ class AnnotationResult(db.Model):
     id = db.Column(db.INTEGER, primary_key=True, nullable=False)
     finished_at = db.Column(db.DateTime, default=datetime.utcnow)
     result_json = db.Column(db.Text, nullable=False)
-
+    validity = db.Column(db.Boolean, nullable=False, default=False)
+    email = db.Column(db.String(255), nullable=False)
     status_id = db.Column(db.INTEGER, db.ForeignKey('doc_status.id'), nullable=False)
 
     @classmethod
     def create_result(cls, **kwargs):
         result = AnnotationResult(
-            result_json=json.dumps(kwargs['result_json']), status_id=kwargs['status_id'])
+            result_json=json.dumps(kwargs['result_json']),
+            status_id=kwargs['status_id'],
+            validity=kwargs['validity'],
+            email=kwargs['email'],
+        )
         db.session.add(result)
         db.session.commit()
         return result
