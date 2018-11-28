@@ -1,5 +1,5 @@
 # Production Enviroment should be set to 'production'
-FLASK_ENV = "development"
+FLASK_ENV = "production"
 FLASK_APP = "backend/app"
 # Uncomment this to debug:
-FLASK_DEBUG=1
+# FLASK_DEBUG=1

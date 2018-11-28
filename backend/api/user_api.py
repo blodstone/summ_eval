@@ -1,4 +1,5 @@
 import jwt
+import os
 from datetime import datetime, timedelta
 from flask import jsonify, request
 
@@ -28,6 +29,6 @@ def login():
         'sub': user.email,
         'iat': datetime.utcnow(),
         'exp': datetime.utcnow() + timedelta(minutes=30)
-    }, api.config['SECRET_KEY']
+    }, os.getenv('SECRET_KEY')
     )
     return jsonify({'token': token.decode('UTF-8')})
