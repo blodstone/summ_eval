@@ -244,6 +244,7 @@ function getFile() {
       parseDoc.call(this, response.data.doc_json);
       this.system_text = response.data.system_text;
       this.summ_status_id = response.data.summ_status_id;
+      redrawHighlight.call(this);
     })
     .catch((error) => {
       console.log(error);
@@ -369,7 +370,6 @@ export default {
     this.timer.timer = window.setInterval(() => {
       this.timer.now = Math.trunc((new Date()).getTime() / 1000);
     }, 1000);
-    redrawHighlight.call(this);
   },
 };
 </script>
