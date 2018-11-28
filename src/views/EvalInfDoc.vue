@@ -56,7 +56,7 @@
                                 <label class="label is-small">Strongly <br/> disagree</label>
                             </span>
                             <span class="level-item">
-                            <vue-slider min="1" max="100" v-model="recall"
+                            <vue-slider v-model="recall"
                                         v-if="show" width="100%"></vue-slider>
                             </span>
                             <span class="level-right">
@@ -108,11 +108,21 @@ const waitTimeForButton = 5;
 
 function createAndMountWord(sent, token, wordIndex) {
   const WordClass = Vue.extend(Word);
+  let aWord = token.word;
+  if (aWord === '-LRB-') {
+    aWord = '(';
+  } else if (aWord === '-RRB-') {
+    aWord = ')';
+  } else if (aWord === '``') {
+    aWord = '"';
+  } else if (aWord === '\'\'') {
+    aWord = '"';
+  }
   const word = new WordClass({
     propsData: {
       sentIndex: sent.index,
       tokenIndex: token.index,
-      word: token.word,
+      word: aWord,
       index: wordIndex,
       compIndex: this.components.length,
       type: 'word',
@@ -150,6 +160,23 @@ function createAndMountLineBreaker() {
   this.$refs.document.appendChild(lineBreaker.$el);
 }
 
+function redrawHighlight() {
+  for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
+    const index = parseInt(Object.keys(this.highlight.intensities)[i], 10);
+    const intensity = this.highlight.intensities[Object.keys(this.highlight.intensities)[i]];
+    let low = 0;
+    if (this.highlight.max !== this.highlight.min) {
+      low = 1 - ((this.intensitySlider.value - this.highlight.min) /
+        (this.highlight.max - this.highlight.min));
+    }
+    if (intensity >= low) {
+      this.components[index].highlight(`rgba(255, ${255 - (intensity * 255)}, 0)`);
+    } else {
+      this.components[index].rmHighlight();
+    }
+  }
+}
+
 function getIntensities(results) {
   for (let i = 0; i < Object.keys(results).length; i += 1) {
     const result = results[Object.keys(results)[i]];
@@ -172,8 +199,11 @@ function getIntensities(results) {
   }
   for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
     const intensity = this.highlight.intensities[Object.keys(this.highlight.intensities)[i]];
-    const normIntensity = (intensity - this.highlight.min) /
-      (this.highlight.max - this.highlight.min);
+    let normIntensity = 0;
+    if (this.highlight.max !== this.highlight.min) {
+      normIntensity = (intensity - this.highlight.min) /
+        (this.highlight.max - this.highlight.min);
+    }
     this.highlight.intensities[Object.keys(this.highlight.intensities)[i]] = normIntensity;
   }
   // Slider setting
@@ -183,20 +213,6 @@ function getIntensities(results) {
   this.intensitySlider.max = this.highlight.max;
   this.intensitySlider.min = this.highlight.min;
   this.intensitySlider.value = this.highlight.max;
-}
-
-function redrawHighlight() {
-  for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
-    const index = parseInt(Object.keys(this.highlight.intensities)[i], 10);
-    const intensity = this.highlight.intensities[Object.keys(this.highlight.intensities)[i]];
-    const low = 1 - ((this.intensitySlider.value - this.highlight.min) /
-      (this.highlight.max - this.highlight.min));
-    if (intensity >= low) {
-      this.components[index].highlight(`rgba(255, ${255 - (intensity * 255)}, 0)`);
-    } else {
-      this.components[index].rmHighlight();
-    }
-  }
 }
 
 function parseDoc(textJSON) {
@@ -229,7 +245,8 @@ function getFile() {
       this.system_text = response.data.system_text;
       this.summ_status_id = response.data.summ_status_id;
     })
-    .catch(() => {
+    .catch((error) => {
+      console.log(error);
       this.showMessage('There are no more documents available!');
     });
 }
@@ -352,6 +369,7 @@ export default {
     this.timer.timer = window.setInterval(() => {
       this.timer.now = Math.trunc((new Date()).getTime() / 1000);
     }, 1000);
+    redrawHighlight.call(this);
   },
 };
 </script>

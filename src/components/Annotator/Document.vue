@@ -33,11 +33,21 @@ const axios = require('axios');
 
 function createAndMountWord(sent, token, wordIndex, isSourceAndCorefID) {
   const WordClass = Vue.extend(Word);
+  let aWord = token.word;
+  if (aWord === '-LRB-') {
+    aWord = '(';
+  } else if (aWord === '-RRB-') {
+    aWord = ')';
+  } else if (aWord === '``') {
+    aWord = '"';
+  } else if (aWord === '\'\'') {
+    aWord = '"';
+  }
   const word = new WordClass({
     propsData: {
       sentIndex: sent.index,
       tokenIndex: token.index,
-      word: token.word,
+      word: aWord,
       index: wordIndex,
       compIndex: this.components.length,
       type: 'word',
