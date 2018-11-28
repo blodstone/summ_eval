@@ -19,7 +19,7 @@
              <!-- eslint-disable -->
                <p class="my-text">Your task is <strong>to select important phrases</strong> from the document by highlighting them.</p>
                <p class="my-text">Select phrases that are the most informative, use the <a target="_blank" href="https://en.wikipedia.org/wiki/Five_Ws">5W1H principle</a> (who, what, when, where, why and how) to determine the informativeness of a phrase.</p>
-               <p class="my-text">The maximum length of the highlighted phrases are <strong>{{ maxTokens }} characters.</strong></p>
+               <p class="my-text">The maximum length of the highlighted phrases are <strong>{{ maxTokens }} words.</strong></p>
                <hr/>
                <p class="my-text"><strong>To highlight, use your mouse to select phrases from the document</strong>, when you have finished, selected words will automatically count as a group of highlight.</p>
                <p class="my-text"><strong>To delete a group of highlights, right click on the highlight </strong>in the document panel.</p>
@@ -41,8 +41,8 @@
          <div class="box summary">
            <div class="content">
              <h2>Summary</h2>
-             <h4 class="my-title">Characters left</h4>
-             <p>{{tokensLeft}} characters.</p>
+             <h4 class="my-title">Words left</h4>
+             <p>{{tokensLeft}} words.</p>
              <hr/>
              <h5 class="my-title">Highlighted Phrases:</h5>
              <p v-html="summaries"></p>
@@ -99,7 +99,7 @@ import LandingHighlight from '@/components/Landing/LandingHighlight.vue';
 // const randomColor = require('randomcolor');
 const axios = require('axios');
 
-const maxTokens = 90;
+const maxTokens = 30;
 
 export default {
   name: 'Annotation',

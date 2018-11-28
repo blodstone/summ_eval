@@ -471,7 +471,7 @@ export default {
             // eslint-disable-next-line
             for (const key in this.words2Groups) {
               if (this.words2Groups[key].length > 0) {
-                sumOfTokens += this.words[key].getTokensLength();
+                sumOfTokens += 1;
               }
             }
             generateRawHTMLSummaries.call(this);
@@ -542,13 +542,13 @@ export default {
       // eslint-disable-next-line
       for (const key in this.words2Groups) {
         if (this.words2Groups[key].length > 0) {
-          sumOfTokens += this.words[key].getTokensLength();
+          sumOfTokens += 1;
         }
       }
       for (let i = 0; i < wordSelectedComponents.length; i += 1) {
         const word = wordSelectedComponents[i];
         if (this.words2Groups[word.index].length === 0) {
-          sumOfTokens += this.words[word.index].getTokensLength();
+          sumOfTokens += 1;
         }
       }
       if (sumOfTokens <= this.maxTokens) {
@@ -563,7 +563,7 @@ export default {
         });
       } else {
         this.$toast.open({
-          message: `Your highlights have passed the ${this.maxTokens} characters limit. Remove previous highlights or shorten the highlights.`,
+          message: `Your highlights have passed the ${this.maxTokens} words limit. Remove previous highlights or shorten the highlights.`,
           type: 'is-danger',
         });
         delete this.group2color[groupKey];
@@ -615,7 +615,7 @@ export default {
         }
         this.selectedTokens = 0;
         for (let i = 0; i < wordsSelected.length; i += 1) {
-          this.selectedTokens += this.words[wordsSelected[i]].getTokensLength();
+          this.selectedTokens += 1;
         }
       } else {
         this.floatMenu.display = 'none';
