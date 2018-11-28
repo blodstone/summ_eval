@@ -25,6 +25,7 @@ def login():
         'sub': user.email,
         'iat': datetime.utcnow(),
         'exp': datetime.utcnow() + timedelta(hours=48)
-    }, api.config['SECRET_KEY']
+        # TODO: This is a hack until the pythonanywhere server issue resolved
+    }, b'\xcf\xdcp\xe0\xbd;\xd4%#\x16\xdf\x05\xfc\xcd_\x0f'
     )
     return jsonify({'token': token.decode('UTF-8')})
