@@ -49,7 +49,7 @@ export default {
           email: this.input.email,
           password: this.input.password,
         })
-          .then(() => this.$router.push('/'))
+          .then(() => this.$route.push({ name: 'admin' }))
           .catch(() => {
             this.$toast.open({
               message: 'Email or password does not exist!',
