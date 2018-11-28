@@ -362,8 +362,6 @@ export default {
         status_id: this.doc_status_id,
         result_json: {
           highlights: {},
-          components: [],
-          words: [],
         },
         category: 'highlight',
       };
@@ -381,25 +379,6 @@ export default {
           resultJSON.result_json.highlights[key].indexes.push(component.$props.compIndex);
         }
         resultJSON.result_json.highlights[key].text = text;
-      }
-      for (let i = 0; i < this.components.length; i += 1) {
-        if (this.components[i].type === 'word') {
-          resultJSON.result_json.components.push({
-            type: this.components[i].type,
-            word: this.components[i].word,
-          });
-        } else {
-          resultJSON.result_json.components.push({
-            type: this.components[i].type,
-            word: ' ',
-          });
-        }
-      }
-      for (let i = 0; i < Object.keys(this.words).length; i += 1) {
-        const wordIndex = Object.keys(this.words)[i];
-        resultJSON.result_json.words[wordIndex] = {
-          word: this.words[wordIndex].word,
-        };
       }
       this.$emit('annotationDone', {
         resultJSON,
