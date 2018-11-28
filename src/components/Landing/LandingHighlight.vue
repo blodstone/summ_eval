@@ -22,6 +22,7 @@
             <em><a class="highlight">Juan David Ortiz, a 35-year-old</a> supervisory <a class="highlight">Border Patrol agent </a>, has been <a class="highlight">charged</a> with <a class="highlight">four counts of murder</a>, <a class="highlight">aggravated assault</a> and <a class="highlight">unlawful restraint</a>. All of his victims were sex workers, but one woman, who managed to escape, helped law enforcement find him.</em>
         </blockquote>
         <hr/>
+        <p><strong>Please read the whole document before you do the highlighting</strong>. After you have submitted the evaluation, there will be one simple True/False question where we will verify whether you have read the document or not. Failure to answer the question correctly will nullify the evaluation that the participant has done.</p>
         <p>It is up to you to decide whether or not to take part. If you do decide to take part you will be asked to click a consent button at the end of this section, of which you can still withdraw at any time before we processed the data (3 days after the closing date) without any consequences.</p>
         <p>You do not have to give a reason. If you wish to withdraw from this research, please contact <a href="mailto:hhardy2@sheffield.ac.uk">the organizer</a></p>
 

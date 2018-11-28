@@ -18,12 +18,9 @@ def register():
 @api.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    print(data)
     user = User.authenticate(**data)
-    print(user)
     if not user:
         return jsonify({'message': 'Invalid credentials', 'authenticated': False}), 401
-    print('login success!')
     token = jwt.encode({
         'sub': user.email,
         'iat': datetime.utcnow(),

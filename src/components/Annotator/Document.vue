@@ -26,7 +26,7 @@ import Char from '@/components/Component/Char.vue';
 import LineBreaker from '@/components/Component/LineBreaker.vue';
 import Vue from 'vue';
 
-const waitTimeForButton = 5;
+const waitTimeForButton = 30;
 // const randomColor = require('randomcolor');
 const axios = require('axios');
 
