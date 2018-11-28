@@ -71,13 +71,13 @@ export default new Router({
           component: EvaluationStatus,
         },
       ],
-      // beforeEnter(to, from, next) {
-      //   if (!store.getters.isAuthenticated) {
-      //     next('/login');
-      //   } else {
-      //     next();
-      //   }
-      // },
+      beforeEnter(to, from, next) {
+        if (!store.getters.isAuthenticated) {
+          next('/login');
+        } else {
+          next();
+        }
+      },
     },
     {
       path: '/annotation/highlight/:project_id',

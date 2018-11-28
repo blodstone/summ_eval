@@ -4,8 +4,8 @@
             <div class="column is-8 is-offset-2 box content">
                 <LandingFluency></LandingFluency>
                 <div align="center">
-                    <a class="button is-primary is-large" style="margin-bottom: 2rem"
-                    v-on:click="closeLanding()">I consent</a>
+                    <button class="button is-primary is-large" style="margin-bottom: 2rem"
+                    v-on:click="closeLanding()">I consent</button>
                 </div>
             </div>
         </div>
@@ -70,8 +70,8 @@
                                 <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
-                        <a class="button is-primary" :disabled="timer.isRunning"
-                    v-on:click="saveEvaluation()">{{ timenow }}</a>
+                        <button class="button is-primary" :disabled="timer.isRunning"
+                    v-on:click="saveEvaluation()">{{ timenow }}</button>
                     </div>
                 </div>
             </div>

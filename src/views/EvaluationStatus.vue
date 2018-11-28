@@ -32,15 +32,6 @@
                         </div>
                     </div>
                 </b-table-column>
-                <b-table-column field="id" label="Export Result">
-                    <a class="button is-primary is-outlined is-small"
-                           v-on:click="export_result(props.row.id)">
-                            <span>Export</span>
-                            <span class="icon is-small">
-                                <i class="fas fa-file-export"></i>
-                            </span>
-                        </a>
-                </b-table-column>
                 <template slot="empty">
                     <section class="section">
                         <div class="content has-text-grey has-text-centered">

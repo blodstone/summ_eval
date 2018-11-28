@@ -62,7 +62,7 @@
                     <b-table-column field="id" label="Close Project">
                         <a class="button is-danger is-outlined is-small"
                            v-on:click="close_project(props.row.id)">
-                            <span>Close</span>
+                            <span>Close And Save</span>
                             <span class="icon is-small">
                                 <i class="fas fa-times"></i>
                             </span>

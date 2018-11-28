@@ -77,8 +77,8 @@
                                 <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
-                        <a class="button is-primary" :disabled="timer.isRunning"
-                    v-on:click="saveEvaluation()">{{ timenow }}</a>
+                        <button class="button is-primary" :disabled="timer.isRunning"
+                    v-on:click="saveEvaluation()">{{ timenow }}</button>
                     </div>
                 </div>
             </div>

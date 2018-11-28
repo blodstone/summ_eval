@@ -66,8 +66,8 @@ def init_database(db):
     user = User(email='admin@localhost', password='localhost')
     db.session.add(user)
     db.session.commit()
-    dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_Single/Sample_BBC'
-    # dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_2/BBC'
+    # dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_Single/Sample_BBC'
+    dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_2/BBC'
     dataset_name = os.path.split(dataset_path)[1]
 
     summaries_path = os.path.join(dataset_path, 'summaries')
