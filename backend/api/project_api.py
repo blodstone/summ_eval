@@ -1,6 +1,7 @@
 import json
 import http
 import urllib.parse
+import random
 
 from flask import jsonify, request
 
@@ -18,7 +19,9 @@ def api_project_single_doc(project_type, project_category, project_id):
         if not project:
             return '', http.HTTPStatus.NOT_FOUND
         else:
-            for doc_status in project.doc_statuses:
+            random_doc_statuses = list(project.doc_statuses)
+            random.shuffle(random_doc_statuses)
+            for doc_status in random_doc_statuses:
                 n_results = len(AnnotationResult.query.filter_by(status_id=doc_status.id).all())
                 if doc_status.total_exp_results == n_results:
                     continue
@@ -32,7 +35,9 @@ def api_project_single_doc(project_type, project_category, project_id):
         if not project:
             return '', http.HTTPStatus.NOT_FOUND
         else:
-            for summ_status in project.summ_statuses:
+            random_summ_statuses = list(project.summ_statuses)
+            random.shuffle(random_summ_statuses)
+            for summ_status in random_summ_statuses:
                 n_results = len(EvaluationResult.query.filter_by(status_id=summ_status.id).all())
                 if summ_status.total_exp_results != n_results:
                     system_summary = Summary.query.get(summ_status.summary_id)
