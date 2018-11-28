@@ -2,7 +2,7 @@ import jwt
 from datetime import datetime, timedelta
 from flask import jsonify, request
 
-from backend.models import User, Document, AnnotationProject, AnnotationResult, Dataset, DocStatus, db
+from backend.models import User, db
 from . import api
 
 
@@ -24,7 +24,7 @@ def login():
     token = jwt.encode({
         'sub': user.email,
         'iat': datetime.utcnow(),
-        'exp': datetime.utcnow() + timedelta(minutes=30)
+        'exp': datetime.utcnow() + timedelta(hours=48)
     }, api.config['SECRET_KEY']
     )
     return jsonify({'token': token.decode('UTF-8')})

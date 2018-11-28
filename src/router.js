@@ -103,6 +103,13 @@ export default new Router({
       path: '/login',
       name: 'login',
       component: Login,
+      beforeEnter(to, from, next) {
+        if (store.getters.isAuthenticated) {
+          next('/admin');
+        } else {
+          next();
+        }
+      },
     },
   ],
 });

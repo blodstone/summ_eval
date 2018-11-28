@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import { EventBus } from '../utils';
+
 export default {
   name: 'Login',
   data() {
@@ -51,14 +53,18 @@ export default {
         })
           .then(() => this.$router.push({ name: 'admin' }))
           .catch((error) => {
-            this.$toast.open({
-              message: 'Email or password does not exist!',
-              type: 'is-danger',
-            });
             console.log(error);
           });
       }
     },
+  },
+  mounted() {
+    EventBus.$on('failedAuthentication', () => {
+      this.$toast.open({
+        message: 'Email or password does not exist!',
+        type: 'is-danger',
+      });
+    });
   },
 };
 </script>

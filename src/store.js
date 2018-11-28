@@ -17,7 +17,7 @@ const actions = {
     return authenticate(userData)
       .then(response => context.commit('setJWTToken', { jwt: response.data }))
       .catch((error) => {
-        EventBus.emit('failedAuthentication', error);
+        EventBus.$emit('failedAuthentication', error);
       });
   },
 };
