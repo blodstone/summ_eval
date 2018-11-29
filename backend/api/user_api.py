@@ -24,7 +24,7 @@ def login():
     token = jwt.encode({
         'sub': user.email,
         'iat': datetime.utcnow(),
-        'exp': datetime.utcnow() + timedelta(hours=48)
+        'exp': datetime.utcnow() + timedelta(days=30)
         # TODO: This is a hack until the pythonanywhere server issue resolved
     }, b'\xcf\xdcp\xe0\xbd;\xd4%#\x16\xdf\x05\xfc\xcd_\x0f'
     )

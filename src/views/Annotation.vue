@@ -18,12 +18,12 @@
              </h2>
              <!-- eslint-disable -->
                <p class="my-text">Your task is <strong>to select important phrases</strong> from the document by highlighting them.</p>
-               <p class="my-text">Select phrases that are the most informative, use the <a target="_blank" href="https://en.wikipedia.org/wiki/Five_Ws">5W1H principle</a> (who, what, when, where, why and how) to determine the informativeness of a phrase.</p>
-               <p class="my-text">The maximum length of the highlighted phrases are <strong>{{ maxTokens }} words.</strong></p>
+               <p class="my-text">Select phrases that are the most informative, <strong>use the <a target="_blank" href="https://en.wikipedia.org/wiki/Five_Ws">5W1H principle</a> (who, what, when, where, why and how) to determine the informativeness of a phrase.</strong></p>
+               <p class="my-text">The maximum length of the highlighted phrases is <strong>{{ maxTokens }} words.</strong></p>
                <hr/>
                <p class="my-text"><strong>To highlight, use your mouse to select phrases from the document</strong>, when you have finished, selected words will automatically count as a group of highlight.</p>
                <p class="my-text"><strong>To delete a group of highlights, right click on the highlight </strong>in the document panel.</p>
-               <p class="my-text">Clicking on phrases that are colored as blue will show you related phrases that are referring to them.</p>
+               <p class="my-text"><strong>Clicking on phrases that are colored as blue</strong> will show you related phrases that are referring to them.</p>
            </div>
          </div>
        </div>
@@ -31,7 +31,8 @@
        <div class="column">
          <div class="box document">
            <Document v-on:highlight="updateSummaryBox"
-                     v-on:noDocument="showMessage('There are no more documents available!')"
+                     v-on:noDocument="showMessage(
+                     '<h1>There are no more documents available!</h1>')"
                      v-on:annotationDone="showTest"
                      :project_id="project_id"
                      :maxTokens="maxTokens"></Document>
@@ -52,8 +53,7 @@
      </div>
      <div class="columns" :style="{ display: display.message }">
         <div class="column is-8 is-offset-2 box content">
-            <div align="center">
-                <h1>{{ message }}</h1>
+            <div align="center" v-html="message">
             </div>
         </div>
      </div>
@@ -141,7 +141,8 @@ export default {
             message: 'Submission successful.',
             type: 'is-success',
           });
-          this.showMessage('Thank you for submitting!');
+          this.showMessage('<h3>Thank you for submitting!</h3><br/>' +
+            '<p>Please refresh the page to do another highlighting. You need to do at least twice to be eligible for the lucky draw.</p>');
         })
         .catch((error) => {
           this.$toast.open({

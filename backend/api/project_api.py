@@ -21,11 +21,15 @@ def api_project_single_doc(project_type, project_category, project_id):
         else:
             random_doc_statuses = list(project.doc_statuses)
             random.shuffle(random_doc_statuses)
+            min_result = 999
+            n_results_list = []
             for doc_status in random_doc_statuses:
-                n_results = len(AnnotationResult.query.filter_by(status_id=doc_status.id).all())
-                if doc_status.total_exp_results == n_results:
-                    continue
-                else:
+                n_results = AnnotationResult.query.filter_by(status_id=doc_status.id).count()
+                if n_results < min_result:
+                    min_result = n_results
+                n_results_list.append(n_results)
+            for idx, doc_status in enumerate(random_doc_statuses):
+                if doc_status.total_exp_results != n_results_list[idx] and n_results_list[idx] == min_result:
                     doc_json = json.dumps(Document.get_dict(doc_status.doc_id))
                     return jsonify(dict(doc_json=doc_json,
                                         doc_status_id=doc_status.id))
@@ -37,9 +41,15 @@ def api_project_single_doc(project_type, project_category, project_id):
         else:
             random_summ_statuses = list(project.summ_statuses)
             random.shuffle(random_summ_statuses)
+            min_result = 999
+            n_results_list = []
             for summ_status in random_summ_statuses:
-                n_results = len(EvaluationResult.query.filter_by(status_id=summ_status.id).all())
-                if summ_status.total_exp_results != n_results:
+                n_results = EvaluationResult.query.filter_by(status_id=summ_status.id).count()
+                if n_results < min_result:
+                    min_result = n_results
+                n_results_list.append(n_results)
+            for idx, summ_status in enumerate(random_summ_statuses):
+                if summ_status.total_exp_results != n_results_list[idx] and n_results_list[idx] == min_result:
                     system_summary = Summary.query.get(summ_status.summary_id)
                     system_text = system_summary.text
                     doc_json = Document.get_dict(system_summary.doc_id)

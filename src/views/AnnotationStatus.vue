@@ -1,7 +1,14 @@
 <template>
     <div class="container">
         <div class="content">
-            <h3>Project {{ $route.params.project_id }} Status</h3>
+            <h3>Project {{ $route.params.project_id }} Status
+                <button v-on:click="update" class="button is-primary is-small">
+                    <b-icon
+                    pack="fas"
+                    icon="sync-alt">
+                    </b-icon>
+                </button>
+            </h3>
         </div>
         <b-table :data="annotation_results">
             <template slot-scope="props">
@@ -52,18 +59,31 @@
 <script>
 import BTable from 'buefy/src/components/table/Table.vue';
 import BTableColumn from 'buefy/src/components/table/TableColumn.vue';
+import BIcon from 'buefy/src/components/icon/Icon.vue';
 
 const axios = require('axios');
 
 export default {
   name: 'AnnotatingStatus',
-  components: { BTableColumn, BTable },
+  components: { BIcon, BTableColumn, BTable },
   data() {
     return {
       annotation_results: [],
     };
   },
   methods: {
+    update() {
+      axios.get(`project/progress/annotation/${this.$route.params.project_id}`)
+        .then((response) => {
+          this.annotation_results = response.data.documents;
+        })
+        .catch((error) => {
+          this.$toast.open({
+            message: `${error}`,
+            type: 'is-danger',
+          });
+        });
+    },
     export_result(id) {
       axios.post(`project/${id}/close`)
         .then(() => {
