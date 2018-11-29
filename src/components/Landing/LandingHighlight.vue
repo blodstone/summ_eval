@@ -53,7 +53,7 @@ hhardy2@sheffield.ac.uk<br/>
         </p>
 
         <p>
-            Do you consent for this information to be used
+            Do you consent for all the information that you have submitted to be used
             anonymously for research purposes only?
         </p>
         <!-- eslint-enable -->
