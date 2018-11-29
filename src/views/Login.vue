@@ -21,7 +21,8 @@
                                            placeholder="Your Password">
                                 </div>
                             </div>
-                            <button class="button is-block is-info is-large is-fullwidth"
+                            <button type="button"
+                                    class="button is-block is-info is-large is-fullwidth"
                                     v-on:click="login()">Login</button>
                         </form>
                     </div>
