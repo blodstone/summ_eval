@@ -7,7 +7,7 @@
         <p>You are being invited to take part in a research project. Before you decide whether or not to participate, <strong>it is important for you to understand why the research is being done and what it will involve</strong>.</p>
         <p>Please take time to read the following information carefully and discuss it with others if you wish. Ask us if there is anything that is not clear or if you would like more information. Take time to decide whether or not you wish to take part. All information provided will be anonymous and will be used for academic purposes only.</p>
         <p>This task requires two steps:</p>
-        <p><strong>Steps 1: Highlighting Informative Phrases in the Document</strong></p>
+        <p><strong>Step 1: Highlighting Informative Phrases in the Document</strong></p>
         <p>Your first task is <strong>to select important phrases </strong> from the document by highlighting them.</p>
         <p>You should first read the document and select phrases that are the most informative. <strong>Use the 5W1H principle (who, what, when, where, why and how)</strong> to determine the informativeness of a phrase: <br/></p>
             <blockquote>
@@ -25,7 +25,7 @@
 
         <p>The maximum length of the highlighted phrases is 30 words. The task should be possible to complete in less than 10 minutes.</p>
         <hr/>
-        <p><strong>Steps 2: Sanity Check</strong></p>
+        <p><strong>Step 2: Sanity Check</strong></p>
         <p><strong>Please read the whole document before you do the highlighting</strong>. After you have submitted the evaluation, there will be one simple True/False question where we will verify whether you have read the document or not. Failure to answer the question correctly will nullify the evaluation that the participant has done.</p>
         <hr/>
         <p> We will draw one lucky winner from the participants to win a £15 Amazon voucher. <strong>You have to complete this task at least twice to be eligible for the lucky draw</strong>. Simply refresh the link to restart the task after you have submitted the result. You are welcome to do the task more than twice but please avoid doing it more than 5 times. We will ignore any excess submission.</p>
