@@ -6,25 +6,23 @@
                     <h3 class="title has-text-white">Login</h3>
                     <p class="subtitle">Please login to proceed to admin page.</p>
                     <div class="box">
-                        <form>
-                            <div class="field">
-                                <div class="control">
-                                    <input class="input is-large"
-                                           type="email" v-model="input.email"
-                                           placeholder="Your Email" autofocus="">
-                                </div>
+                        <div class="field">
+                            <div class="control">
+                                <input class="input is-large"
+                                       type="email" v-model="input.email"
+                                       placeholder="Your Email" autofocus="">
                             </div>
-                            <div class="field">
-                                <div class="control">
-                                    <input class="input is-large"
-                                           type="password" v-model="input.password"
-                                           placeholder="Your Password">
-                                </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <input class="input is-large"
+                                       type="password" v-model="input.password"
+                                       placeholder="Your Password">
                             </div>
-                            <button type="button"
+                        </div>
+                        <button type="button"
                                     class="button is-block is-info is-large is-fullwidth"
                                     v-on:click="login()">Login</button>
-                        </form>
                     </div>
                 </div>
             </div>
