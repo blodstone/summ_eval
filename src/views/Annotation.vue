@@ -142,7 +142,9 @@ export default {
             type: 'is-success',
           });
           this.showMessage('<h3>Thank you for submitting!</h3><br/>' +
-            '<p>Please refresh the page to do another highlighting. You need to do at least twice to be eligible for the lucky draw.</p>');
+            '<p>For non Amazon Turker: Please refresh the page to do another highlighting. You need to do at least twice to be eligible for the lucky draw.</p>' +
+            '<p>For Amazon Turker enter this code:</p>' +
+            `<blockquote>${this.turkCode}</blockquote>`);
         })
         .catch((error) => {
           this.$toast.open({
@@ -164,6 +166,7 @@ export default {
       this.resultJSON = arg.resultJSON;
       this.test_sentence = arg.test_sentence;
       this.answer = arg.answer;
+      this.turkCode = arg.turkCode;
     },
     showMessage(message) {
       this.display.landing = 'none';

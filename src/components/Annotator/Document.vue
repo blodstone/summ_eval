@@ -217,6 +217,7 @@ function getFile() {
     .then((response) => {
       parseDoc.call(this, JSON.parse(response.data.doc_json));
       this.doc_status_id = response.data.doc_status_id;
+      this.turkCode = response.data.turk_code;
     })
     .catch(() => {
       this.$emit('noDocument');
@@ -340,6 +341,7 @@ export default {
       rawSummariesHTML: '',
       test_sentence: '',
       answer: '',
+      turkCode: '',
     };
   },
   computed: {
@@ -384,6 +386,7 @@ export default {
         resultJSON,
         test_sentence: this.test_sentence,
         answer: this.answer,
+        turkCode: this.turkCode,
       });
     },
     showMentions(event) {
