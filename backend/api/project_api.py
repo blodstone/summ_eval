@@ -1,7 +1,9 @@
 import json
 import http
 import urllib.parse
-import random, string
+import random
+import string
+from datetime import datetime
 
 from flask import jsonify, request
 
@@ -19,6 +21,7 @@ def randomword(length):
 
 @api.route('/project/<project_type>/<project_category>/<project_id>/single_doc', methods=['GET'])
 def api_project_single_doc(project_type, project_category, project_id):
+    random.seed(datetime.now())
     if project_type.lower() == ProjectType.ANNOTATION.value.lower():
         project = AnnotationProject.query.get(project_id)
         if not project:
