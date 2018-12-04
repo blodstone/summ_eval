@@ -1,7 +1,7 @@
 import json
 import http
 import urllib.parse
-import random
+import random, string
 
 from flask import jsonify, request
 
@@ -10,6 +10,11 @@ from backend.models import \
     Document, AnnotationProject, AnnotationResult, \
     Dataset, DocStatus, ProjectType, EvaluationResult, \
     EvaluationProject, Summary, ProjectCategory, SummaryGroup
+
+
+def randomword(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
 
 
 @api.route('/project/<project_type>/<project_category>/<project_id>/single_doc', methods=['GET'])
@@ -31,7 +36,7 @@ def api_project_single_doc(project_type, project_category, project_id):
             for idx, doc_status in enumerate(random_doc_statuses):
                 if doc_status.total_exp_results != n_results_list[idx] and n_results_list[idx] == min_result:
                     document = Document.query.filter_by(id=doc_status.doc_id).first()
-                    turk_code = 'code_%s_%s' % (project_id, doc_status.doc_id)
+                    turk_code = '%s_%s' % (doc_status.doc_id, randomword(5))
                     doc_json = json.dumps(json.loads(document.doc_json))
                     return jsonify(dict(doc_json=doc_json,
                                         doc_status_id=doc_status.id,
