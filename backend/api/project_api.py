@@ -30,11 +30,14 @@ def api_project_single_doc(project_type, project_category, project_id):
                 n_results_list.append(n_results)
             for idx, doc_status in enumerate(random_doc_statuses):
                 if doc_status.total_exp_results != n_results_list[idx] and n_results_list[idx] == min_result:
+                    document = Document.query.filter_by(id=doc_status.doc_id).first()
                     turk_code = 'code_%s_%s' % (project_id, doc_status.doc_id)
-                    doc_json = json.dumps(Document.get_dict(doc_status.doc_id))
+                    doc_json = json.dumps(json.loads(document.doc_json))
                     return jsonify(dict(doc_json=doc_json,
                                         doc_status_id=doc_status.id,
-                                        turk_code=turk_code))
+                                        turk_code=turk_code,
+                                        sanity_statement=document.sanity_statement,
+                                        sanity_answer=document.sanity_answer))
             return '', http.HTTPStatus.NOT_FOUND
     elif project_type.lower() == ProjectType.EVALUATION.value.lower():
         project = EvaluationProject.query.get(project_id)

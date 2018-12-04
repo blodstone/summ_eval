@@ -26,7 +26,7 @@ import Char from '@/components/Component/Char.vue';
 import LineBreaker from '@/components/Component/LineBreaker.vue';
 import Vue from 'vue';
 
-const waitTimeForButton = 30;
+const waitTimeForButton = 1;
 // const randomColor = require('randomcolor');
 const axios = require('axios');
 
@@ -159,32 +159,9 @@ function getIsSourceAndcorefID(sent, token) {
   return false;
 }
 
-function getRandom(min, max) {
-  return Math.floor((Math.random() * (max - min)) + min);
-}
-
-function createTestPrompt(textJSON) {
-  let min = 0;
-  if (textJSON.sentences.length - 1 > 5) {
-    min = textJSON.sentences.length - 6;
-  }
-  const sent = textJSON.sentences[getRandom(min, textJSON.sentences.length - 1)];
-  for (let j = 0; j < sent.tokens.length; j += 1) {
-    this.test_sentence = `${this.test_sentence} ${sent.tokens[j].word}`;
-  }
-  this.test_sentence.replace('-LRB-', '(');
-  this.test_sentence.replace('-RRB-', ')');
-  this.test_sentence.replace('``', '"');
-  this.test_sentence.replace('\'\'', '"');
-  let prompt = 'The statement below';
-  if (Math.random() > 0.5) {
-    prompt = `${prompt} <strong>appears</strong> in the document. <br/>`;
-    this.answer = true;
-  } else {
-    prompt = `${prompt} <strong>doesn't appear</strong> in the document. <br/>`;
-    this.answer = false;
-  }
-  this.test_sentence = `${prompt}<blockquote>${this.test_sentence}</blockquote>`;
+function createTestPrompt() {
+  const prompt = 'The statement below is correct:';
+  this.test_sentence = `${prompt}<blockquote>${this.sanity_statement}</blockquote>`;
 }
 
 function parseDoc(textJSON) {
@@ -209,15 +186,17 @@ function parseDoc(textJSON) {
       createAndMountLineBreaker.call(this);
     }
   }
-  createTestPrompt.call(this, textJSON);
+  createTestPrompt.call(this);
 }
 
 function getFile() {
   axios.get(`project/annotation/highlight/${this.project_id}/single_doc`)
     .then((response) => {
-      parseDoc.call(this, JSON.parse(response.data.doc_json));
       this.doc_status_id = response.data.doc_status_id;
       this.turkCode = response.data.turk_code;
+      this.sanity_statement = response.data.sanity_statement;
+      this.sanity_answer = response.data.sanity_answer;
+      parseDoc.call(this, JSON.parse(response.data.doc_json));
     })
     .catch(() => {
       this.$emit('noDocument');
@@ -339,8 +318,10 @@ export default {
       // A mapping between group Key (this.group index) to color
       group2color: {},
       rawSummariesHTML: '',
+      // A HTML sentence to be passed to annotation
       test_sentence: '',
-      answer: '',
+      sanity_statement: '',
+      sanity_answer: '',
       turkCode: '',
     };
   },
@@ -385,7 +366,7 @@ export default {
       this.$emit('annotationDone', {
         resultJSON,
         test_sentence: this.test_sentence,
-        answer: this.answer,
+        answer: this.sanity_answer,
         turkCode: this.turkCode,
       });
     },

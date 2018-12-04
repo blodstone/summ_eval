@@ -26,6 +26,8 @@ class Document(db.Model):
     id = db.Column(db.INTEGER, primary_key=True, nullable=False)
     doc_id = db.Column(db.String(25), nullable=False)
     doc_json = db.Column(db.Text, nullable=False)
+    sanity_statement = db.Column(db.Text, nullable=True)
+    sanity_answer = db.Column(db.Boolean, nullable=True, default=True)
     has_highlight = db.Column(db.Boolean, nullable=False, default=False)
 
     doc_statuses = db.relationship('DocStatus', backref='document', lazy=True)
