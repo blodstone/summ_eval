@@ -2,7 +2,7 @@
    <div class="container is-fluid home">
      <div class="columns" :style="{ display: display.landing }">
             <div class="column is-8 is-offset-2 box content">
-                <LandingHighlight></LandingHighlight>
+                <component :is="dynamicLanding"></component>
                 <div align="center" style="margin-bottom: 2rem">
                     <button class="button is-primary is-large"
                     v-on:click="closeLanding()">I consent</button>
@@ -74,17 +74,21 @@
                     </b-radio>
                 </div>
                 <hr/>
-                <p>
-                    Please enter an email to be included in a lucky draw
-                    or leave it blank to opt out:
-                </p>
-                <b-field>
-                    <b-input v-model="email"
-                             placeholder="Your email"
-                             icon-pack="fas"
-                             icon="envelope" style="width: 250px;" ></b-input>
-                </b-field>
-                <button class="button is-primary" v-on:click="sendResult">Submit</button>
+                <div :style="{ display: mTurkDisplay }">
+                    <p>
+                        Please enter an email to be included in a lucky draw
+                        or leave it blank to opt out:
+                    </p>
+                    <b-field>
+                        <b-input v-model="email"
+                                 placeholder="Your email"
+                                 icon-pack="fas"
+                                 icon="envelope" style="width: 250px;" ></b-input>
+                    </b-field>
+                </div>
+                <div style="margin-top: 5px;">
+                    <button class="button is-primary" v-on:click="sendResult">Submit</button>
+                </div>
             </div>
         </div>
      </div>
@@ -96,6 +100,8 @@
 /* eslint no-continue: "off" */
 import Document from '@/components/Annotator/Document.vue';
 import LandingHighlight from '@/components/Landing/LandingHighlight.vue';
+import LandingHighlightMturk from '@/components/LandingMTurk/LandingHighlight.vue';
+
 // const randomColor = require('randomcolor');
 const axios = require('axios');
 
@@ -105,11 +111,13 @@ export default {
   name: 'Annotation',
   components: {
     LandingHighlight,
+    LandingHighlightMturk,
     Document,
   },
   data() {
     return {
       project_id: this.$route.params.project_id,
+      is_mturk: this.$route.params.mturk,
       tokensLeft: maxTokens,
       summaries: '',
       display: {
@@ -127,9 +135,28 @@ export default {
       email: '',
     };
   },
+  computed: {
+    dynamicLanding() {
+      if (this.is_mturk === '0') {
+        return 'LandingHighlight';
+      }
+      return 'LandingHighlightMturk';
+    },
+    mTurkDisplay() {
+      if (this.is_mturk === '0') {
+        return 'block';
+      }
+      return 'none';
+    },
+  },
   methods: {
     sendResult() {
       this.resultJSON.email = this.email;
+      if (this.is_mturk === '1') {
+        this.resultJSON.mturk_code = this.turkCode;
+      } else {
+        this.resultJSON.mturk_code = null;
+      }
       if ((this.radio === 'True') === this.answer) {
         this.resultJSON.validity = true;
       } else {
@@ -141,10 +168,14 @@ export default {
             message: 'Submission successful.',
             type: 'is-success',
           });
-          this.showMessage('<h3>Thank you for submitting!</h3><br/>' +
-            '<p>For non Amazon Turker: Please refresh the page to do another highlighting. You need to do at least twice to be eligible for the lucky draw.</p>' +
-            '<p>For Amazon Turker enter this code:</p>' +
-            `<blockquote>${this.turkCode}</blockquote>`);
+          let text = '';
+          if (this.is_mturk === '1') {
+            text = '<p>Please enter this code:</p>' +
+              `<blockquote>${this.turkCode}</blockquote>`;
+          } else {
+            text = '<p>Please refresh the page to do another highlighting. You need to do at least twice to be eligible for the lucky draw.</p>';
+          }
+          this.showMessage(`<h3>Thank you for submitting!</h3><br/> ${text}`);
         })
         .catch((error) => {
           this.$toast.open({

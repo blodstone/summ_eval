@@ -163,6 +163,7 @@ class AnnotationResult(db.Model):
     validity = db.Column(db.Boolean, nullable=False, default=False)
     email = db.Column(db.String(255), nullable=False)
     status_id = db.Column(db.INTEGER, db.ForeignKey('doc_status.id'), nullable=False)
+    mturk_code = db.Column(db.String(255), nullable=True)
 
     @classmethod
     def create_result(cls, **kwargs):
@@ -171,6 +172,7 @@ class AnnotationResult(db.Model):
             status_id=kwargs['status_id'],
             validity=kwargs['validity'],
             email=kwargs['email'],
+            mturk_code=kwargs['mturk_code']
         )
         db.session.add(result)
         db.session.commit()

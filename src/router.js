@@ -81,6 +81,12 @@ export default new Router({
     },
     {
       path: '/annotation/highlight/:project_id',
+      redirect: {
+        path: '/annotation/highlight/:project_id/0',
+      },
+    },
+    {
+      path: '/annotation/highlight/:project_id/:mturk',
       name: 'annotation',
       component: Annotation,
     },
