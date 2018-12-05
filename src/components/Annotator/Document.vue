@@ -160,7 +160,7 @@ function getIsSourceAndcorefID(sent, token) {
 }
 
 function createTestPrompt() {
-  const prompt = 'The statement below is correct:';
+  const prompt = 'Is the statement below is True or False?';
   this.test_sentence = `${prompt}<blockquote>${this.sanity_statement}</blockquote>`;
 }
 
