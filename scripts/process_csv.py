@@ -24,9 +24,11 @@ if __name__ == '__main__':
                     validity = result.validity
                     if len(result_json['highlights']) == 0:
                         validity = False
-                    to_write.append({'No': no, 'Validity': validity, 'Code': code, 'File': file})
+                    to_write.append({'No': no, 'Validity': validity,
+                                     'Code': code, 'Len': len(result_json['highlights']),
+                                     'File': file})
                     no += 1
     csv_write_folder = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/mturk'
     with open(os.path.join(csv_write_folder, 'result.csv'), 'w', newline='') as infile:
-        writer = csv.DictWriter(infile, fieldnames=['No', 'Code', 'Validity', 'File'])
+        writer = csv.DictWriter(infile, fieldnames=['No', 'Code', 'Len', 'Validity', 'File'])
         writer.writerows(to_write)
