@@ -198,7 +198,6 @@ export default {
       this.test_sentence = arg.test_sentence;
       this.answer = arg.answer;
       this.turkCode = arg.turkCode;
-      this.result_id = arg.result_id;
     },
     showMessage(message) {
       this.display.landing = 'none';
