@@ -159,22 +159,41 @@ class AnnotationResult(db.Model):
 
     id = db.Column(db.INTEGER, primary_key=True, nullable=False)
     finished_at = db.Column(db.DateTime, default=datetime.utcnow)
+    opened_at = db.Column(db.DateTime, default=datetime.utcnow)
     result_json = db.Column(db.Text, nullable=False)
     validity = db.Column(db.Boolean, nullable=False, default=False)
     email = db.Column(db.String(255), nullable=False)
     status_id = db.Column(db.INTEGER, db.ForeignKey('doc_status.id'), nullable=False)
     mturk_code = db.Column(db.String(255), nullable=True)
+    is_filled = db.Column(db.Boolean, nullable=True)
 
     @classmethod
-    def create_result(cls, **kwargs):
+    def del_result(cls, result):
+        db.session.delete(result)
+        db.session.commit()
+
+    @classmethod
+    def create_empty_result(cls, status_id):
         result = AnnotationResult(
-            result_json=json.dumps(kwargs['result_json']),
-            status_id=kwargs['status_id'],
-            validity=kwargs['validity'],
-            email=kwargs['email'],
-            mturk_code=kwargs['mturk_code']
-        )
+            result_json='',
+            validity=False,
+            email='',
+            status_id=status_id,
+            is_filled=False)
         db.session.add(result)
+        db.session.commit()
+        return result.id
+
+    @classmethod
+    def update_result(cls, **kwargs):
+        result_id = kwargs['result_id']
+        result = AnnotationResult.query.get(result_id)
+        result.finished_at = datetime.utcnow()
+        result.result_json = json.dumps(kwargs['result_json'])
+        result.validity = kwargs['validity']
+        result.email = kwargs['email']
+        result.mturk_code = kwargs['mturk_code']
+        result.is_filled = True
         db.session.commit()
         return result
 

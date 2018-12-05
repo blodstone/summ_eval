@@ -3,7 +3,7 @@ import http
 import urllib.parse
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import jsonify, request
 
@@ -27,6 +27,15 @@ def api_project_single_doc(project_type, project_category, project_id):
         if not project:
             return '', http.HTTPStatus.NOT_FOUND
         else:
+            # Clean open project, very dirty
+            for doc_status in project.doc_statuses:
+                results = AnnotationResult.query.filter_by(status_id=doc_status.id, is_filled=False).all()
+                for result in results:
+                    if result.opened_at:
+                        delta = datetime.utcnow() - result.opened_at
+                        if delta >= timedelta(minutes=30):
+                            AnnotationResult.del_result(result)
+            # Retrieve result
             random_doc_statuses = list(project.doc_statuses)
             random.shuffle(random_doc_statuses)
             min_result = 999
@@ -37,15 +46,17 @@ def api_project_single_doc(project_type, project_category, project_id):
                     min_result = n_results
                 n_results_list.append(n_results)
             for idx, doc_status in enumerate(random_doc_statuses):
-                if doc_status.total_exp_results != n_results_list[idx] and n_results_list[idx] == min_result:
+                if doc_status.total_exp_results > n_results_list[idx] == min_result:
                     document = Document.query.filter_by(id=doc_status.doc_id).first()
                     turk_code = '%s_%s' % (doc_status.doc_id, randomword(5))
                     doc_json = json.dumps(json.loads(document.doc_json))
+                    result_id = AnnotationResult.create_empty_result(doc_status.id)
                     return jsonify(dict(doc_json=doc_json,
                                         doc_status_id=doc_status.id,
                                         turk_code=turk_code,
                                         sanity_statement=document.sanity_statement,
-                                        sanity_answer=document.sanity_answer))
+                                        sanity_answer=document.sanity_answer,
+                                        result_id=result_id))
             return '', http.HTTPStatus.NOT_FOUND
     elif project_type.lower() == ProjectType.EVALUATION.value.lower():
         project = EvaluationProject.query.get(project_id)
@@ -118,7 +129,7 @@ def api_project_get(project_type, project_name):
 def api_project_save_result(project_type):
     data = request.get_json()
     if project_type.lower() == ProjectType.ANNOTATION.value.lower():
-        result = AnnotationResult.create_result(**data)
+        result = AnnotationResult.update_result(**data)
     elif project_type.lower() == ProjectType.EVALUATION.value.lower():
         result = EvaluationResult.create_result(**data)
     if result:
