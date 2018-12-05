@@ -105,43 +105,43 @@ function generateRawHTMLSummaries() {
   }
 }
 
-function populateCoref(textJSON) {
-  const reverseCorefs = {};
-  Object.keys(textJSON.corefs).forEach((ID) => {
-    const corefID = parseInt(ID, 10);
-    const newCorefID = textJSON.corefs[corefID][0].id;
-    if (!(newCorefID in reverseCorefs)) {
-      reverseCorefs[newCorefID] = [];
-    }
-    for (let i = 0; i < textJSON.corefs[corefID].length; i += 1) {
-      reverseCorefs[newCorefID].push(textJSON.corefs[corefID][i]);
-    }
-  });
-  Object.keys(reverseCorefs).forEach((ID) => {
-    const corefID = parseInt(ID, 10);
-    for (let i = 0; i < reverseCorefs[corefID].length; i += 1) {
-      const mention = reverseCorefs[corefID][i];
-      if (!(corefID in this.srcCorefID2mentionsCorefID)) {
-        this.srcCorefID2mentionsCorefID[corefID] = [];
-      }
-      this.srcCorefID2mentionsCorefID[corefID].push(mention.id);
-      if (!(mention.id in this.mentions)) {
-        this.mentions[mention.id] = {
-          id: mention.id,
-          startIndex: mention.startIndex,
-          endIndex: mention.endIndex,
-          sentIndex: mention.sentNum,
-        };
-      }
-      if (corefID === mention.id) {
-        if (!(mention.sentNum in this.sentNum2srcCorefID)) {
-          this.sentNum2srcCorefID[mention.sentNum] = [];
-        }
-        this.sentNum2srcCorefID[mention.sentNum].push(corefID);
-      }
-    }
-  });
-}
+// function populateCoref(textJSON) {
+//   const reverseCorefs = {};
+//   Object.keys(textJSON.corefs).forEach((ID) => {
+//     const corefID = parseInt(ID, 10);
+//     const newCorefID = textJSON.corefs[corefID][0].id;
+//     if (!(newCorefID in reverseCorefs)) {
+//       reverseCorefs[newCorefID] = [];
+//     }
+//     for (let i = 0; i < textJSON.corefs[corefID].length; i += 1) {
+//       reverseCorefs[newCorefID].push(textJSON.corefs[corefID][i]);
+//     }
+//   });
+//   Object.keys(reverseCorefs).forEach((ID) => {
+//     const corefID = parseInt(ID, 10);
+//     for (let i = 0; i < reverseCorefs[corefID].length; i += 1) {
+//       const mention = reverseCorefs[corefID][i];
+//       if (!(corefID in this.srcCorefID2mentionsCorefID)) {
+//         this.srcCorefID2mentionsCorefID[corefID] = [];
+//       }
+//       this.srcCorefID2mentionsCorefID[corefID].push(mention.id);
+//       if (!(mention.id in this.mentions)) {
+//         this.mentions[mention.id] = {
+//           id: mention.id,
+//           startIndex: mention.startIndex,
+//           endIndex: mention.endIndex,
+//           sentIndex: mention.sentNum,
+//         };
+//       }
+//       if (corefID === mention.id) {
+//         if (!(mention.sentNum in this.sentNum2srcCorefID)) {
+//           this.sentNum2srcCorefID[mention.sentNum] = [];
+//         }
+//         this.sentNum2srcCorefID[mention.sentNum].push(corefID);
+//       }
+//     }
+//   });
+// }
 
 function getIsSourceAndcorefID(sent, token) {
   if (sent.index + 1 in this.sentNum2srcCorefID) {
@@ -168,7 +168,7 @@ function parseDoc(textJSON) {
   let wordIndex = 0;
   let whitespaceIndex = 0;
   const { endSentIndex } = textJSON.paragraph;
-  populateCoref.call(this, textJSON);
+  // populateCoref.call(this, textJSON);
   for (let i = 0; i < textJSON.sentences.length; i += 1) {
     const sent = textJSON.sentences[i];
     for (let j = 0; j < sent.tokens.length; j += 1) {

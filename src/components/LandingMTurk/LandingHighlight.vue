@@ -21,12 +21,12 @@
             <em><a class="highlight">Juan David Ortiz, a 35-year-old</a> supervisory <a class="highlight">Border Patrol agent </a>, has been <a class="highlight">charged</a> with <a class="highlight">four counts of murder</a>, <a class="highlight">aggravated assault</a> and <a class="highlight">unlawful restraint</a>. All of <a class="highlight">his victims were sex workers</a>, but <a class="highlight">one woman</a>, who managed to escape, <a class="highlight">helped law enforcement find him</a>.</em>
         </blockquote>
 
-        <p>The maximum length of the highlighted phrases is 30 words. The task should be possible to complete in less than 10 minutes.</p>
+        <p>The maximum combined length of all highlighted phrases is 30 words. If you feel that 30 words is not enough to highlight all important information, then highlight only the most important parts that fit within this limit. The task should be possible to complete in less than 10 minutes.</p>
         <hr/>
         <p><strong>Step 2: Sanity Check</strong></p>
-        <p><strong>Please read the whole document before you do the highlighting</strong>. After you have submitted the evaluation, there will be one simple True/False question where we will verify whether you have read the document or not. Failure to answer the question correctly will nullify the evaluation that the participant has done.</p>
+        <p><strong>Please read the whole document before you do the highlighting</strong>. After you have submitted the evaluation, there will be one simple True/False question where we will verify whether you have read the document or not. Failure to answer the question correctly will invalidate the evaluation that the participant has done.</p>
         <hr/>
-        <p>There is a <strong>code</strong> that you have to copy and paste to Amazon platform at the end of the task. Only submission that correctly answer the True/False question will be deemed as a valid HIT.</p>
+        <p>There is a <strong>code</strong> that you have to copy and paste to Amazon platform at the end of the task. Only submissions that correctly answer the True/False question will be deemed as a valid HIT.</p>
         <hr/>
         <p>Thank you for reading this</p>
 

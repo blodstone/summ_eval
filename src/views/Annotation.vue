@@ -19,11 +19,10 @@
              <!-- eslint-disable -->
                <p class="my-text">Your task is <strong>to select important phrases</strong> from the document by highlighting them.</p>
                <p class="my-text">Select phrases that are the most informative, <strong>use the <a target="_blank" href="https://en.wikipedia.org/wiki/Five_Ws">5W1H principle</a> (who, what, when, where, why and how) to determine the informativeness of a phrase.</strong></p>
-               <p class="my-text">The maximum length of the highlighted phrases is <strong>{{ maxTokens }} words.</strong></p>
+               <p class="my-text">The maximum combined length of all highlighted phrases is <strong>{{ maxTokens }} words.</strong> If you feel that 30 words is not enough to highlight all important information, then highlight only the most important parts that fit within this limit.</p>
                <hr/>
-               <p class="my-text"><strong>To highlight, use your mouse to select phrases from the document</strong>, when you have finished, selected words will automatically count as a group of highlight.</p>
-               <p class="my-text"><strong>To delete a group of highlights, right click on the highlight </strong>in the document panel.</p>
-               <p class="my-text"><strong>Clicking on phrases that are colored as blue</strong> will show you related phrases that are referring to them.</p>
+               <p class="my-text"><strong>To highlight, use your mouse to select phrases from the document</strong>, and click on the pen icon.</p>
+               <p class="my-text"><strong>To delete a group of highlights, right click on it and confirm </strong>.</p>
            </div>
          </div>
        </div>

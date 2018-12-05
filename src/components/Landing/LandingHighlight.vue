@@ -23,13 +23,12 @@
             <em><a class="highlight">Juan David Ortiz, a 35-year-old</a> supervisory <a class="highlight">Border Patrol agent </a>, has been <a class="highlight">charged</a> with <a class="highlight">four counts of murder</a>, <a class="highlight">aggravated assault</a> and <a class="highlight">unlawful restraint</a>. All of <a class="highlight">his victims were sex workers</a>, but <a class="highlight">one woman</a>, who managed to escape, <a class="highlight">helped law enforcement find him</a>.</em>
         </blockquote>
 
-        <p>The maximum length of the highlighted phrases is 30 words. The task should be possible to complete in less than 10 minutes.</p>
+        <p>The maximum combined length of all highlighted phrases is 30 words. If you feel that 30 words is not enough to highlight all important information, then highlight only the most important parts that fit within this limit. The task should be possible to complete in less than 10 minutes.</p>
         <hr/>
         <p><strong>Step 2: Sanity Check</strong></p>
-        <p><strong>Please read the whole document before you do the highlighting</strong>. After you have submitted the evaluation, there will be one simple True/False question where we will verify whether you have read the document or not. Failure to answer the question correctly will nullify the evaluation that the participant has done.</p>
+        <p><strong>Please read the whole document before you do the highlighting</strong>. After you have submitted the evaluation, there will be one simple True/False question where we will verify whether you have read the document or not. Failure to answer the question correctly will invalidate the evaluation that the participant has done.</p>
         <hr/>
-        <p> <strong>For Non Amazon Turker only:</strong> We will draw one lucky winner from the participants to win a £15 Amazon voucher. <strong>You have to complete this task at least twice to be eligible for the lucky draw</strong>. Simply refresh the link to restart the task after you have submitted the result. You are welcome to do the task more than twice but please avoid doing it more than 5 times. We will ignore any excess submission.</p>
-        <p><strong>For Amazon Turker only:</strong> There is a <strong>code</strong> that you have to copy and paste to Amazon platform at the end of the task. Only submission that correctly answer the True/False question will be deemed as a valid HIT.</p>
+        <p>We will draw one lucky winner from the participants to win a £15 Amazon voucher. <strong>You have to complete this task at least twice to be eligible for the lucky draw</strong>. Simply refresh the link to restart the task after you have submitted the result. You are welcome to do the task more than twice but please avoid doing it more than 5 times. We will ignore any excess submission.</p>
         <hr/>
         <p>It is up to you to decide whether or not to take part. If you do decide to take part you will be asked to click a consent button at the end of this section, of which you can still withdraw at any time before we processed the data (3 days after the closing date) without any consequences.</p>
         <p>You do not have to give a reason. If you wish to withdraw from this research, please contact <a href="mailto:hhardy2@sheffield.ac.uk">the organizer</a></p>
