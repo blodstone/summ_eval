@@ -19,6 +19,12 @@ def randomword(length):
    return ''.join(random.choice(letters) for i in range(length))
 
 
+@api.route('/result/<docstatus_id>', methods=['GET'])
+def api_get_result_id(docstatus_id):
+    result_id = AnnotationResult.create_empty_result(docstatus_id)
+    return jsonify(dict(result_id=result_id))
+
+
 @api.route('/project/<project_type>/<project_category>/<project_id>/single_doc', methods=['GET'])
 def api_project_single_doc(project_type, project_category, project_id):
     random.seed(datetime.now())
@@ -50,13 +56,12 @@ def api_project_single_doc(project_type, project_category, project_id):
                     document = Document.query.filter_by(id=doc_status.doc_id).first()
                     turk_code = '%s_%s' % (doc_status.doc_id, randomword(5))
                     doc_json = json.dumps(json.loads(document.doc_json))
-                    result_id = AnnotationResult.create_empty_result(doc_status.id)
                     return jsonify(dict(doc_json=doc_json,
                                         doc_status_id=doc_status.id,
                                         turk_code=turk_code,
                                         sanity_statement=document.sanity_statement,
-                                        sanity_answer=document.sanity_answer,
-                                        result_id=result_id))
+                                        sanity_answer=document.sanity_answer
+                                        ))
             return '', http.HTTPStatus.NOT_FOUND
     elif project_type.lower() == ProjectType.EVALUATION.value.lower():
         project = EvaluationProject.query.get(project_id)

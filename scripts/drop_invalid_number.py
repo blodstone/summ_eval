@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 if __name__ == '__main__':
     app = create_app()
     db = SQLAlchemy(app)
-    max = 5
+    max = 6
     results = db.session.query(AnnotationResult).all()
     for result in results:
         if result.result_json:

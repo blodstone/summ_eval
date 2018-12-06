@@ -193,10 +193,12 @@ function getFile() {
   axios.get(`project/annotation/highlight/${this.project_id}/single_doc`)
     .then((response) => {
       this.doc_status_id = response.data.doc_status_id;
-      this.result_id = response.data.result_id;
       this.turkCode = response.data.turk_code;
       this.sanity_statement = response.data.sanity_statement;
       this.sanity_answer = response.data.sanity_answer;
+      this.$emit('gotResult', {
+        doc_status_id: this.doc_status_id,
+      });
       parseDoc.call(this, JSON.parse(response.data.doc_json));
     })
     .catch(() => {
@@ -321,7 +323,6 @@ export default {
       rawSummariesHTML: '',
       // A HTML sentence to be passed to annotation
       test_sentence: '',
-      result_id: '',
       sanity_statement: '',
       sanity_answer: '',
       turkCode: '',
@@ -349,7 +350,6 @@ export default {
           highlights: {},
         },
         category: 'highlight',
-        result_id: this.result_id,
       };
       for (let i = 0; i < Object.keys(this.groups).length; i += 1) {
         const key = Object.keys(this.groups)[i];

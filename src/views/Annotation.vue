@@ -28,11 +28,15 @@
        </div>
        <!-- eslint-enable -->
        <div class="column">
+         <div class="content" align="center">
+             <h2>Please don't refresh the page.</h2>
+         </div>
          <div class="box document">
            <Document v-on:highlight="updateSummaryBox"
                      v-on:noDocument="showMessage(
                      '<h1>There are no more documents available!</h1>')"
                      v-on:annotationDone="showTest"
+                     v-on:gotResult="saveDocStatusId"
                      :project_id="project_id"
                      :maxTokens="maxTokens"></Document>
          </div>
@@ -116,6 +120,7 @@ export default {
   data() {
     return {
       project_id: this.$route.params.project_id,
+      result_id: '',
       is_mturk: this.$route.params.mturk,
       tokensLeft: maxTokens,
       summaries: '',
@@ -149,8 +154,12 @@ export default {
     },
   },
   methods: {
+    saveDocStatusId(arg) {
+      this.doc_status_id = arg.doc_status_id;
+    },
     sendResult() {
       this.resultJSON.email = this.email;
+      this.resultJSON.result_id = this.result_id;
       if (this.is_mturk === '1') {
         this.resultJSON.mturk_code = this.turkCode;
       } else {
@@ -187,6 +196,10 @@ export default {
       this.display.content = 'flex';
       this.display.landing = 'none';
       window.scrollTo(0, 0);
+      axios.get(`result/${this.doc_status_id}`)
+        .then((response) => {
+          this.result_id = response.data.result_id;
+        });
     },
     showTest(arg) {
       this.display.landing = 'none';
