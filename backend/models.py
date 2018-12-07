@@ -134,8 +134,14 @@ class EvaluationResult(db.Model):
     recall = db.Column(db.REAL, nullable=False, default=-1.0)
     fluency = db.Column(db.REAL, nullable=False, default=-1.0)
     clarity = db.Column(db.REAL, nullable=False, default=-1.0)
+    validity = db.Column(db.Boolean, nullable=True, default=False)
     email = db.Column(db.String(255), nullable=False)
+    sliderMax = db.Column(db.INTEGER, nullable=True)
+    sliderMin = db.Column(db.INTEGER, nullable=True)
+    sliderValues = db.Column(db.String(255), nullable=True)
     status_id = db.Column(db.INTEGER, db.ForeignKey('summary_status.id'), nullable=False)
+    mturk_code = db.Column(db.String(255), nullable=True)
+    is_filled = db.Column(db.Boolean, nullable=True)
 
     @classmethod
     def create_result(cls, **kwargs):
@@ -143,7 +149,14 @@ class EvaluationResult(db.Model):
         if kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower() \
            or kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
             result = EvaluationResult(
-                precision=kwargs['precision'], recall=kwargs['recall'], status_id=kwargs['status_id'])
+                precision=kwargs['precision'],
+                recall=kwargs['recall'],
+                status_id=kwargs['status_id'],
+                sliderMax=kwargs['sliderMax'],
+                sliderMin=kwargs['sliderMin'],
+                sliderValues=kwargs['sliderValues'],
+                email=kwargs['email']
+            )
             db.session.add(result)
             db.session.commit()
         elif kwargs['category'].lower() == ProjectCategory.FLUENCY.value.lower():

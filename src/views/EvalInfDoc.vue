@@ -2,9 +2,10 @@
     <div class="container is-fluid home">
         <div class="columns" :style="{ display: display.landing }">
             <div class="column is-8 is-offset-2 box content">
-                <LandingInfDoc></LandingInfDoc>
+                <component :is="dynamicLanding"></component>
                 <div align="center">
-                    <button class="button is-primary is-large" style="margin-bottom: 2rem"
+                    <button class="button is-primary is-large"
+                            style="margin-bottom: 2rem;margin-top: 2rem;"
                     v-on:click="closeLanding()">I consent</button>
                 </div>
             </div>
@@ -18,11 +19,11 @@
                         </h1>
                         <!-- eslint-disable -->
                         <p class="my-text">
-                            Your task is <strong>to assess the quality of the summary based on the article</strong>.
+                            Your task is <strong>to assess the quality of the summary based on the document and its higlights</strong>.
                         </p>
                         <hr>
-                        <p class="my-text">Words that are important in the document have been marked using heatmap coloring (the darker the color the more important the word are).</p>
-                        <p class="my-text">Use the slider to remove light color (less important highlights) by sliding it to the right. The number tell you how many color you can remove until there is only one color (the most important word).</p>
+                        <p class="my-text">Words that are important in the document have been highlighted using heatmap coloring (the darker the color the more important the word are). You may decide what is the intensity of </p>
+                        <p class="my-text">Use the slider to remove light color (less important highlights) by sliding it to the right. The number tells you how many color you can remove until there is only one color (the most important word) left.</p>
                     </div>
                     <div style="margin-bottom: 1.8rem; margin-top: 1.8rem; flex: 1;">
                             <vue-slider ref="slider" v-model="intensitySlider.value"
@@ -77,8 +78,10 @@
                                 <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
+                        <div>
                         <button class="button is-primary" :disabled="timer.isRunning"
                     v-on:click="saveEvaluation()">{{ timenow }}</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -99,12 +102,13 @@ import Word from '@/components/Component/Word.vue';
 import Char from '@/components/Component/Char.vue';
 import LineBreaker from '@/components/Component/LineBreaker.vue';
 import LandingInfDoc from '@/components/Landing/LandingInfDoc.vue';
+import LandingInfDocMTurk from '@/components/LandingMTurk/LandingInfDoc.vue';
 import Vue from 'vue';
 import vueSlider from 'vue-slider-component';
 // const randomColor = require('randomcolor');
 const axios = require('axios');
 
-const waitTimeForButton = 5;
+const waitTimeForButton = 1;
 
 function createAndMountWord(sent, token, wordIndex) {
   const WordClass = Vue.extend(Word);
@@ -161,6 +165,7 @@ function createAndMountLineBreaker() {
 }
 
 function redrawHighlight() {
+  this.slidersValue.push(this.intensitySlider.value)
   for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
     const index = parseInt(Object.keys(this.highlight.intensities)[i], 10);
     const intensity = this.highlight.intensities[Object.keys(this.highlight.intensities)[i]];
@@ -275,8 +280,15 @@ export default {
   components: {
     vueSlider,
     LandingInfDoc,
+    LandingInfDocMTurk,
   },
   computed: {
+    dynamicLanding() {
+      if (this.is_mturk === '0') {
+        return 'LandingInfDoc';
+      }
+      return 'LandingInfDocMTurk';
+    },
     timenow() {
       if (this.timer.isRunning === true) {
         if ((this.timer.now - this.timer.date) < waitTimeForButton) {
@@ -312,6 +324,10 @@ export default {
         precision: this.precision,
         recall: this.recall,
         category: 'Informativeness_Doc',
+        sliderMax: this.intensitySlider.max,
+        sliderMin: this.intensitySlider.min,
+        sliderValues: this.slidersValue.join(),
+        email: 'temp',
       };
       sendResult.call(this, resultJSON);
     },
@@ -323,6 +339,7 @@ export default {
         max: -1,
         min: 999,
       },
+      is_mturk: this.$route.params.mturk,
       show: false,
       timer: {
         now: Math.trunc(new Date().getTime() / 1000),
@@ -363,6 +380,7 @@ export default {
       summ_status_id: '',
       system_text: '',
       message: '',
+      slidersValue: [],
     };
   },
   mounted: function onMounted() {

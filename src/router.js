@@ -92,6 +92,12 @@ export default new Router({
     },
     {
       path: '/evaluation/informativeness_doc/:project_id',
+      redirect: {
+        path: '/evaluation/informativeness_doc/:project_id/0',
+      },
+    },
+    {
+      path: '/evaluation/informativeness_doc/:project_id/:mturk',
       name: 'evalinfdoc',
       component: EvalInfDoc,
     },
