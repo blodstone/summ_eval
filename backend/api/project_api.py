@@ -39,7 +39,7 @@ def api_project_single_doc(project_type, project_category, project_id):
                 for result in results:
                     if result.opened_at:
                         delta = datetime.utcnow() - result.opened_at
-                        if delta >= timedelta(seconds=15):
+                        if delta >= timedelta(minutes=15):
                             AnnotationResult.del_result(result)
             # Retrieve result
             random_doc_statuses = list(project.doc_statuses)

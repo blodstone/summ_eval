@@ -174,7 +174,10 @@ class AnnotationResult(db.Model):
 
     @classmethod
     def create_empty_result(cls, status_id):
+        import random
+        an_id = random.sample(range(1, 1000000), 1)[0]
         result = AnnotationResult(
+            id=an_id,
             result_json='',
             validity=False,
             email='',
@@ -188,11 +191,12 @@ class AnnotationResult(db.Model):
     def update_result(cls, **kwargs):
         if 'result_id' in kwargs:
             result_id = kwargs['result_id']
+            result = AnnotationResult.query.get(result_id)
         else:
-            result_id = AnnotationResult.create_empty_result(kwargs['status_id'])
-        result = AnnotationResult.query.get(result_id)
-        if not result:
+            import random
+            an_id = random.sample(range(1, 1000000), 1)[0]
             result = AnnotationResult(
+                id=an_id,
                 result_json='',
                 validity=False,
                 email='',
