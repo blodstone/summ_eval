@@ -21,8 +21,8 @@
                             Your task is <strong>to assess the quality of the summary based on the article</strong>.
                         </p>
                         <hr>
-                        <p class="my-text">Phrases that are important in the document have been marked using heatmap coloring. The higher the color intensity the greater the phrases' importance.</p>
-                        <p class="my-text">The following slider indicates the number of highlights in the document. You can remove less important phrases by sliding the slider to the right.</p>
+                        <p class="my-text">Words that are important in the document have been marked using heatmap coloring (the darker the color the more important the word are).</p>
+                        <p class="my-text">Use the slider to remove light color (less important highlights) by sliding it to the right. The number tell you how many color you can remove until there is only one color (the most important word).</p>
                     </div>
                     <div style="margin-bottom: 1.8rem; margin-top: 1.8rem; flex: 1;">
                             <vue-slider ref="slider" v-model="intensitySlider.value"
