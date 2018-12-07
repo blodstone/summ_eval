@@ -191,6 +191,13 @@ class AnnotationResult(db.Model):
         else:
             result_id = AnnotationResult.create_empty_result(kwargs['status_id'])
         result = AnnotationResult.query.get(result_id)
+        if not result:
+            result = AnnotationResult(
+                result_json='',
+                validity=False,
+                email='',
+                status_id=kwargs['status_id'],
+                is_filled=False)
         result.finished_at = datetime.utcnow()
         result.status_id = kwargs['status_id']
         result.result_json = json.dumps(kwargs['result_json'])
