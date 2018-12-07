@@ -78,19 +78,30 @@ def api_project_single_doc(project_type, project_category, project_id):
                     min_result = n_results
                 n_results_list.append(n_results)
             for idx, summ_status in enumerate(random_summ_statuses):
-                if summ_status.total_exp_results != n_results_list[idx] and n_results_list[idx] == min_result:
+                if summ_status.total_exp_results > n_results_list[idx] == min_result:
                     system_summary = Summary.query.get(summ_status.summary_id)
+                    document = Document.query.filter_by(id=system_summary.doc_id).first()
                     system_text = system_summary.text
-                    doc_json = Document.get_dict(system_summary.doc_id)
+                    doc_json = json.loads(document.doc_json)
+                    turk_code = '%s_%s' % (system_summary.doc_id, randomword(5))
                     if project_category.lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
                         ref_text = Summary.query.filter_by(id=summ_status.ref_summary_id).first().text
                         return jsonify(dict(system_text=system_text,
-                                            ref_text=ref_text, summ_status_id=summ_status.id))
+                                            ref_text=ref_text,
+                                            summ_status_id=summ_status.id,
+                                            turk_code=turk_code,
+                                            ))
                     elif project_category.lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
                         return jsonify(dict(system_text=system_text,
-                                            doc_json=doc_json, summ_status_id=summ_status.id))
+                                            doc_json=doc_json,
+                                            summ_status_id=summ_status.id,
+                                            sanity_statement=document.sanity_statement,
+                                            sanity_answer=document.sanity_answer
+                                            ))
                     elif project_category.lower() == ProjectCategory.FLUENCY.value.lower():
-                        return jsonify(dict(system_text=system_text, summ_status_id=summ_status.id))
+                        return jsonify(dict(system_text=system_text,
+                                            summ_status_id=summ_status.id,
+                                            turk_code=turk_code,))
             return '', http.HTTPStatus.NOT_FOUND
     else:
         return '', http.HTTPStatus.BAD_REQUEST

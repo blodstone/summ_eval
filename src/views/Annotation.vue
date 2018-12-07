@@ -165,10 +165,14 @@ export default {
       } else {
         this.resultJSON.mturk_code = null;
       }
-      if ((this.radio === 'True') === this.answer) {
-        this.resultJSON.validity = true;
-      } else {
+      if (this.radio === '') {
         this.resultJSON.validity = false;
+      } else {
+        if ((this.radio === 'True') === this.answer) {
+          this.resultJSON.validity = true;
+        } else {
+          this.resultJSON.validity = false;
+        }
       }
       axios.post('project/save_result/annotation', this.resultJSON)
         .then(() => {

@@ -6,7 +6,8 @@
                 <div align="center">
                     <button class="button is-primary is-large"
                             style="margin-bottom: 2rem;margin-top: 2rem;"
-                    v-on:click="closeLanding()">I consent</button>
+                            v-on:click="closeLanding()">I consent
+                    </button>
                 </div>
             </div>
         </div>
@@ -19,16 +20,21 @@
                         </h1>
                         <!-- eslint-disable -->
                         <p class="my-text">
-                            Your task is <strong>to assess the quality of the summary based on the document and its higlights</strong>.
+                            Your task is <strong>to assess the quality of the summary based on the document and its
+                            higlights</strong>.
                         </p>
                         <hr>
-                        <p class="my-text">Words that are important in the document have been highlighted using heatmap coloring (the darker the color the more important the word are). You may decide what is the intensity of </p>
-                        <p class="my-text">Use the slider to remove light color (less important highlights) by sliding it to the right. The number tells you how many color you can remove until there is only one color (the most important word) left.</p>
+                        <p class="my-text">Words that are important in the document have been highlighted using heatmap
+                            coloring (the darker the color the more important the word are). You may decide what is the
+                            intensity of </p>
+                        <p class="my-text">Use the slider to remove light color (less important highlights) by sliding
+                            it to the right. The number tells you how many color you can remove until there is only one
+                            color (the most important word) left.</p>
                     </div>
                     <div style="margin-bottom: 1.8rem; margin-top: 1.8rem; flex: 1;">
-                            <vue-slider ref="slider" v-model="intensitySlider.value"
-                                        v-bind="intensitySlider.options" v-if="show"
-                                        v-on:input="onSliderInput"></vue-slider>
+                        <vue-slider ref="slider" v-model="intensitySlider.value"
+                                    v-bind="intensitySlider.options" v-if="show"
+                                    v-on:input="onSliderInput"></vue-slider>
                     </div>
 
                 </div>
@@ -47,12 +53,13 @@
                         <p class="my-summary">{{ system_text }}</p>
                         <hr>
                         <h5 class="my-header">
-                        <strong>How strongly agree are you on the following statements?</strong>
+                            <strong>How strongly agree are you on the following statements?</strong>
                         </h5>
                         <p class="my-text">
                             <strong>All important information</strong> from the document is present in the summary
                         </p>
-                        <div class="level" align="center" style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
+                        <div class="level" align="center"
+                             style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
                             <span class="level-left">
                                 <label class="label is-small">Strongly <br/> disagree</label>
                             </span>
@@ -78,9 +85,10 @@
                                 <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
-                        <div>
-                        <button class="button is-primary" :disabled="timer.isRunning"
-                    v-on:click="saveEvaluation()">{{ timenow }}</button>
+                        <div align="center">
+                            <button class="button is-primary" :disabled="timer.isRunning"
+                                    v-on:click="showTest">{{ timenow }}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -91,6 +99,37 @@
             <div class="column is-8 is-offset-2 box content">
                 <div align="center">
                     <h1>{{ message }}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="columns" :style="{ display: display.test }">
+            <div class="column is-8 is-offset-2 box content">
+                <div align="center">
+                    <h3>Please Answer the Following Question</h3>
+                    <div v-html="testPrompt">
+                    </div>
+                    <div class="block">
+                        <b-radio v-model="radio"
+                                 native-value="True">
+                            True
+                        </b-radio>
+                        <b-radio v-model="radio"
+                                 native-value="False">
+                            False
+                        </b-radio>
+                    </div>
+                    <hr/>
+                    <p>
+                        Please enter an email to be included in a lucky draw
+                        or leave it blank to opt out:
+                    </p>
+                    <b-field>
+                        <b-input v-model="email"
+                                 placeholder="Your email"
+                                 icon-pack="fas"
+                                 icon="envelope" style="width: 250px;"></b-input>
+                    </b-field>
+                    <button class="button is-primary" v-on:click="saveEvaluation">Submit</button>
                 </div>
             </div>
         </div>
@@ -109,6 +148,8 @@ import vueSlider from 'vue-slider-component';
 const axios = require('axios');
 
 const waitTimeForButton = 1;
+
+window.onbeforeunload = () => 'Are you sure you want leave?';
 
 function createAndMountWord(sent, token, wordIndex) {
   const WordClass = Vue.extend(Word);
@@ -165,7 +206,7 @@ function createAndMountLineBreaker() {
 }
 
 function redrawHighlight() {
-  this.slidersValue.push(this.intensitySlider.value)
+  this.slidersValue.push(this.intensitySlider.value);
   for (let i = 0; i < Object.keys(this.highlight.intensities).length; i += 1) {
     const index = parseInt(Object.keys(this.highlight.intensities)[i], 10);
     const intensity = this.highlight.intensities[Object.keys(this.highlight.intensities)[i]];
@@ -249,6 +290,9 @@ function getFile() {
       parseDoc.call(this, response.data.doc_json);
       this.system_text = response.data.system_text;
       this.summ_status_id = response.data.summ_status_id;
+      this.turkCode = response.data.turk_code;
+      this.sanity_statement = response.data.sanity_statement;
+      this.sanity_answer = response.data.sanity_answer;
       redrawHighlight.call(this);
     })
     .catch((error) => {
@@ -256,7 +300,6 @@ function getFile() {
       this.showMessage('There are no more documents available!');
     });
 }
-
 
 function sendResult(resultJSON) {
   axios.post('project/save_result/evaluation', resultJSON)
@@ -283,6 +326,10 @@ export default {
     LandingInfDocMTurk,
   },
   computed: {
+    testPrompt() {
+      const prompt = 'Is the statement below is True or False?';
+      return `${prompt}<blockquote>${this.sanity_statement}</blockquote>`;
+    },
     dynamicLanding() {
       if (this.is_mturk === '0') {
         return 'LandingInfDoc';
@@ -306,6 +353,7 @@ export default {
       this.display.landing = 'none';
       this.display.content = 'none';
       this.display.message = 'flex';
+      this.display.test = 'none';
       this.message = message;
     },
     closeLanding() {
@@ -317,6 +365,12 @@ export default {
     onSliderInput() {
       redrawHighlight.call(this);
     },
+    showTest() {
+      this.display.landing = 'none';
+      this.display.content = 'none';
+      this.display.message = 'none';
+      this.display.test = 'flex';
+    },
     saveEvaluation() {
       const resultJSON = {
         project_id: this.project_id,
@@ -327,8 +381,20 @@ export default {
         sliderMax: this.intensitySlider.max,
         sliderMin: this.intensitySlider.min,
         sliderValues: this.slidersValue.join(),
-        email: 'temp',
+        email: this.email,
       };
+      if (this.is_mturk === '1') {
+        this.resultJSON.mturk_code = this.turkCode;
+      } else {
+        this.resultJSON.mturk_code = null;
+      }
+      if (this.radio === '') {
+        this.resultJSON.validity = false;
+      } else if ((this.radio === 'True') === this.sanity_answer) {
+        this.resultJSON.validity = true;
+      } else {
+        this.resultJSON.validity = false;
+      }
       sendResult.call(this, resultJSON);
     },
   },
@@ -364,6 +430,7 @@ export default {
         content: 'none',
         landing: 'flex',
         message: 'none',
+        test: 'none',
       },
       components: [],
       // A collection of Word components
@@ -381,6 +448,10 @@ export default {
       system_text: '',
       message: '',
       slidersValue: [],
+      sanity_statement: '',
+      radio: '',
+      sanity_answer: '',
+      email: '',
     };
   },
   mounted: function onMounted() {
