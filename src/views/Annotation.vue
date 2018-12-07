@@ -34,7 +34,7 @@
          <div class="box document">
            <Document v-on:highlight="updateSummaryBox"
                      v-on:noDocument="showMessage(
-                     '<h1>There are no more documents available!</h1>')"
+                     '<h1>The server is busy! Please wait 15 seconds and press refresh!</h1>')"
                      v-on:annotationDone="showTest"
                      v-on:gotResult="saveDocStatusId"
                      :project_id="project_id"

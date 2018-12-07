@@ -186,9 +186,13 @@ class AnnotationResult(db.Model):
 
     @classmethod
     def update_result(cls, **kwargs):
-        result_id = kwargs['result_id']
+        if 'result_id' in kwargs:
+            result_id = kwargs['result_id']
+        else:
+            result_id = AnnotationResult.create_empty_result(kwargs['status_id'])
         result = AnnotationResult.query.get(result_id)
         result.finished_at = datetime.utcnow()
+        result.status_id = kwargs['status_id']
         result.result_json = json.dumps(kwargs['result_json'])
         result.validity = kwargs['validity']
         result.email = kwargs['email']
