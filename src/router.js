@@ -91,13 +91,13 @@ export default new Router({
       component: Annotation,
     },
     {
-      path: '/evaluation/informativeness_doc/:project_id',
+      path: '/evaluation/informativeness_doc/:highlight/:project_id',
       redirect: {
-        path: '/evaluation/informativeness_doc/:project_id/0',
+        path: '/evaluation/informativeness_doc/:highlight/:project_id/0',
       },
     },
     {
-      path: '/evaluation/informativeness_doc/:project_id/:mturk',
+      path: '/evaluation/informativeness_doc/:highlight/:project_id/:mturk',
       name: 'evalinfdoc',
       component: EvalInfDoc,
     },

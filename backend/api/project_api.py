@@ -221,10 +221,15 @@ def api_project_progress_all(project_type):
             if project_type == ProjectType.EVALUATION.value.lower():
                 summ_group = SummaryGroup.query.get(project.summ_group_id)
                 project_json['summ_group_name'] = summ_group.name
+            if project.highlight:
+                highlight = 1
+            else:
+                highlight = 0
             project_json['link'] = urllib.parse.urljoin(
             request.host_url,
-            '#/{type}/{category}/{id}'.format(
+            '#/{type}/{category}/{highlight}/{id}/1'.format(
                 type=project_type,
+                highlight=highlight,
                 category=project.category,
                 id=project_json['id']
                 ))

@@ -16,6 +16,7 @@ class ProjectType(Enum):
 class ProjectCategory(Enum):
     INFORMATIVENESS_REF = 'Informativeness_Ref'
     INFORMATIVENESS_DOC = 'Informativeness_Doc'
+    INFORMATIVENESS_DOC_NO = 'Informativeness_Doc_No'
     FLUENCY = 'Fluency'
     HIGHLIGHT = 'Highlight'
 
@@ -352,6 +353,7 @@ class EvaluationProject(BaseProject, db.Model):
     __tablename__ = 'evaluation_project'
 
     summ_group_id = db.Column(db.INTEGER, db.ForeignKey('summary_group.id'), nullable=False)
+    highlight = db.Column(db.Boolean, default=True)
     summ_statuses = db.relationship('SummaryStatus', backref='project', lazy=True)
 
     def get_dict(self):
@@ -367,14 +369,21 @@ class EvaluationProject(BaseProject, db.Model):
         summ_group = SummaryGroup.query.filter_by(name=kwargs['summ_group_name']).first()
         if not summ_group:
             return None
+        if kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
+            highlight = True
+        else:
+            highlight = False
         # noinspection PyArgumentList
         project = EvaluationProject(
             name=kwargs['name'], category=kwargs['category'],
-            dataset_id=dataset.id, summ_group_id=summ_group.id)
+            dataset_id=dataset.id, summ_group_id=summ_group.id,
+            highlight=highlight
+        )
         db.session.add(project)
         db.session.commit()
         if kwargs['category'].lower() == ProjectCategory.FLUENCY.value.lower() \
-            or kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
+            or kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower() \
+            or kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC_NO.value.lower():
             for summary in summ_group.summaries:
                 summ_status = SummaryStatus(
                     proj_id=project.id,

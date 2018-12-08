@@ -8,7 +8,10 @@
         <b-field horizontal label="Category">
             <b-select placeholder="Select evaluation category" v-model="project.category"
                       icon="wrench" icon-pack="fas">
-                <option value="Informativeness_Doc">Informativeness on Document</option>
+                <option value="Informativeness_Doc">Informativeness on Document
+                    with Highlight</option>
+                <option value="Informativeness_Doc_No">Informativeness on Document
+                    without Highlight</option>
                 <option value="Informativeness_Ref">Informativeness on Reference</option>
                 <option value="Fluency">Fluency</option>
             </b-select>

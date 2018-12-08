@@ -13,7 +13,7 @@
         </div>
         <div class="columns" :style="{ display: display.content }">
             <div class="column is-3">
-                <div class="box instruction">
+                <div class="box instruction" :style="{ display: highlightDisplay }">
                     <div class="content">
                         <h1>
                             Instructions & Controls
@@ -36,6 +36,18 @@
                                     v-bind="intensitySlider.options" v-if="show"
                                     v-on:input="onSliderInput"></vue-slider>
                     </div>
+                </div>
+                <div class="box instruction" :style="{ display: nonHighlightDisplay }">
+                    <div class="content">
+                        <h1>
+                            Instructions & Controls
+                        </h1>
+                        <!-- eslint-disable -->
+                        <p class="my-text">
+                            Your task is <strong>to assess the quality of the summary based on the document</strong>.
+                        </p>
+                    </div>
+
 
                 </div>
             </div>
@@ -122,17 +134,24 @@
                         </b-radio>
                     </div>
                     <hr/>
-                    <p>
-                        Please enter an email to be included in a lucky draw
-                        or leave it blank to opt out:
-                    </p>
-                    <b-field>
-                        <b-input v-model="email"
-                                 placeholder="Your email"
-                                 icon-pack="fas"
-                                 icon="envelope" style="width: 250px;"></b-input>
-                    </b-field>
-                    <button class="button is-primary" v-on:click="saveEvaluation">Submit</button>
+                    <div :style="{ display: mTurkDisplay }">
+                        <p>
+                            Please enter an email to be included in a lucky draw
+                            or leave it blank to opt out:
+                        </p>
+                        <b-field>
+                            <b-input v-model="email"
+                                     placeholder="Your email"
+                                     icon-pack="fas"
+                                     icon="envelope" style="width: 250px;"></b-input>
+                        </b-field>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <button class="button is-primary"
+                                v-on:click="saveEvaluation">
+                            Submit
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -265,7 +284,9 @@ function getIntensities(results) {
 }
 
 function parseDoc(textJSON) {
-  getIntensities.call(this, textJSON.results);
+  if (this.is_highlight === '1') {
+    getIntensities.call(this, textJSON.results);
+  }
   let wordIndex = 0;
   let whitespaceIndex = 0;
   const { endSentIndex } = textJSON.paragraph;
@@ -311,7 +332,15 @@ function sendResult(resultJSON) {
         message: 'Submission successful.',
         type: 'is-success',
       });
-      this.showMessage('Thank you for submitting!');
+      let text = '';
+      if (this.is_mturk === '1') {
+        text = '<p>Please enter this code:</p>' +
+              `<blockquote>${this.turkCode}</blockquote>`;
+      } else {
+        text = '<p>Please refresh the page to do another highlighting. ' +
+          'You need to do at least twice to be eligible for the lucky draw.</p>';
+      }
+      this.showMessage(`<h3>Thank you for submitting!</h3><br/> ${text}`);
     })
     .catch((error) => {
       this.$toast.open({
@@ -329,6 +358,24 @@ export default {
     LandingInfDocMTurk,
   },
   computed: {
+    nonHighlightDisplay() {
+      if (this.is_highlight === '0') {
+        return 'block';
+      }
+      return 'none';
+    },
+    highlightDisplay() {
+      if (this.is_highlight === '1') {
+        return 'block';
+      }
+      return 'none';
+    },
+    mTurkDisplay() {
+      if (this.is_mturk === '0') {
+        return 'block';
+      }
+      return 'none';
+    },
     testPrompt() {
       const prompt = 'Is the statement below is True or False?';
       return `${prompt}<blockquote>${this.sanity_statement}</blockquote>`;
@@ -414,6 +461,7 @@ export default {
         min: 999,
       },
       is_mturk: this.$route.params.mturk,
+      is_highlight: this.$route.params.highlight,
       show: false,
       timer: {
         now: Math.trunc(new Date().getTime() / 1000),
