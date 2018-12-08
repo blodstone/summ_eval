@@ -402,6 +402,7 @@ class EvaluationProject(BaseProject, db.Model):
                 db.session.commit()
         elif kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
             for system_summary in summ_group.summaries:
+
                 summaries_pairs = SummariesPair.query.filter_by(system_summary_id=system_summary.id).all()
                 for summaries_pair in summaries_pairs:
                     summ_status = SummaryStatus(

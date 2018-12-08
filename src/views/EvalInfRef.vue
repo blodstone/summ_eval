@@ -2,7 +2,7 @@
   <div class="container home">
         <div class="columns" :style="{ display: display.landing }">
             <div class="column is-8 is-offset-2 box content">
-                <LandingInfRef></LandingInfRef>
+                <component :is="dynamicLanding"></component>
                 <div align="center">
                     <button class="button is-primary is-large" style="margin-bottom: 2rem"
                     v-on:click="closeLanding()">I consent</button>
@@ -10,6 +10,9 @@
             </div>
         </div>
         <div class="columns" :style="{ display: display.content }">
+            <div class="content" align="center">
+                    <h2>Please don't refresh the page.</h2>
+            </div>
             <div class="column is-5 is-offset-1">
                 <div class="box document">
                     <div class="content">
@@ -19,6 +22,7 @@
                 </div>
             </div>
             <div class="column is-5">
+
                 <div class="box summary">
                     <div class="content">
                         <h1>Assessment</h1>
@@ -61,8 +65,10 @@
                                 <label class="label is-small">Strongly <br/> agree</label>
                             </span>
                         </div>
-                        <button class="button is-primary" :disabled="timer.isRunning"
+                        <div align="center">
+                            <button class="button is-primary" :disabled="timer.isRunning"
                     v-on:click="saveEvaluation()">{{ timenow }}</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -81,11 +87,14 @@
 <script>
 // @ is an alias to /src
 import LandingInfRef from '@/components/Landing/LandingInfRef.vue';
+import LandingInfRefMTurk from '@/components/LandingMTurk/LandingInfRef.vue';
 import vueSlider from 'vue-slider-component';
 
 const axios = require('axios');
 
-const waitTimeForButton = 5;
+const waitTimeForButton = 30;
+
+window.onbeforeunload = () => 'Are you sure you want leave?';
 
 function getFile() {
   axios.get(`project/evaluation/informativeness_ref/${this.project_id}/single_doc`)
@@ -93,6 +102,7 @@ function getFile() {
       this.system_text = response.data.system_text;
       this.ref_text = response.data.ref_text;
       this.summ_status_id = response.data.summ_status_id;
+      this.turkCode = response.data.turk_code;
     })
     .catch(() => {
       this.showMessage('There are no more documents available!');
@@ -119,10 +129,12 @@ function sendResult(resultJSON) {
 export default {
   components: {
     LandingInfRef,
+    LandingInfRefMTurk,
     vueSlider,
   },
   data() {
     return {
+      is_mturk: this.$route.params.mturk,
       show: false,
       system_text: '',
       ref_text: '',
@@ -142,6 +154,8 @@ export default {
         message: 'none',
       },
       message: '',
+      email: '',
+      turkCode: '',
     };
   },
   methods: {
@@ -165,10 +179,21 @@ export default {
         recall: this.recall,
         category: 'Informativeness_Ref',
       };
+      if (this.is_mturk === '1') {
+        this.resultJSON.mturk_code = this.turkCode;
+      } else {
+        this.resultJSON.mturk_code = null;
+      }
       sendResult.call(this, resultJSON);
     },
   },
   computed: {
+    dynamicLanding() {
+      if (this.is_mturk === '0') {
+        return 'LandingInfRef';
+      }
+      return 'LandingInfRefMTurk';
+    },
     timenow() {
       if (this.timer.isRunning === true) {
         if ((this.timer.now - this.timer.date) < waitTimeForButton) {

@@ -12,9 +12,7 @@ if __name__ == '__main__':
     results = db.session.query(EvaluationResult).all()
     for result in results:
         validity = result.validity
-        if result.precision == result.recall:
-            validity = False
-        if result.precision == -1 or result.recall == -1:
+        if result.precision == 50.0 and result.recall == 50.0:
             validity = False
         if not validity:
             db.session.delete(result)
