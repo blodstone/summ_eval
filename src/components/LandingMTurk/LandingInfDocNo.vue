@@ -18,7 +18,7 @@
             <strong>Only important</strong> information is in the summary.
         </blockquote>
         <p><strong>Meaning:</strong> All information in the summary is important</p>
-        <p>An example assessment of one document where the highlights are important words and two summaries:</p>
+        <p>An example assessment of one document where the highlights are important words (<strong>The highlights will not be shown during the task, you have to decide which words are important</strong>) and two summaries:</p>
         <blockquote>
             <strong>Document</strong><br/>
             <a class="highlight">David Robert Joseph Beckham</a> is an <a class="highlight">English retired professional footballer</a> and current President of Inter Miami CF. He <a class="highlight">played for Manchester United, Preston North End, Real Madrid, Milan, LA Galaxy, Paris Saint-Germain and the England national team</a> (the rest is redacted)
@@ -51,7 +51,7 @@
 
 <script>
 export default {
-  name: 'LandingInfDocMTurk',
+  name: 'LandingInfDocNoMTurk',
 };
 </script>
 <style scoped lang="scss">

@@ -57,7 +57,7 @@ def api_project_single_doc(project_type, project_category, project_id):
             for idx, doc_status in enumerate(random_doc_statuses):
                 if doc_status.total_exp_results > n_results_list[idx] == min_result:
                     document = Document.query.filter_by(id=doc_status.doc_id).first()
-                    turk_code = '%s_%s' % (doc_status.doc_id, randomword(5))
+                    turk_code = '%s_%s_%s' % (doc_status.doc_id, randomword(5), project.id)
                     doc_json = json.dumps(json.loads(document.doc_json))
                     return jsonify(dict(doc_json=doc_json,
                                         doc_status_id=doc_status.id,
@@ -77,7 +77,7 @@ def api_project_single_doc(project_type, project_category, project_id):
                 for result in results:
                     if result.opened_at:
                         delta = datetime.utcnow() - result.opened_at
-                        if delta >= timedelta(minutes=15):
+                        if delta >= timedelta(minutes=8):
                             AnnotationResult.del_result(result)
             random_summ_statuses = list(project.summ_statuses)
             random.shuffle(random_summ_statuses)
@@ -94,7 +94,7 @@ def api_project_single_doc(project_type, project_category, project_id):
                     document = Document.query.filter_by(id=system_summary.doc_id).first()
                     system_text = system_summary.text
                     doc_json = json.loads(document.doc_json)
-                    turk_code = '%s_%s' % (system_summary.doc_id, randomword(5))
+                    turk_code = '%s_%s_%s' % (system_summary.doc_id, randomword(5), project.id)
                     if project_category.lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
                         ref_text = Summary.query.filter_by(id=summ_status.ref_summary_id).first().text
                         return jsonify(dict(system_text=system_text,
@@ -218,19 +218,22 @@ def api_project_progress_all(project_type):
                     total_total_exp_results += summ_status.total_exp_results
             project_json['progress'] = total_n_results/total_total_exp_results
             project_json['no'] = len(result_json['projects']) + 1
-            if project_type == ProjectType.EVALUATION.value.lower():
+            if project_type.lower() == ProjectType.EVALUATION.value.lower():
                 summ_group = SummaryGroup.query.get(project.summ_group_id)
                 project_json['summ_group_name'] = summ_group.name
             if project.highlight:
                 highlight = 1
             else:
                 highlight = 0
+            category = project.category.lower()
+            if project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC_NO.value.lower():
+                category = ProjectCategory.INFORMATIVENESS_DOC.value.lower()
             project_json['link'] = urllib.parse.urljoin(
             request.host_url,
             '#/{type}/{category}/{highlight}/{id}/1'.format(
                 type=project_type,
                 highlight=highlight,
-                category=project.category,
+                category=category,
                 id=project_json['id']
                 ))
             result_json['projects'].append(project_json)

@@ -20,16 +20,20 @@
                         </h1>
                         <!-- eslint-disable -->
                         <p class="my-text">
-                            Your task is <strong>to assess the quality of the summary based on the document and its
-                            higlights</strong>.
+                            Your task is <strong>to assess the quality of the summary based on the document and its higlights</strong>. <br/> Hover the mouse on top of the
+                            <b-tooltip
+                                    label="Nice!">
+                                <b-icon
+                                    pack="fas"
+                                    icon="info-circle"
+                                    size="is-small">
+                                </b-icon>
+                            </b-tooltip> to see more information.
                         </p>
                         <hr>
                         <p class="my-text">Words that are important in the document have been highlighted using heatmap
-                            coloring (the darker the color the more important the word are). You may decide what is the
-                            intensity of </p>
-                        <p class="my-text">Use the slider to remove light color (less important highlights) by sliding
-                            it to the right. The number tells you how many color you can remove until there is only one
-                            color (the most important word) left.</p>
+                            coloring (<strong>Darker color signifies higher importance</strong>). You have to decide which importance level that signifies the informativeness of words.</p>
+                        <p class="my-text">Use the slider to remove light color (less important highlights) by sliding it to the right. The number tells you how many color you can remove until there is only one color (the most important words) left.</p>
                     </div>
                     <div style="margin-bottom: 1.8rem; margin-top: 1.8rem; flex: 1;">
                         <vue-slider ref="slider" v-model="intensitySlider.value"
@@ -71,7 +75,16 @@
                             <strong>How strongly agree are you on the following statements?</strong>
                         </h5>
                         <p class="my-text">
-                            <strong>All important information</strong> from the document is present in the summary
+                            <b-tooltip
+                                    label="Do the summary has all the important
+                                     information of the document?">
+                                <b-icon
+                                    pack="fas"
+                                    icon="info-circle"
+                                    size="is-small">
+                                </b-icon>
+                            </b-tooltip>
+                            <strong>All important</strong> information is present in the summary
                         </p>
                         <div class="level" align="center"
                              style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
@@ -87,7 +100,17 @@
                             </span>
                         </div>
                         <p class="my-text">
-                            <strong>Only important information</strong> from the document is present in the summary.</p>
+                            <b-tooltip
+                                    label="Do the summary only has important
+                                     information?">
+                                <b-icon
+                                    pack="fas"
+                                    icon="info-circle"
+                                    size="is-small">
+                                </b-icon>
+                            </b-tooltip>
+                            <strong>Only important</strong> information is in the summary.
+                        </p>
                         <div class="level" align="center" style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
                             <span class="level-left">
                                 <label class="label is-small">Strongly <br/> disagree</label>
@@ -112,8 +135,7 @@
         </div>
         <div class="columns" :style="{ display: display.message }">
             <div class="column is-8 is-offset-2 box content">
-                <div align="center">
-                    <h1>{{ message }}</h1>
+                <div align="center" v-html="message">
                 </div>
             </div>
         </div>
@@ -164,12 +186,13 @@ import Char from '@/components/Component/Char.vue';
 import LineBreaker from '@/components/Component/LineBreaker.vue';
 import LandingInfDoc from '@/components/Landing/LandingInfDoc.vue';
 import LandingInfDocMTurk from '@/components/LandingMTurk/LandingInfDoc.vue';
+import LandingInfDocNoMTurk from '@/components/LandingMTurk/LandingInfDocNo.vue';
 import Vue from 'vue';
 import vueSlider from 'vue-slider-component';
 // const randomColor = require('randomcolor');
 const axios = require('axios');
 
-const waitTimeForButton = 1;
+const waitTimeForButton = 30;
 
 window.onbeforeunload = () => 'Are you sure you want leave?';
 
@@ -356,6 +379,7 @@ export default {
     vueSlider,
     LandingInfDoc,
     LandingInfDocMTurk,
+    LandingInfDocNoMTurk,
   },
   computed: {
     nonHighlightDisplay() {
@@ -384,7 +408,10 @@ export default {
       if (this.is_mturk === '0') {
         return 'LandingInfDoc';
       }
-      return 'LandingInfDocMTurk';
+      if (this.is_highlight === '1') {
+        return 'LandingInfDocMTurk';
+      }
+      return 'LandingInfDocNoMTurk';
     },
     timenow() {
       if (this.timer.isRunning === true) {

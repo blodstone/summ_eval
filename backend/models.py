@@ -163,6 +163,14 @@ class EvaluationResult(db.Model):
     def update_result(cls, **kwargs):
         if kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower() \
            or kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
+            if 'sliderMax' in kwargs:
+                sliderMax = kwargs['sliderMax']
+                sliderMin = kwargs['sliderMin']
+                sliderValues = kwargs['sliderValues']
+            else:
+                sliderMax = -1
+                sliderMin = -1
+                sliderValues = ''
             if 'result_id' in kwargs:
                 result_id = kwargs['result_id']
                 result = EvaluationResult.query.get(result_id)
@@ -171,9 +179,9 @@ class EvaluationResult(db.Model):
                 result.precision = kwargs['precision']
                 result.recall = kwargs['recall']
                 result.status_id = kwargs['status_id']
-                result.sliderMax = kwargs['sliderMax']
-                result.sliderMin = kwargs['sliderMin']
-                result.sliderValues = kwargs['sliderValues']
+                result.sliderMax = sliderMax
+                result.sliderMin = sliderMin
+                result.sliderValues = sliderValues
                 result.validity = kwargs['validity']
                 result.email = kwargs['email']
                 result.mturk_code = kwargs['mturk_code']
@@ -186,9 +194,9 @@ class EvaluationResult(db.Model):
                     precision=kwargs['precision'],
                     recall=kwargs['recall'],
                     status_id=kwargs['status_id'],
-                    sliderMax=kwargs['sliderMax'],
-                    sliderMin=kwargs['sliderMin'],
-                    sliderValues=kwargs['sliderValues'],
+                    sliderMax=sliderMax,
+                    sliderMin=sliderMin,
+                    sliderValues=sliderValues,
                     validity=kwargs['validity'],
                     email=kwargs['email'],
                     mturk_code=kwargs['mturk_code'],
