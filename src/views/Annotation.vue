@@ -167,12 +167,10 @@ export default {
       }
       if (this.radio === '') {
         this.resultJSON.validity = false;
+      } else if ((this.radio === 'True') === this.answer) {
+        this.resultJSON.validity = true;
       } else {
-        if ((this.radio === 'True') === this.answer) {
-          this.resultJSON.validity = true;
-        } else {
-          this.resultJSON.validity = false;
-        }
+        this.resultJSON.validity = false;
       }
       axios.post('project/save_result/annotation', this.resultJSON)
         .then(() => {
@@ -200,7 +198,7 @@ export default {
       this.display.content = 'flex';
       this.display.landing = 'none';
       window.scrollTo(0, 0);
-      axios.get(`result/${this.doc_status_id}`)
+      axios.get(`result/annotation/${this.doc_status_id}`)
         .then((response) => {
           this.result_id = response.data.result_id;
         });

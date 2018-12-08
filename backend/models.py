@@ -130,6 +130,7 @@ class EvaluationResult(db.Model):
 
     id = db.Column(db.INTEGER, primary_key=True, nullable=False)
     finished_at = db.Column(db.DateTime, default=datetime.utcnow)
+    opened_at = db.Column(db.DateTime, default=datetime.utcnow)
     precision = db.Column(db.REAL, nullable=False, default=-1.0)
     recall = db.Column(db.REAL, nullable=False, default=-1.0)
     fluency = db.Column(db.REAL, nullable=False, default=-1.0)
@@ -142,6 +143,59 @@ class EvaluationResult(db.Model):
     status_id = db.Column(db.INTEGER, db.ForeignKey('summary_status.id'), nullable=False)
     mturk_code = db.Column(db.String(255), nullable=True)
     is_filled = db.Column(db.Boolean, nullable=True)
+
+    @classmethod
+    def create_empty_result(cls, status_id):
+        import random
+        an_id = random.sample(range(1, 1000000), 1)[0]
+        result = EvaluationResult(
+            id=an_id,
+            validity=False,
+            email='',
+            status_id=status_id,
+            is_filled=False)
+        db.session.add(result)
+        db.session.commit()
+        return result.id
+
+    @classmethod
+    def update_result(cls, **kwargs):
+        if kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower() \
+           or kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
+            if 'result_id' in kwargs:
+                result_id = kwargs['result_id']
+                result = EvaluationResult.query.get(result_id)
+                result.finished_at = datetime.utcnow()
+                result.status_id = kwargs['status_id']
+                result.precision = kwargs['precision']
+                result.recall = kwargs['recall']
+                result.status_id = kwargs['status_id']
+                result.sliderMax = kwargs['sliderMax']
+                result.sliderMin = kwargs['sliderMin']
+                result.sliderValues = kwargs['sliderValues']
+                result.validity = kwargs['validity']
+                result.email = kwargs['email']
+                result.mturk_code = kwargs['mturk_code']
+                result.is_filled = True
+            else:
+                import random
+                an_id = random.sample(range(1, 1000000), 1)[0]
+                result = EvaluationResult(
+                    id=an_id,
+                    precision=kwargs['precision'],
+                    recall=kwargs['recall'],
+                    status_id=kwargs['status_id'],
+                    sliderMax=kwargs['sliderMax'],
+                    sliderMin=kwargs['sliderMin'],
+                    sliderValues=kwargs['sliderValues'],
+                    validity=kwargs['validity'],
+                    email=kwargs['email'],
+                    mturk_code=kwargs['mturk_code'],
+                    is_filled=True
+                )
+                db.session.add(result)
+            db.session.commit()
+        return result
 
     @classmethod
     def create_result(cls, **kwargs):

@@ -40,6 +40,9 @@
                 </div>
             </div>
             <div class="column">
+                <div class="content" align="center">
+                    <h2>Please don't refresh the page.</h2>
+                </div>
                 <div class="box document">
                     <div ref="document">
                     </div>
@@ -361,6 +364,10 @@ export default {
       this.display.landing = 'none';
       window.scrollTo(0, 0);
       this.show = true;
+      axios.get(`result/evaluation/${this.summ_status_id}`)
+        .then((response) => {
+          this.result_id = response.data.result_id;
+        });
     },
     onSliderInput() {
       redrawHighlight.call(this);
@@ -382,18 +389,19 @@ export default {
         sliderMin: this.intensitySlider.min,
         sliderValues: this.slidersValue.join(),
         email: this.email,
+        result_id: this.result_id,
       };
       if (this.is_mturk === '1') {
-        this.resultJSON.mturk_code = this.turkCode;
+        resultJSON.mturk_code = this.turkCode;
       } else {
-        this.resultJSON.mturk_code = null;
+        resultJSON.mturk_code = null;
       }
       if (this.radio === '') {
-        this.resultJSON.validity = false;
+        resultJSON.validity = false;
       } else if ((this.radio === 'True') === this.sanity_answer) {
-        this.resultJSON.validity = true;
+        resultJSON.validity = true;
       } else {
-        this.resultJSON.validity = false;
+        resultJSON.validity = false;
       }
       sendResult.call(this, resultJSON);
     },

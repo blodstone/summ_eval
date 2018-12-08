@@ -19,9 +19,12 @@ def randomword(length):
    return ''.join(random.choice(letters) for i in range(length))
 
 
-@api.route('/result/<docstatus_id>', methods=['GET'])
-def api_get_result_id(docstatus_id):
-    result_id = AnnotationResult.create_empty_result(docstatus_id)
+@api.route('/result/<project_type>/<status_id>', methods=['GET'])
+def api_get_result_id(project_type, status_id):
+    if project_type.lower() == ProjectType.ANNOTATION.value.lower():
+        result_id = AnnotationResult.create_empty_result(status_id)
+    elif project_type.lower() == ProjectType.EVALUATION.value.lower():
+        result_id = EvaluationResult.create_empty_result(status_id)
     return jsonify(dict(result_id=result_id))
 
 
@@ -68,6 +71,14 @@ def api_project_single_doc(project_type, project_category, project_id):
         if not project:
             return '', http.HTTPStatus.NOT_FOUND
         else:
+            for summ_status in project.summ_statuses:
+                results = EvaluationResult.query.filter_by(
+                    status_id=summ_status.id, is_filled=False).all()
+                for result in results:
+                    if result.opened_at:
+                        delta = datetime.utcnow() - result.opened_at
+                        if delta >= timedelta(minutes=15):
+                            AnnotationResult.del_result(result)
             random_summ_statuses = list(project.summ_statuses)
             random.shuffle(random_summ_statuses)
             min_result = 999
@@ -96,7 +107,8 @@ def api_project_single_doc(project_type, project_category, project_id):
                                             doc_json=doc_json,
                                             summ_status_id=summ_status.id,
                                             sanity_statement=document.sanity_statement,
-                                            sanity_answer=document.sanity_answer
+                                            sanity_answer=document.sanity_answer,
+                                            turk_code=turk_code
                                             ))
                     elif project_category.lower() == ProjectCategory.FLUENCY.value.lower():
                         return jsonify(dict(system_text=system_text,
@@ -147,7 +159,7 @@ def api_project_save_result(project_type):
     if project_type.lower() == ProjectType.ANNOTATION.value.lower():
         result = AnnotationResult.update_result(**data)
     elif project_type.lower() == ProjectType.EVALUATION.value.lower():
-        result = EvaluationResult.create_result(**data)
+        result = EvaluationResult.update_result(**data)
     if result:
         return '', http.HTTPStatus.CREATED
     else:
