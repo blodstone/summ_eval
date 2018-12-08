@@ -77,7 +77,7 @@ def api_project_single_doc(project_type, project_category, project_id):
                 for result in results:
                     if result.opened_at:
                         delta = datetime.utcnow() - result.opened_at
-                        if delta >= timedelta(minutes=8):
+                        if delta >= timedelta(minutes=3):
                             AnnotationResult.del_result(result)
             random_summ_statuses = list(project.summ_statuses)
             random.shuffle(random_summ_statuses)

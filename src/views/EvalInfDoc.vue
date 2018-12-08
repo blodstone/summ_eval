@@ -344,7 +344,7 @@ function getFile() {
     })
     .catch((error) => {
       console.log(error);
-      this.showMessage('There are no more documents available!');
+      this.showMessage('Server is busy! Please wait 3 minutes and refresh!');
     });
 }
 
