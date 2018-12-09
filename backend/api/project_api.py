@@ -216,26 +216,37 @@ def api_project_progress_all(project_type):
                         .filter_by(status_id=summ_status.id).count()
                     total_n_results += n_results
                     total_total_exp_results += summ_status.total_exp_results
-            print('Total' + str(len(project.summ_statuses)))
             project_json['progress'] = total_n_results/total_total_exp_results
             project_json['no'] = len(result_json['projects']) + 1
             if project_type.lower() == ProjectType.EVALUATION.value.lower():
                 summ_group = SummaryGroup.query.get(project.summ_group_id)
                 project_json['summ_group_name'] = summ_group.name
-            if project.highlight:
-                highlight = 1
-            else:
-                highlight = 0
+
             category = project.category.lower()
-            if project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC_NO.value.lower():
-                category = ProjectCategory.INFORMATIVENESS_DOC.value.lower()
-            project_json['link'] = urllib.parse.urljoin(
-            request.host_url,
-            '#/{type}/{category}/{highlight}/{id}/1'.format(
-                type=project_type,
-                highlight=highlight,
-                category=category,
-                id=project_json['id']
+            if project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
+                if project.highlight:
+                    highlight = 1
+                else:
+                    highlight = 0
+            if project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC_NO.value.lower() or\
+                    project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
+                if project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC_NO.value.lower():
+                    category = ProjectCategory.INFORMATIVENESS_DOC.value.lower()
+                project_json['link'] = urllib.parse.urljoin(
+                request.host_url,
+                '#/{type}/{category}/{highlight}/{id}/1'.format(
+                    type=project_type,
+                    highlight=highlight,
+                    category=category,
+                    id=project_json['id']
+                    ))
+            if project.category.lower() == ProjectType.ANNOTATION:
+                project_json['link'] = urllib.parse.urljoin(
+                request.host_url,
+                '#/{type}/{category}/{id}/1'.format(
+                    type=project_type,
+                    category=category,
+                    id=project_json['id']
                 ))
             result_json['projects'].append(project_json)
         return jsonify(result_json)

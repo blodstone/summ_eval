@@ -148,7 +148,7 @@ class EvaluationResult(db.Model):
     @classmethod
     def create_empty_result(cls, status_id):
         import random
-        an_id = random.sample(range(1, 1000000), 1)[0]
+        an_id = random.sample(range(1, 1000000000), 1)[0]
         result = EvaluationResult(
             id=an_id,
             validity=False,
@@ -188,7 +188,8 @@ class EvaluationResult(db.Model):
                 result.is_filled = True
             else:
                 import random
-                an_id = random.sample(range(1, 1000000), 1)[0]
+                random.seed(datetime.now())
+                an_id = random.sample(range(1, 1000000000), 1)[0]
                 result = EvaluationResult(
                     id=an_id,
                     precision=kwargs['precision'],
@@ -251,7 +252,8 @@ class AnnotationResult(db.Model):
     @classmethod
     def create_empty_result(cls, status_id):
         import random
-        an_id = random.sample(range(1, 1000000), 1)[0]
+        random.seed(datetime.now())
+        an_id = random.sample(range(1, 1000000000), 1)[0]
         result = AnnotationResult(
             id=an_id,
             result_json='',
@@ -270,7 +272,8 @@ class AnnotationResult(db.Model):
             result = AnnotationResult.query.get(result_id)
         else:
             import random
-            an_id = random.sample(range(1, 1000000), 1)[0]
+            random.seed(datetime.now())
+            an_id = random.sample(range(1, 1000000000), 1)[0]
             result = AnnotationResult(
                 id=an_id,
                 result_json='',
@@ -401,18 +404,21 @@ class EvaluationProject(BaseProject, db.Model):
                 db.session.add(summ_status)
                 db.session.commit()
         elif kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
+            ref_summ_groups = SummaryGroup.query.filter_by(dataset_id=summ_group.dataset_id).all()
+            ref_summ_group = [summ for summ in ref_summ_groups
+                              if dataset.name in summ.name and 'ref' in summ.name][0]
             for system_summary in summ_group.summaries:
-
-                summaries_pairs = SummariesPair.query.filter_by(system_summary_id=system_summary.id).all()
-                for summaries_pair in summaries_pairs:
-                    summ_status = SummaryStatus(
-                        proj_id=project.id,
-                        summary_id=system_summary.id,
-                        total_exp_results=kwargs['total_exp_results'],
-                        ref_summary_id=summaries_pair.ref_summary_id
-                    )
-                    db.session.add(summ_status)
-                    db.session.commit()
+                ref_summary = Summary.query.filter_by(
+                    summary_group_id=ref_summ_group.id,
+                    doc_id=system_summary.doc_id).first()
+                summ_status = SummaryStatus(
+                    proj_id=project.id,
+                    summary_id=system_summary.id,
+                    total_exp_results=kwargs['total_exp_results'],
+                    ref_summary_id=ref_summary.id
+                )
+                db.session.add(summ_status)
+                db.session.commit()
         return project
 
 

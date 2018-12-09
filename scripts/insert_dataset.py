@@ -7,9 +7,9 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 def init_database(db):
-    # user = User(email='admin@localhost', password='localhost')
-    # db.session.add(user)
-    # db.session.commit()
+    user = User(email='admin@localhost', password='localhost')
+    db.session.add(user)
+    db.session.commit()
     dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_2/BBC_Sample'
     # dataset_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/src/Mock_Dataset_2/BBC'
     dataset_name = os.path.split(dataset_path)[1]
@@ -25,17 +25,17 @@ def init_database(db):
     db.session.commit()
 
     # Insert documents
-    # for file in os.listdir(documents_path):
-    #     file_path = os.path.join(documents_path, file)
-    #     with open(file_path, 'r') as infile:
-    #         json_result = json.load(infile)
-    #         document = Document(
-    #             dataset_id=dataset.id,
-    #             doc_id=json_result['doc_id'],
-    #             doc_json=json.dumps(json_result)
-    #         )
-    #         db.session.add(document)
-    #         db.session.commit()
+    for file in os.listdir(documents_path):
+        file_path = os.path.join(documents_path, file)
+        with open(file_path, 'r') as infile:
+            json_result = json.load(infile)
+            document = Document(
+                dataset_id=dataset.id,
+                doc_id=json_result['doc_id'],
+                doc_json=json.dumps(json_result)
+            )
+            db.session.add(document)
+            db.session.commit()
 
     # Insert Summaries
     for folder in os.listdir(summaries_path):
