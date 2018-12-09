@@ -4,7 +4,9 @@
         <h1 align="center">
             Please Read This Thoroughly Before You Consent!
         </h1>
-        <p>Your task is to assess the <strong>informativeness</strong> of a single summary sentence given one reference sentence. The task should be possible to complete in less than <strong>3 minutes</strong>.</p>
+        <h3>This task requires two steps:</h3>
+        <h4><strong>Step 1: Informativeness Assessment</strong></h4>
+        <p>Your task is to assess the <strong>informativeness</strong> of a single summary sentence given one reference sentence. The task should be possible to complete in less than <strong>1 minutes</strong>.</p>
         <hr/>
         <p><strong>You have to assess the summary on two metrics:</strong></p>
         <blockquote>
@@ -14,7 +16,8 @@
         <blockquote>
             <strong>Only important</strong> information is in the summary.
         </blockquote>
-        <p><strong>Meaning:</strong> All information in the summary is important</p>
+        <p><strong>Meaning:</strong> All information in the summary is important (in accordance to reference).</p>
+        <p><strong>Note:</strong>You should treat that all words in the reference sentence as important, and words that don't appear in reference as not important.</p>
         <p>An example assessment of one reference sentence and two summaries:</p>
         <blockquote>
             <strong>Reference</strong><br/>
@@ -31,17 +34,12 @@
         Alternatively, <strong>not all information in Summary A is important, while Summary B doesn't have all the important information from the reference sentence</strong>.
         <p>You will be scoring each summary sentence by stating how strongly you agree or disagree using a slider from scale 1 (strong disagreement) to 100 (strong agreement).</p>
         <hr />
+        <h4><strong>Step 2: Attention Check</strong></h4>
+        At the end, there will be a very simple attention checking. <strong>Any submission that failed the attention check will be rejected.</strong>
+        <hr/>
+        <p>There is a <strong>code</strong> that you have to copy and paste to Amazon platform at the end of the task.</p>
+
         <p>Thank you for reading this</p>
-
-        <p>
-Contact details of organizer:<br/><br/>
-
-Hardy<br/>
-PhD Student<br/>
-The University of Sheffield<br/>
-hhardy2@sheffield.ac.uk<br/>
-        </p>
-
         <p>
             Do you consent for this information to be used
             anonymously for research purposes only?

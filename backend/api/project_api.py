@@ -78,7 +78,7 @@ def api_project_single_doc(project_type, project_category, project_id):
                     if result.opened_at:
                         delta = datetime.utcnow() - result.opened_at
                         if delta >= timedelta(minutes=3):
-                            AnnotationResult.del_result(result)
+                            EvaluationResult.del_result(result)
             random_summ_statuses = list(project.summ_statuses)
             random.shuffle(random_summ_statuses)
             min_result = 999
@@ -240,7 +240,7 @@ def api_project_progress_all(project_type):
                     category=category,
                     id=project_json['id']
                     ))
-            if project.category.lower() == ProjectType.ANNOTATION:
+            else:
                 project_json['link'] = urllib.parse.urljoin(
                 request.host_url,
                 '#/{type}/{category}/{id}/1'.format(

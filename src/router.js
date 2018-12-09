@@ -103,6 +103,12 @@ export default new Router({
     },
     {
       path: '/evaluation/informativeness_ref/:project_id',
+      redirect: {
+        path: '/evaluation/informativeness_ref/:project_id/0',
+      },
+    },
+    {
+      path: '/evaluation/informativeness_ref/:project_id/:mturk',
       name: 'evalinfref',
       component: EvalInfRef,
     },

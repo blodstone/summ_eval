@@ -20,7 +20,7 @@
                         </h1>
                         <!-- eslint-disable -->
                         <p class="my-text">
-                            Your task is <strong>to assess the quality of the summary based on the document and its higlights</strong>. <br/> Hover the mouse on top of the
+                            Your task is <strong>to assess the quality of the summary based on the document and its higlights</strong>. <br/> Hover the mouse on top of
                             <b-tooltip
                                     label="Nice!">
                                 <b-icon
@@ -189,6 +189,9 @@ import LandingInfDocMTurk from '@/components/LandingMTurk/LandingInfDoc.vue';
 import LandingInfDocNoMTurk from '@/components/LandingMTurk/LandingInfDocNo.vue';
 import Vue from 'vue';
 import vueSlider from 'vue-slider-component';
+import BRadio from 'buefy/src/components/radio/Radio.vue';
+import BTooltip from 'buefy/src/components/tooltip/Tooltip.vue';
+import BIcon from 'buefy/src/components/icon/Icon.vue';
 // const randomColor = require('randomcolor');
 const axios = require('axios');
 
@@ -342,8 +345,7 @@ function getFile() {
       this.sanity_answer = response.data.sanity_answer;
       redrawHighlight.call(this);
     })
-    .catch((error) => {
-      console.log(error);
+    .catch(() => {
       this.showMessage('Server is busy! Please wait 3 minutes and refresh!');
     });
 }
@@ -376,6 +378,9 @@ function sendResult(resultJSON) {
 export default {
   name: 'EvalInfDoc',
   components: {
+    BIcon,
+    BTooltip,
+    BRadio,
     vueSlider,
     LandingInfDoc,
     LandingInfDocMTurk,

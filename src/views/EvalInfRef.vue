@@ -10,13 +10,13 @@
             </div>
         </div>
         <div class="columns" :style="{ display: display.content }">
-            <div class="content" align="center">
-                    <h2>Please don't refresh the page.</h2>
-            </div>
             <div class="column is-5 is-offset-1">
+                <div class="content" align="center">
+                    <h2>Please don't refresh the page.</h2>
+                </div>
                 <div class="box document">
                     <div class="content">
-                        <h1>Read This Text</h1>
+                        <h1>Reference Sentence</h1>
                         <p class="my-summary">{{ ref_text }}</p>
                     </div>
                 </div>
@@ -32,9 +32,30 @@
                         <h5 class="my-header">
                         <strong>How strongly agree are you on the following statements?</strong>
                         </h5>
+                        <p>
+                            Hover the mouse on top of the
+                            <b-tooltip
+                                    label="You should treat that all words
+                                    in the reference sentence as important,
+                                    and words that don't appear in reference as not important.">
+                                <b-icon
+                                    pack="fas"
+                                    icon="info-circle"
+                                    size="is-small">
+                                </b-icon>
+                            </b-tooltip> to see more information.
+                        </p>
                         <p class="my-text">
-                            <strong>All important information
-                            </strong> from the left panel's sentence is present in the summary
+                            <b-tooltip
+                                    label="Do the summary has all the important
+                                     information of the reference sentence?">
+                                <b-icon
+                                    pack="fas"
+                                    icon="info-circle"
+                                    size="is-small">
+                                </b-icon>
+                            </b-tooltip>
+                            <strong>All important</strong> information is present in the summary
                         </p>
                         <div class="level" align="center"
                              style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
@@ -50,8 +71,16 @@
                             </span>
                         </div>
                         <p class="my-text">
-                            <strong>Only important information</strong>
-                            from the left panel's sentence is present in the summary.</p>
+                            <b-tooltip
+                                    label="Do the summary only has important
+                                     information (in accordance to reference)?">
+                                <b-icon
+                                    pack="fas"
+                                    icon="info-circle"
+                                    size="is-small">
+                                </b-icon>
+                            </b-tooltip>
+                            <strong>Only important</strong> information is in the summary.</p>
                         <div class="level" align="center"
                              style="margin-bottom: 1.8rem; margin-top: 1.8rem;">
                             <span class="level-left">
@@ -67,7 +96,8 @@
                         </div>
                         <div align="center">
                             <button class="button is-primary" :disabled="timer.isRunning"
-                    v-on:click="saveEvaluation()">{{ timenow }}</button>
+                                    v-on:click="showTest">{{ timenow }}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -76,8 +106,51 @@
         </div>
         <div class="columns" :style="{ display: display.message }">
             <div class="column is-8 is-offset-2 box content">
+                <div align="center" v-html="message">
+                </div>
+            </div>
+        </div>
+      <div class="columns" :style="{ display: display.test }">
+            <div class="column is-8 is-offset-2 box content">
                 <div align="center">
-                    <h1>{{ message }}</h1>
+                    <h3>Please Answer the Following Question</h3>
+                    <div>
+                        <p>
+                        Which one that you set higher (or equal) in previous page?</p>
+                    </div>
+                    <div class="block">
+                        <b-radio v-model="radio"
+                                 native-value="precision">
+                            <strong>Only important</strong> information is in the summary.
+                        </b-radio> <br/>
+                        <b-radio v-model="radio"
+                                 native-value="recall">
+                            <strong>All important</strong> information is present in the summary
+                        </b-radio> <br/>
+                        <b-radio v-model="radio"
+                                 native-value="equal">
+                            I set them equal.
+                        </b-radio>
+                    </div>
+                    <hr/>
+                    <div :style="{ display: mTurkDisplay }">
+                        <p>
+                            Please enter an email to be included in a lucky draw
+                            or leave it blank to opt out:
+                        </p>
+                        <b-field>
+                            <b-input v-model="email"
+                                     placeholder="Your email"
+                                     icon-pack="fas"
+                                     icon="envelope" style="width: 250px;"></b-input>
+                        </b-field>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <button class="button is-primary"
+                                v-on:click="saveEvaluation">
+                            Submit
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -89,6 +162,9 @@
 import LandingInfRef from '@/components/Landing/LandingInfRef.vue';
 import LandingInfRefMTurk from '@/components/LandingMTurk/LandingInfRef.vue';
 import vueSlider from 'vue-slider-component';
+import BRadio from 'buefy/src/components/radio/Radio.vue';
+import BTooltip from 'buefy/src/components/tooltip/Tooltip.vue';
+import BIcon from 'buefy/src/components/icon/Icon.vue';
 
 const axios = require('axios');
 
@@ -105,7 +181,7 @@ function getFile() {
       this.turkCode = response.data.turk_code;
     })
     .catch(() => {
-      this.showMessage('There are no more documents available!');
+      this.showMessage('Server is busy! Please wait 3 minutes and refresh!');
     });
 }
 
@@ -116,7 +192,15 @@ function sendResult(resultJSON) {
         message: 'Submission successful.',
         type: 'is-success',
       });
-      this.showMessage('Thank you for submitting!');
+      let text = '';
+      if (this.is_mturk === '1') {
+        text = '<p>Please enter this code:</p>' +
+              `<blockquote>${this.turkCode}</blockquote>`;
+      } else {
+        text = '<p>Please refresh the page to do another highlighting. ' +
+          'You need to do at least twice to be eligible for the lucky draw.</p>';
+      }
+      this.showMessage(`<h3>Thank you for submitting!</h3><br/> ${text}`);
     })
     .catch((error) => {
       this.$toast.open({
@@ -128,6 +212,9 @@ function sendResult(resultJSON) {
 
 export default {
   components: {
+    BIcon,
+    BTooltip,
+    BRadio,
     LandingInfRef,
     LandingInfRefMTurk,
     vueSlider,
@@ -152,17 +239,26 @@ export default {
         content: 'none',
         landing: 'block',
         message: 'none',
+        test: 'none',
       },
       message: '',
       email: '',
       turkCode: '',
+      radio: '',
     };
   },
   methods: {
+    showTest() {
+      this.display.landing = 'none';
+      this.display.content = 'none';
+      this.display.message = 'none';
+      this.display.test = 'flex';
+    },
     showMessage(message) {
       this.display.landing = 'none';
       this.display.content = 'none';
       this.display.message = 'flex';
+      this.display.test = 'none';
       this.message = message;
     },
     closeLanding() {
@@ -170,6 +266,10 @@ export default {
       this.display.landing = 'none';
       window.scrollTo(0, 0);
       this.show = true;
+      axios.get(`result/evaluation/${this.summ_status_id}`)
+        .then((response) => {
+          this.result_id = response.data.result_id;
+        });
     },
     saveEvaluation() {
       const resultJSON = {
@@ -178,11 +278,27 @@ export default {
         precision: this.precision,
         recall: this.recall,
         category: 'Informativeness_Ref',
+        mturk_code: '',
+        email: this.email,
+        result_id: this.result_id,
       };
       if (this.is_mturk === '1') {
-        this.resultJSON.mturk_code = this.turkCode;
+        resultJSON.mturk_code = this.turkCode;
       } else {
-        this.resultJSON.mturk_code = null;
+        resultJSON.mturk_code = null;
+      }
+      let answer = '';
+      if (this.precision > this.recall) {
+        answer = 'precision';
+      } else if (this.precision < this.recall) {
+        answer = 'recall';
+      } else {
+        answer = 'equal';
+      }
+      if (this.radio === answer) {
+        resultJSON.validity = true;
+      } else {
+        resultJSON.validity = false;
       }
       sendResult.call(this, resultJSON);
     },
@@ -193,6 +309,12 @@ export default {
         return 'LandingInfRef';
       }
       return 'LandingInfRefMTurk';
+    },
+    mTurkDisplay() {
+      if (this.is_mturk === '0') {
+        return 'block';
+      }
+      return 'none';
     },
     timenow() {
       if (this.timer.isRunning === true) {

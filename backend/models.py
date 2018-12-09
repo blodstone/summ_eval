@@ -146,6 +146,11 @@ class EvaluationResult(db.Model):
     is_filled = db.Column(db.Boolean, nullable=True)
 
     @classmethod
+    def del_result(cls, result):
+        db.session.delete(result)
+        db.session.commit()
+
+    @classmethod
     def create_empty_result(cls, status_id):
         import random
         an_id = random.sample(range(1, 1000000000), 1)[0]
