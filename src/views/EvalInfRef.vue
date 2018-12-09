@@ -162,7 +162,7 @@ import BIcon from 'buefy/src/components/icon/Icon.vue';
 
 const axios = require('axios');
 
-const waitTimeForButton = 1;
+const waitTimeForButton = 30;
 
 window.onbeforeunload = () => 'Are you sure you want leave?';
 
