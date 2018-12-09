@@ -100,6 +100,8 @@ def api_project_single_doc(project_type, project_category, project_id):
                         return jsonify(dict(system_text=system_text,
                                             ref_text=ref_text,
                                             summ_status_id=summ_status.id,
+                                            sanity_statement=document.sanity_statement_2,
+                                            sanity_answer=document.sanity_answer_2,
                                             turk_code=turk_code,
                                             ))
                     elif project_category.lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():

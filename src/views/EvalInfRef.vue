@@ -114,22 +114,16 @@
             <div class="column is-8 is-offset-2 box content">
                 <div align="center">
                     <h3>Please Answer the Following Question</h3>
-                    <div>
-                        <p>
-                        Which one that you set higher (or equal) in previous page?</p>
+                    <div v-html="testPrompt">
                     </div>
                     <div class="block">
                         <b-radio v-model="radio"
-                                 native-value="precision">
-                            <strong>Only important</strong> information is in the summary.
-                        </b-radio> <br/>
+                                 native-value="True">
+                            True
+                        </b-radio>
                         <b-radio v-model="radio"
-                                 native-value="recall">
-                            <strong>All important</strong> information is present in the summary
-                        </b-radio> <br/>
-                        <b-radio v-model="radio"
-                                 native-value="equal">
-                            I set them equal.
+                                 native-value="False">
+                            False
                         </b-radio>
                     </div>
                     <hr/>
@@ -168,7 +162,7 @@ import BIcon from 'buefy/src/components/icon/Icon.vue';
 
 const axios = require('axios');
 
-const waitTimeForButton = 30;
+const waitTimeForButton = 1;
 
 window.onbeforeunload = () => 'Are you sure you want leave?';
 
@@ -179,6 +173,8 @@ function getFile() {
       this.ref_text = response.data.ref_text;
       this.summ_status_id = response.data.summ_status_id;
       this.turkCode = response.data.turk_code;
+      this.sanity_statement = response.data.sanity_statement;
+      this.sanity_answer = response.data.sanity_answer;
     })
     .catch(() => {
       this.showMessage('Server is busy! Please wait 3 minutes and refresh!');
@@ -245,6 +241,8 @@ export default {
       email: '',
       turkCode: '',
       radio: '',
+      sanity_statement: '',
+      sanity_answer: '',
     };
   },
   methods: {
@@ -287,15 +285,9 @@ export default {
       } else {
         resultJSON.mturk_code = null;
       }
-      let answer = '';
-      if (this.precision > this.recall) {
-        answer = 'precision';
-      } else if (this.precision < this.recall) {
-        answer = 'recall';
-      } else {
-        answer = 'equal';
-      }
-      if (this.radio === answer) {
+      if (this.radio === '') {
+        resultJSON.validity = false;
+      } else if ((this.radio === 'True') === this.sanity_answer) {
         resultJSON.validity = true;
       } else {
         resultJSON.validity = false;
@@ -304,6 +296,10 @@ export default {
     },
   },
   computed: {
+    testPrompt() {
+      const prompt = 'Is the statement below is True or False?';
+      return `${prompt}<blockquote>${this.sanity_statement}</blockquote>`;
+    },
     dynamicLanding() {
       if (this.is_mturk === '0') {
         return 'LandingInfRef';

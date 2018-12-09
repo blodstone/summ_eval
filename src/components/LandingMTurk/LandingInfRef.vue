@@ -34,8 +34,8 @@
         Alternatively, <strong>not all information in Summary A is important, while Summary B doesn't have all the important information from the reference sentence</strong>.
         <p>You will be scoring each summary sentence by stating how strongly you agree or disagree using a slider from scale 1 (strong disagreement) to 100 (strong agreement).</p>
         <hr />
-        <h4><strong>Step 2: Attention Check</strong></h4>
-        At the end, there will be a very simple attention checking. <strong>Any submission that failed the attention check will be rejected.</strong>
+        <h4><strong>Step 2: Sanity Check</strong></h4>
+        <p><strong>Please read the reference sentence first before assessing the summary</strong>. After you have submitted the evaluation, there will be one simple True/False question where we will verify whether you have read the reference sentence or not. <strong>Any submission that failed the True/False question will be rejected.</strong></p>
         <hr/>
         <p>There is a <strong>code</strong> that you have to copy and paste to Amazon platform at the end of the task.</p>
 
