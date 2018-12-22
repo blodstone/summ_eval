@@ -26,6 +26,6 @@ def login():
         'iat': datetime.utcnow(),
         'exp': datetime.utcnow() + timedelta(days=30)
         # TODO: This is a hack until the pythonanywhere server issue resolved
-    }, b'\xcf\xdcp\xe0\xbd;\xd4%#\x16\xdf\x05\xfc\xcd_\x0f'
+    }, b'\xcf\xdcp\xe0\xbd;\xd4%#\x16\xdf_doc_prop\x05\xfc\xcd_\x0f'
     )
     return jsonify({'token': token.decode('UTF-8')})
