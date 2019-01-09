@@ -7,18 +7,22 @@ import json
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
 
-from backend.models import Dataset, Document, Summary, SummaryGroup
+from backend.models import Dataset, Document, Summary, SummaryGroup, AnnotationResult, DocStatus
 from backend.app import create_app
 
 #%%
 # Loading data from database
 summary_name = 'BBC_system_ptgen'
+# summary_name = 'BBC_system_tconvs2s'
+# summary_name = 'BBC_ref_gold'
 app = create_app()
 db = SQLAlchemy(app)
 results_dir = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/results'
 q_results = db.session.query(Summary, SummaryGroup, Document, Dataset) \
     .join(Document).join(SummaryGroup).join(Dataset) \
     .filter(Dataset.name == 'BBC', SummaryGroup.name == summary_name).all()
+
+
 #%%
 # Process data from database into components and components' type
 def parse(doc_json):
@@ -56,44 +60,49 @@ def parse(doc_json):
     }
     return pd.DataFrame(data)
 
+# Contains information of each word in the document
 df_doc_prop = pd.DataFrame([])
 
-summary = []
-doc_id = []
+summaries = {}
 for summ, _, doc, _ in q_results:
     doc_json = json.loads(doc.doc_json)
     df_doc_prop = df_doc_prop.append(parse(doc_json).assign(doc_id=doc_json['doc_id']))
-    summary.append(summ.text.split())
-    doc_id.append(doc.doc_id)
+    summaries[doc.doc_id] = summ.text.split()
+
+# Contains data of the document with the summary
 df_doc = pd.DataFrame(df_doc_prop[df_doc_prop['type'] != 'whitespace'].groupby('doc_id').count())
-df_doc = df_doc.assign(word_len=lambda x: x.content).drop(columns=['type', 'content'])
-df_summ = pd.DataFrame({
-    'doc_id': pd.Series(doc_id),
-    'summ': pd.Series(summary)
-})
-df_summ.index = df_summ['doc_id']
-df_doc = df_doc.join(df_summ, lsuffix='_df_doc', rsuffix='_df_summ')
+df_doc = df_doc.rename(columns={'index': 'word_len'}).drop(columns=['type', 'content'])
+df_doc['summ'] = df_doc.index.map(summaries.get)
+
 #%%
 # Retrieve highlights
-def process_doc(results):
+def process_doc(doc_json, word_idx):
     """
     Build indexes and texts for the given document
     """
     indexes = []
     texts = []
+    results = doc_json['results']
+    doc_id = doc_json['doc_id']
     for result_id, data in results.items():
         for h_id, highlight in data['highlights'].items():
             if highlight['text'] == '':
                 continue
-            indexes.append(highlight['indexes'])
+            word_only_highlight = [idx for idx in highlight['indexes'] if word_idx.loc[idx]['type'] == 'word']
+            indexes.append(word_only_highlight)
             texts.append(highlight['text'].lower())
-    data = {'indexes': pd.Series(indexes), 'text': pd.Series(texts)}
+    data = {
+        'indexes': pd.Series(indexes),
+        'text': pd.Series(texts),
+        'doc_id': doc_id
+    }
     return pd.DataFrame(data)
 
 df_h = pd.DataFrame([])
 for summ, _, doc, _ in q_results:
     doc_json = json.loads(doc.doc_json)
-    df_h = df_h.append(process_doc(doc_json['results']).assign(doc_id=doc_json['doc_id']))
+    word_idx = df_doc_prop.groupby('doc_id').get_group(doc_json['doc_id'])
+    df_h = df_h.append(process_doc(doc_json, word_idx))
 
 #%%
 # Calculate word overlap ratio between document and highlights
@@ -181,3 +190,136 @@ df_doc.to_csv(os.path.join(result_path, '%s_df_doc.csv' % summary_name))
 
 df_result = pd.DataFrame(df_doc.describe(include=[np.number]))
 df_result.to_csv(os.path.join(result_path, '%s_df_result.csv' % summary_name))
+
+#%%
+# Retrieve result per coder and store them in DataFrame
+q_results = db.session.query(AnnotationResult, DocStatus, Document).join(DocStatus).join(Document).all()
+
+df_annotations = pd.DataFrame([])
+df_doc_prop_group = df_doc_prop.groupby('doc_id')
+count = 0
+test = {}
+for result, _, doc in q_results:
+    highlights = json.loads(result.result_json)['highlights']
+    indexes = []
+    texts = []
+    word_idx = df_doc_prop_group.get_group(doc.doc_id)
+    for key, highlight in highlights.items():
+        if highlight['text'] == '':
+            continue
+        word_only_highlight = [idx for idx in highlight['indexes'] if word_idx.loc[idx]['type'] == 'word']
+        indexes.append(word_only_highlight)
+        texts.append(highlight['text'])
+    df_annotations = df_annotations.append(
+        pd.DataFrame({
+            'indexes': pd.Series(indexes),
+            'texts': pd.Series(texts)
+        }).assign(doc_id=doc.doc_id, result_id=result.id))
+
+
+#%%
+# Create the Fleiss' kappa matrix
+df_agreement = pd.DataFrame([])
+
+result_ids = {}
+kappa_docs = {}
+for doc_id, data in df_annotations.groupby('doc_id'):
+    print('Processing %s' % doc_id)
+    doc_idxs = list(df_doc.loc[doc_id]['doc_idxs'])
+    df_result = data.groupby('result_id')
+    x_idxs = [list(chain(*result['indexes']))
+              for _, result in df_result]
+    x_texts = [list(chain(result['texts'])) for _, result in df_result]
+    # Assigning index to each unique result_id
+    count_i = 0
+    store_i = list(data['result_id'])[0]
+    result_id2idx = {}
+    result_idx2id = {}
+    for i in list(data['result_id']):
+        if i != store_i:
+            count_i += 1
+            store_i = i
+        result_id2idx[store_i] = count_i
+        result_idx2id[count_i] = store_i
+
+    result_ids[doc_id] = data.assign(idx=lambda x: data['result_id'].apply(lambda y: result_id2idx.get(y)))
+    # Start building Fleiss' Kappa
+    coder_m = pd.DataFrame([[1 if idx in c else 0 for idx in doc_idxs] for c in x_idxs]).T
+    coder_m.index = doc_idxs
+    # Calculate P_e of Fleiss' Kappa
+    cat_m = pd.DataFrame([])
+    cat_m['c_1'] = coder_m.sum(axis=1)
+    cat_m['c_0'] = (len(x_idxs) - coder_m.sum(axis=1))
+    cat_m_sum = cat_m.sum(axis=0) / (len(x_idxs) * len(doc_idxs))
+    import math
+
+    P_e = math.pow(cat_m_sum['c_1'], 2) + math.pow(cat_m_sum['c_0'], 2)
+
+    # Commented this section because Kappa for each document is the same with mean of the following approach
+    # Calc Fleiss' Kappa for each document
+    # import numpy as np
+    #
+    # pi_m = pd.DataFrame(np.zeros((len(x_idxs), len(x_idxs))))
+    # P_i = []
+    # for i in range(len(doc_idxs)):
+    #     sum_cat_ij = 0
+    #     for j in range(2):
+    #         sum_cat_ij += \
+    #             cat_m.iloc[i][j] * (cat_m.iloc[i][j] - 1)
+    #     P_i.append(1 / (len(x_idxs) * (len(x_idxs) - 1)) * sum_cat_ij)
+    # P_o = sum(P_i) / len(doc_idxs)
+    # kappa_docs[doc_id] = (P_o - P_e) / (1 - P_e)
+
+    # Calc Fleiss' Kappa for each pair of possible combination
+    from itertools import product
+    import numpy as np
+
+    cartesian = product(range(len(x_idxs)), repeat=2)
+    pi_m = pd.DataFrame(np.zeros((len(x_idxs), len(x_idxs))))
+    for idx in cartesian:
+        if idx[0] == idx[1]:
+            continue
+        new_x_idxs = []
+        new_x_idxs.append(x_idxs[idx[0]])
+        new_x_idxs.append(x_idxs[idx[1]])
+        coder_m = pd.DataFrame([[1 if idx in c else 0 for idx in doc_idxs] for c in new_x_idxs]).T
+        coder_m.index = doc_idxs
+        cat_m = pd.DataFrame([])
+        cat_m['c_1'] = coder_m.sum(axis=1)
+        cat_m['c_0'] = (len(new_x_idxs) - coder_m.sum(axis=1))
+        P_i = []
+        for i in range(len(doc_idxs)):
+            sum_cat_ij = 0
+            for j in range(2):
+                sum_cat_ij += \
+                    cat_m.iloc[i][j] * (cat_m.iloc[i][j] - 1)
+            P_i.append(
+                1 / (len(new_x_idxs) * (len(new_x_idxs) - 1)) * sum_cat_ij)
+        P_o = sum(P_i) / len(doc_idxs)
+        kappa = (P_o - P_e) / (1 - P_e)
+        pi_m[idx[0]][idx[1]] = kappa
+    pi_m.sum(axis=1) / (len(x_idxs) - 1)
+    kwargs = {
+        doc_id: pi_m.sum(axis=1) / (len(x_idxs) - 1),
+        '%s_len' % doc_id: pd.Series([len(x) for x in x_idxs]),
+        '%s_text' % doc_id: pd.Series([x for x in x_texts]),
+        '%s_r_id' % doc_id: pd.Series([result_idx2id.get(i) for i in range(len(x_idxs))])
+    }
+    df_agreement = df_agreement.assign(**kwargs)
+
+#%%
+# Save agreement to files
+df_agreement_describe = df_agreement.describe()
+df_agreement_describe = df_agreement_describe.append(df_doc['doc_idxs'].apply(lambda x: len(x)))
+df_agreement.to_csv(os.path.join(result_path, 'df_agreement.csv'))
+df_annotations.to_csv(os.path.join(result_path, 'df_annotations.csv'))
+df_agreement_describe.to_csv(os.path.join(result_path, 'df_agreement_desc.csv'))
+for key, value in result_ids.items():
+    save_path = os.path.join(result_path, 'result_ids')
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+    value.to_csv(os.path.join(
+            save_path, '%s_result_ids.csv' % key))
+
+
+

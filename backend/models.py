@@ -1,5 +1,6 @@
 import json
 from enum import Enum
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -184,7 +185,10 @@ class EvaluationResult(db.Model):
             if 'result_id' in kwargs:
                 result_id = kwargs['result_id']
                 result = EvaluationResult.query.get(result_id)
-                result.finished_at = datetime.utcnow()
+                result.finished_at = datetime\
+                    .fromtimestamp(kwargs['finished_time']/1000.0)
+                result.opened_at = datetime\
+                    .fromtimestamp(kwargs['opening_time']/1000.0)
                 result.status_id = kwargs['status_id']
                 result.precision = kwargs['precision']
                 result.recall = kwargs['recall']

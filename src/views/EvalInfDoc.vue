@@ -443,10 +443,12 @@ export default {
       this.display.landing = 'none';
       window.scrollTo(0, 0);
       this.show = true;
+
       axios.get(`result/evaluation/${this.summ_status_id}`)
         .then((response) => {
           this.result_id = response.data.result_id;
         });
+      this.start_time = new Date().getTime();
     },
     onSliderInput() {
       redrawHighlight.call(this);
@@ -469,6 +471,8 @@ export default {
         sliderValues: this.slidersValue.join(),
         email: this.email,
         result_id: this.result_id,
+        opening_time: this.start_time,
+        finished_time: new Date().getTime(),
       };
       if (this.is_mturk === '1') {
         resultJSON.mturk_code = this.turkCode;
@@ -487,6 +491,7 @@ export default {
   },
   data() {
     return {
+      start_time: 0,
       highlight: {
         intensities: {},
         max: -1,
