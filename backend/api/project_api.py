@@ -297,7 +297,7 @@ def api_project_progress(project_type, project_id):
                 result_jsons = []
                 for result in summ_status.results:
                     result_jsons.append({
-                        'precision': result.precision,
+                        'precision': result.prec,
                         'recall': result.recall,
                         'clarity': result.clarity,
                         'fluency': result.fluency

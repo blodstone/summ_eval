@@ -19,23 +19,31 @@ app = create_app()
 db = SQLAlchemy(app)
 results_dir = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/results'
 q_results = db.session\
-    .query(EvaluationResult, SummaryStatus, EvaluationProject)\
+    .query(EvaluationResult, SummaryStatus, EvaluationProject, Summary, Document)\
     .join(SummaryStatus)\
     .join(EvaluationProject)\
+    .join(Summary)\
+    .join(Document)\
     .all()
 #%%
 # Create dataframe
 summaries = {}
 elapsed_times = []
 projects = []
-for result, _, project in q_results:
+docs = []
+mturks = []
+for result, _, project, _, document in q_results:
     finished_at = result.finished_at
     opened_at = result.opened_at
     elapsed_times.append(finished_at-opened_at)
     projects.append(project.name)
+    docs.append(document.doc_id)
+    mturks.append(result.mturk_code)
 df_result = pd.DataFrame({
     'elapsed_time': pd.Series(elapsed_times),
-    'project': pd.Series(projects)
+    'project': pd.Series(projects),
+    'document': pd.Series(docs),
+    'mturk': pd.Series(mturks)
 })
 #%%
 # Grouping dataframe and analysis

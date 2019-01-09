@@ -30,8 +30,9 @@ def create_app(test_config=None):
     if test_config:
         app.config.from_pyfile(os.path.join(os.path.dirname(__file__), test_config))
     else:
-        db_path = os.path.join(os.path.dirname(__file__), 'app.db')
-        db_uri = 'sqlite:///{}'.format(db_path)
+        # db_path = os.path.join(os.path.dirname(__file__), 'app.db')
+        # db_uri = 'sqlite:///{}'.format(db_path)
+        db_uri = 'mysql://root:wildanimus@localhost/summ'
         app.config.from_mapping(
             SECRET_KEY=os.getenv('SECRET_KEY'),
             SQLALCHEMY_DATABASE_URI=db_uri,

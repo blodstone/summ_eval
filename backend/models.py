@@ -138,7 +138,7 @@ class EvaluationResult(db.Model):
     id = db.Column(db.INTEGER, primary_key=True, nullable=False)
     finished_at = db.Column(db.DateTime, default=datetime.utcnow)
     opened_at = db.Column(db.DateTime, default=datetime.utcnow)
-    precision = db.Column(db.REAL, nullable=False, default=-1.0)
+    prec = db.Column(db.REAL, nullable=False, default=-1.0)
     recall = db.Column(db.REAL, nullable=False, default=-1.0)
     fluency = db.Column(db.REAL, nullable=False, default=-1.0)
     clarity = db.Column(db.REAL, nullable=False, default=-1.0)
@@ -190,7 +190,7 @@ class EvaluationResult(db.Model):
                 result.opened_at = datetime\
                     .fromtimestamp(kwargs['opening_time']/1000.0)
                 result.status_id = kwargs['status_id']
-                result.precision = kwargs['precision']
+                result.prec = kwargs['precision']
                 result.recall = kwargs['recall']
                 result.status_id = kwargs['status_id']
                 result.sliderMax = sliderMax
@@ -206,12 +206,18 @@ class EvaluationResult(db.Model):
                 an_id = random.sample(range(1, 1000000000), 1)[0]
                 result = EvaluationResult(
                     id=an_id,
-                    precision=kwargs['precision'],
+                    prec=kwargs['precision'],
                     recall=kwargs['recall'],
                     status_id=kwargs['status_id'],
                     sliderMax=sliderMax,
                     sliderMin=sliderMin,
                     sliderValues=sliderValues,
+                    finished_at=datetime\
+                    .fromtimestamp(
+                        kwargs['finished_time'] / 1000.0),
+                    opened_at=datetime\
+                    .fromtimestamp(
+                        kwargs['opening_time'] / 1000.0),
                     validity=kwargs['validity'],
                     email=kwargs['email'],
                     mturk_code=kwargs['mturk_code'],
@@ -227,7 +233,7 @@ class EvaluationResult(db.Model):
         if kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower() \
            or kwargs['category'].lower() == ProjectCategory.INFORMATIVENESS_REF.value.lower():
             result = EvaluationResult(
-                precision=kwargs['precision'],
+                prec=kwargs['precision'],
                 recall=kwargs['recall'],
                 status_id=kwargs['status_id'],
                 sliderMax=kwargs['sliderMax'],

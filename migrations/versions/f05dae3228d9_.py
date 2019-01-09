@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: fbc1e19b3b63
+Revision ID: f05dae3228d9
 Revises: 
-Create Date: 2018-11-29 15:56:50.038956
+Create Date: 2019-01-09 21:25:28.605629
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'fbc1e19b3b63'
+revision = 'f05dae3228d9'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -46,6 +46,10 @@ def upgrade():
     sa.Column('id', sa.INTEGER(), nullable=False),
     sa.Column('doc_id', sa.String(length=25), nullable=False),
     sa.Column('doc_json', sa.Text(), nullable=False),
+    sa.Column('sanity_statement', sa.Text(), nullable=True),
+    sa.Column('sanity_answer', sa.Boolean(), nullable=True),
+    sa.Column('sanity_statement_2', sa.Text(), nullable=True),
+    sa.Column('sanity_answer_2', sa.Boolean(), nullable=True),
     sa.Column('has_highlight', sa.Boolean(), nullable=False),
     sa.Column('dataset_id', sa.INTEGER(), nullable=True),
     sa.ForeignKeyConstraint(['dataset_id'], ['dataset.id'], ),
@@ -77,6 +81,7 @@ def upgrade():
     sa.Column('finished_at', sa.DateTime(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('summ_group_id', sa.INTEGER(), nullable=False),
+    sa.Column('highlight', sa.Boolean(), nullable=True),
     sa.Column('dataset_id', sa.INTEGER(), nullable=False),
     sa.ForeignKeyConstraint(['dataset_id'], ['dataset.id'], ),
     sa.ForeignKeyConstraint(['summ_group_id'], ['summary_group.id'], ),
@@ -94,10 +99,13 @@ def upgrade():
     op.create_table('annotation_result',
     sa.Column('id', sa.INTEGER(), nullable=False),
     sa.Column('finished_at', sa.DateTime(), nullable=True),
+    sa.Column('opened_at', sa.DateTime(), nullable=True),
     sa.Column('result_json', sa.Text(), nullable=False),
     sa.Column('validity', sa.Boolean(), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('status_id', sa.INTEGER(), nullable=False),
+    sa.Column('mturk_code', sa.String(length=255), nullable=True),
+    sa.Column('is_filled', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['status_id'], ['doc_status.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -124,12 +132,19 @@ def upgrade():
     op.create_table('evaluation_result',
     sa.Column('id', sa.INTEGER(), nullable=False),
     sa.Column('finished_at', sa.DateTime(), nullable=True),
+    sa.Column('opened_at', sa.DateTime(), nullable=True),
     sa.Column('precision', sa.REAL(), nullable=False),
     sa.Column('recall', sa.REAL(), nullable=False),
     sa.Column('fluency', sa.REAL(), nullable=False),
     sa.Column('clarity', sa.REAL(), nullable=False),
+    sa.Column('validity', sa.Boolean(), nullable=True),
     sa.Column('email', sa.String(length=255), nullable=False),
+    sa.Column('sliderMax', sa.INTEGER(), nullable=True),
+    sa.Column('sliderMin', sa.INTEGER(), nullable=True),
+    sa.Column('sliderValues', sa.String(length=255), nullable=True),
     sa.Column('status_id', sa.INTEGER(), nullable=False),
+    sa.Column('mturk_code', sa.String(length=255), nullable=True),
+    sa.Column('is_filled', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['status_id'], ['summary_status.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
