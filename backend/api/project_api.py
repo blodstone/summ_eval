@@ -226,10 +226,9 @@ def api_project_progress_all(project_type):
 
             category = project.category.lower()
             if project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
-                if project.highlight:
-                    highlight = 1
-                else:
-                    highlight = 0
+                highlight = 1
+            else:
+                highlight = 0
             if project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC_NO.value.lower() or\
                     project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC.value.lower():
                 if project.category.lower() == ProjectCategory.INFORMATIVENESS_DOC_NO.value.lower():
