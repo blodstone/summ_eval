@@ -185,21 +185,46 @@ class EvaluationResult(db.Model):
             if 'result_id' in kwargs:
                 result_id = kwargs['result_id']
                 result = EvaluationResult.query.get(result_id)
-                result.finished_at = datetime\
-                    .fromtimestamp(kwargs['finished_time']/1000.0)
-                result.opened_at = datetime\
-                    .fromtimestamp(kwargs['opening_time']/1000.0)
-                result.status_id = kwargs['status_id']
-                result.prec = kwargs['precision']
-                result.recall = kwargs['recall']
-                result.status_id = kwargs['status_id']
-                result.sliderMax = sliderMax
-                result.sliderMin = sliderMin
-                result.sliderValues = sliderValues
-                result.validity = kwargs['validity']
-                result.email = kwargs['email']
-                result.mturk_code = kwargs['mturk_code']
-                result.is_filled = True
+                if result:
+                    result.finished_at = datetime\
+                        .fromtimestamp(kwargs['finished_time']/1000.0)
+                    result.opened_at = datetime\
+                        .fromtimestamp(kwargs['opening_time']/1000.0)
+                    result.status_id = kwargs['status_id']
+                    result.prec = kwargs['precision']
+                    result.recall = kwargs['recall']
+                    result.status_id = kwargs['status_id']
+                    result.sliderMax = sliderMax
+                    result.sliderMin = sliderMin
+                    result.sliderValues = sliderValues
+                    result.validity = kwargs['validity']
+                    result.email = kwargs['email']
+                    result.mturk_code = kwargs['mturk_code']
+                    result.is_filled = True
+                else:
+                    import random
+                    random.seed(datetime.now())
+                    an_id = random.sample(range(1, 1000000000), 1)[0]
+                    result = EvaluationResult(
+                        id=an_id,
+                        prec=kwargs['precision'],
+                        recall=kwargs['recall'],
+                        status_id=kwargs['status_id'],
+                        sliderMax=sliderMax,
+                        sliderMin=sliderMin,
+                        sliderValues=sliderValues,
+                        finished_at=datetime \
+                            .fromtimestamp(
+                            kwargs['finished_time'] / 1000.0),
+                        opened_at=datetime \
+                            .fromtimestamp(
+                            kwargs['opening_time'] / 1000.0),
+                        validity=kwargs['validity'],
+                        email=kwargs['email'],
+                        mturk_code=kwargs['mturk_code'],
+                        is_filled=True
+                    )
+                    db.session.add(result)
             else:
                 import random
                 random.seed(datetime.now())

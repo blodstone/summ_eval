@@ -22,7 +22,6 @@ class CustomFlask(Flask):
 def create_app(test_config=None):
     # Load .env file (create one if it doesn't exist)
     load_dotenv(os.path.join('../', '.env'))
-
     # create and configure the app
     app = CustomFlask(__name__, instance_relative_config=True,
                       static_folder='../../instance/dist/static',
@@ -35,6 +34,7 @@ def create_app(test_config=None):
 
         app.config.from_mapping(
             SECRET_KEY=os.getenv('SECRET_KEY'),
+            # SQLALCHEMY_DATABASE_URI=db_uri,
             SQLALCHEMY_DATABASE_URI=os.getenv('db_uri'),
             SQLALCHEMY_TRACK_MODIFICATIONS=True,
         )
