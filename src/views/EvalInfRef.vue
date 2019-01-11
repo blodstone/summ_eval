@@ -217,6 +217,7 @@ export default {
   },
   data() {
     return {
+      start_time: 0,
       is_mturk: this.$route.params.mturk,
       show: false,
       system_text: '',
@@ -268,6 +269,7 @@ export default {
         .then((response) => {
           this.result_id = response.data.result_id;
         });
+      this.start_time = new Date().getTime();
     },
     saveEvaluation() {
       const resultJSON = {
@@ -279,6 +281,8 @@ export default {
         mturk_code: '',
         email: this.email,
         result_id: this.result_id,
+        opening_time: this.start_time,
+        finished_time: new Date().getTime(),
       };
       if (this.is_mturk === '1') {
         resultJSON.mturk_code = this.turkCode;
