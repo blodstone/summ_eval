@@ -301,7 +301,7 @@ export default {
   },
   computed: {
     testPrompt() {
-      const prompt = 'Is the statement below is True or False?';
+      const prompt = 'Is the statement below according to the reference sentence is True or False?';
       return `${prompt}<blockquote>${this.sanity_statement}</blockquote>`;
     },
     dynamicLanding() {
