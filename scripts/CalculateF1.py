@@ -24,13 +24,13 @@ def calc_precision(db, category):
                 'value': {},
                 'doc_id': '',
             }
-        precision[name]['total'] += result.precision
+        precision[name]['total'] += result.prec
         precision[name]['count'] += 1
         precision[name]['average'] = precision[name]['total'] / \
                                      precision[name]['count']
         if summ.doc_id not in precision[name]['value']:
             precision[name]['value'][summ.doc_id] = []
-        precision[name]['value'][summ.doc_id].append(result.precision)
+        precision[name]['value'][summ.doc_id].append(result.prec)
     return precision
 
 
@@ -200,10 +200,10 @@ if __name__ == '__main__':
     db_app = SQLAlchemy(app)
     results = calc_precision(db_app, ProjectCategory.INFORMATIVENESS_DOC.value)
     print('Precision:')
-    print_result_doc(results)
+    # print_result_doc(results)
     print_result_system(results)
     print('\nRecall:')
     results = calc_recall(db_app, ProjectCategory.INFORMATIVENESS_DOC.value)
-    print_result_doc(results)
+    # print_result_doc(results)
     print_result_system(results)
     write_csv(results)

@@ -12,8 +12,8 @@ from backend.app import create_app
 
 #%%
 # Loading data from database
-summary_name = 'BBC_system_ptgen'
-# summary_name = 'BBC_system_tconvs2s'
+# summary_name = 'BBC_system_ptgen'
+summary_name = 'BBC_system_tconvs2s'
 # summary_name = 'BBC_ref_gold'
 app = create_app()
 db = SQLAlchemy(app)
@@ -193,29 +193,83 @@ df_result.to_csv(os.path.join(result_path, '%s_df_result.csv' % summary_name))
 
 #%%
 # Retrieve result per coder and store them in DataFrame
-q_results = db.session.query(AnnotationResult, DocStatus, Document).join(DocStatus).join(Document).all()
+q_results = db.session.query(Document).all()
 
 df_annotations = pd.DataFrame([])
 df_doc_prop_group = df_doc_prop.groupby('doc_id')
 count = 0
 test = {}
-for result, _, doc in q_results:
-    highlights = json.loads(result.result_json)['highlights']
-    indexes = []
-    texts = []
-    word_idx = df_doc_prop_group.get_group(doc.doc_id)
-    for key, highlight in highlights.items():
-        if highlight['text'] == '':
-            continue
-        word_only_highlight = [idx for idx in highlight['indexes'] if word_idx.loc[idx]['type'] == 'word']
-        indexes.append(word_only_highlight)
-        texts.append(highlight['text'])
-    df_annotations = df_annotations.append(
-        pd.DataFrame({
-            'indexes': pd.Series(indexes),
-            'texts': pd.Series(texts)
-        }).assign(doc_id=doc.doc_id, result_id=result.id))
+for doc in q_results:
+    results = json.loads(doc.doc_json)['results']
+    for result_id, result in results.items():
+        highlights = result['highlights']
+        indexes = []
+        texts = []
+        word_idx = df_doc_prop_group.get_group(doc.doc_id)
+        for key, highlight in highlights.items():
+            if highlight['text'] == '':
+                continue
+            word_only_highlight = [idx for idx in highlight['indexes'] if word_idx.loc[idx]['type'] == 'word']
+            indexes.append(word_only_highlight)
+            texts.append(highlight['text'])
+        df_annotations = df_annotations.append(
+            pd.DataFrame({
+                'indexes': pd.Series(indexes),
+                'texts': pd.Series(texts)
+            }).assign(doc_id=doc.doc_id, result_id=result_id))
+#%%
+# N_Grams
+from collections import Counter
 
+
+def calc_n_gram(x_texts, summ_text, n):
+    summ_count_gram = 0
+    summ_count_gram_match = 0
+
+    summ_unigram = list(ngrams(summ_text.split(), n))
+    # print(summ_unigram)
+    for x_text in x_texts:
+        gram = list(chain(*[list(ngrams([w.lower() for w in t.split()], n)) for t in x_text]))
+        count_gram = Counter(gram)
+        summ_count_gram += sum(count_gram.values())
+        gram_match = [gram for gram in summ_unigram if gram in count_gram.keys()]
+        count_gram_match = Counter(gram_match)
+        summ_count_gram_match += sum(count_gram_match.values())
+        # print(gram)
+        # print(sum(count_gram_match.values()) / sum(count_gram.values()))
+    return summ_count_gram_match / summ_count_gram
+
+df_ngrams = pd.DataFrame([])
+# summary_name = 'BBC_system_ptgen'
+# summary_name = 'BBC_system_tconvs2s'
+summary_name = 'BBC_ref_gold'
+
+rouge_1 = []
+rouge_2 = []
+rouge_3 = []
+data = []
+for doc_id, data in df_annotations.groupby('doc_id'):
+    summ = db.session.query(Summary, SummaryGroup, Document) \
+        .join(Document).join(SummaryGroup) \
+        .filter(
+            Dataset.name == 'BBC',
+            SummaryGroup.name == summary_name,
+            Document.doc_id == doc_id) \
+        .first()[0]
+
+    doc_idxs = list(df_doc.loc[doc_id]['doc_idxs'])
+    df_result = data.groupby('result_id')
+    x_texts = [list(chain(result['texts'])) for _, result in df_result]
+    rouge_1.append(calc_n_gram(x_texts, summ.text, 1))
+    rouge_2.append(calc_n_gram(x_texts, summ.text, 2))
+    rouge_3.append(calc_n_gram(x_texts, summ.text, 3))
+data = {
+    'rouge_1': pd.Series(rouge_1),
+    'rouge_2': pd.Series(rouge_2),
+    'rouge_3': pd.Series(rouge_3)
+}
+df_rouge = pd.DataFrame(data)
+df_rouge.describe().to_csv(os.path.join(results_dir, '%s_rouge.csv' % summary_name))
 
 #%%
 # Create the Fleiss' kappa matrix
