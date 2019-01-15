@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 if __name__ == '__main__':
     app = create_app()
     db = SQLAlchemy(app)
-    file_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/mturk/working/Batch_3496671_batch_results.csv'
+    file_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/mturk/working/Batch_3498722_batch_results.csv'
     df = pd.read_csv(file_path, delimiter=',')
 
     for i in df.index:

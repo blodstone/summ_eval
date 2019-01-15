@@ -8,6 +8,9 @@ flask = "*"
 python-dotenv = "*"
 flask-sqlalchemy = "*"
 "psycopg2" = "*"
+pandas = "*"
+jwt = "*"
+mysqlclient = "*"
 
 [dev-packages]
 pylint = "*"
