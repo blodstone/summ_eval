@@ -217,59 +217,149 @@ for doc in q_results:
                 'indexes': pd.Series(indexes),
                 'texts': pd.Series(texts)
             }).assign(doc_id=doc.doc_id, result_id=result_id))
+# #%%
+# # N_Grams
+# from collections import Counter
+#
+#
+# def calc_n_gram(x_texts, summ_text, n):
+#     summ_count_gram = 0
+#     summ_count_gram_match = 0
+#
+#     summ_unigram = list(ngrams(summ_text.split(), n))
+#     # print(summ_unigram)
+#     for x_text in x_texts:
+#         gram = list(chain(*[list(ngrams([w.lower() for w in t.split()], n)) for t in x_text]))
+#         count_gram = Counter(gram)
+#         summ_count_gram += sum(count_gram.values())
+#         gram_match = [gram for gram in summ_unigram if gram in count_gram.keys()]
+#         count_gram_match = Counter(gram_match)
+#         summ_count_gram_match += sum(count_gram_match.values())
+#         # print(gram)
+#         # print(sum(count_gram_match.values()) / sum(count_gram.values()))
+#     return summ_count_gram_match / summ_count_gram
+#
+# df_ngrams = pd.DataFrame([])
+# # summary_name = 'BBC_system_ptgen'
+# # summary_name = 'BBC_system_tconvs2s'
+# summary_name = 'BBC_ref_gold'
+#
+# rouge_1 = []
+# rouge_2 = []
+# rouge_3 = []
+# data = []
+# for doc_id, data in df_annotations.groupby('doc_id'):
+#     summ = db.session.query(Summary, SummaryGroup, Document) \
+#         .join(Document).join(SummaryGroup) \
+#         .filter(
+#             Dataset.name == 'BBC',
+#             SummaryGroup.name == summary_name,
+#             Document.doc_id == doc_id) \
+#         .first()[0]
+#
+#     doc_idxs = list(df_doc.loc[doc_id]['doc_idxs'])
+#     df_result = data.groupby('result_id')
+#     x_texts = [list(chain(result['texts'])) for _, result in df_result]
+#     rouge_1.append(calc_n_gram(x_texts, summ.text, 1))
+#     rouge_2.append(calc_n_gram(x_texts, summ.text, 2))
+#     rouge_3.append(calc_n_gram(x_texts, summ.text, 3))
+# data = {
+#     'rouge_1': pd.Series(rouge_1),
+#     'rouge_2': pd.Series(rouge_2),
+#     'rouge_3': pd.Series(rouge_3)
+# }
+# df_rouge = pd.DataFrame(data)
+# df_rouge.describe().to_csv(os.path.join(results_dir, '%s_rouge.csv' % summary_name))
+
 #%%
-# N_Grams
-from collections import Counter
+# Modified n-gram
 
-
-def calc_n_gram(x_texts, summ_text, n):
-    summ_count_gram = 0
-    summ_count_gram_match = 0
-
-    summ_unigram = list(ngrams(summ_text.split(), n))
-    # print(summ_unigram)
-    for x_text in x_texts:
-        gram = list(chain(*[list(ngrams([w.lower() for w in t.split()], n)) for t in x_text]))
-        count_gram = Counter(gram)
-        summ_count_gram += sum(count_gram.values())
-        gram_match = [gram for gram in summ_unigram if gram in count_gram.keys()]
-        count_gram_match = Counter(gram_match)
-        summ_count_gram_match += sum(count_gram_match.values())
-        # print(gram)
-        # print(sum(count_gram_match.values()) / sum(count_gram.values()))
-    return summ_count_gram_match / summ_count_gram
-
+MAX_LEN = 30
 df_ngrams = pd.DataFrame([])
 # summary_name = 'BBC_system_ptgen'
 # summary_name = 'BBC_system_tconvs2s'
 summary_name = 'BBC_ref_gold'
 
-rouge_1 = []
-rouge_2 = []
-rouge_3 = []
-data = []
+
+def numH(w):
+    result = 0
+    for k in range(H):
+        if w[j] in H[k]:
+            result += len(H[k]) / MAX_LEN
+    return result
+
+
+def beta(n, g):
+    numerator = 0
+    denominator = 0
+    m = len(w)
+    for i in range(m-(n-1)):
+        total_NumH = 0
+        for j in range(i, i+n-1):
+            if w[i, i+n-1] == g:
+                total_NumH += numH(w[j])
+        total_NumH /= 10
+        total_NumH /= n
+        numerator += total_NumH
+    for i in range(m-(n-1)):
+        if w[i, i+n-1] == g:
+            denominator += 1
+    return numerator/denominator
+
+
+def R_rec(n, S, D):
+    n_gram_D = ngrams(D, n)
+    n_gram_S = ngrams(S, n)
+
+    numerator = 0
+    for g in n_gram_S:
+        numerator += beta(n, g)
+
+    denominator = 0
+    for g in n_gram_D:
+        denominator += beta(n, g)
+
+    return numerator/denominator
+
+
 for doc_id, data in df_annotations.groupby('doc_id'):
     summ = db.session.query(Summary, SummaryGroup, Document) \
         .join(Document).join(SummaryGroup) \
         .filter(
-            Dataset.name == 'BBC',
-            SummaryGroup.name == summary_name,
-            Document.doc_id == doc_id) \
+        Dataset.name == 'BBC',
+        SummaryGroup.name == summary_name,
+        Document.doc_id == doc_id) \
         .first()[0]
+    doc_texts = list(df_doc.loc[doc_id]['doc_text'])
+    rec = R_rec(2, summ.text.split(), doc_texts)
+    break
 
-    doc_idxs = list(df_doc.loc[doc_id]['doc_idxs'])
-    df_result = data.groupby('result_id')
-    x_texts = [list(chain(result['texts'])) for _, result in df_result]
-    rouge_1.append(calc_n_gram(x_texts, summ.text, 1))
-    rouge_2.append(calc_n_gram(x_texts, summ.text, 2))
-    rouge_3.append(calc_n_gram(x_texts, summ.text, 3))
-data = {
-    'rouge_1': pd.Series(rouge_1),
-    'rouge_2': pd.Series(rouge_2),
-    'rouge_3': pd.Series(rouge_3)
-}
-df_rouge = pd.DataFrame(data)
-df_rouge.describe().to_csv(os.path.join(results_dir, '%s_rouge.csv' % summary_name))
+# rouge_1 = []
+# rouge_2 = []
+# rouge_3 = []
+# data = []
+# for doc_id, data in df_annotations.groupby('doc_id'):
+#     summ = db.session.query(Summary, SummaryGroup, Document) \
+#         .join(Document).join(SummaryGroup) \
+#         .filter(
+#             Dataset.name == 'BBC',
+#             SummaryGroup.name == summary_name,
+#             Document.doc_id == doc_id) \
+#         .first()[0]
+#
+#     doc_idxs = list(df_doc.loc[doc_id]['doc_idxs'])
+#     df_result = data.groupby('result_id')
+#     x_texts = [list(chain(result['texts'])) for _, result in df_result]
+#     rouge_1.append(calc_n_gram(x_texts, summ.text, 1))
+#     rouge_2.append(calc_n_gram(x_texts, summ.text, 2))
+#     rouge_3.append(calc_n_gram(x_texts, summ.text, 3))
+# data = {
+#     'rouge_1': pd.Series(rouge_1),
+#     'rouge_2': pd.Series(rouge_2),
+#     'rouge_3': pd.Series(rouge_3)
+# }
+# df_rouge = pd.DataFrame(data)
+# df_rouge.describe().to_csv(os.path.join(results_dir, '%s_rouge.csv' % summary_name))
 
 #%%
 # Create the Fleiss' kappa matrix
