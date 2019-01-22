@@ -3,7 +3,8 @@
 Extract results from database and then perform analysis on top of to draw insights
 """
 import json
-
+from nltk.util import ngrams
+from itertools import chain
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
 
@@ -12,8 +13,8 @@ from backend.app import create_app
 
 #%%
 # Loading data from database
-# summary_name = 'BBC_system_ptgen'
-summary_name = 'BBC_system_tconvs2s'
+summary_name = 'BBC_system_ptgen'
+# summary_name = 'BBC_system_tconvs2s'
 # summary_name = 'BBC_ref_gold'
 app = create_app()
 db = SQLAlchemy(app)
@@ -82,6 +83,7 @@ def process_doc(doc_json, word_idx):
     """
     indexes = []
     texts = []
+    result_ids = []
     results = doc_json['results']
     doc_id = doc_json['doc_id']
     for result_id, data in results.items():
@@ -91,9 +93,11 @@ def process_doc(doc_json, word_idx):
             word_only_highlight = [idx for idx in highlight['indexes'] if word_idx.loc[idx]['type'] == 'word']
             indexes.append(word_only_highlight)
             texts.append(highlight['text'].lower())
+            result_ids.append(result_id)
     data = {
         'indexes': pd.Series(indexes),
         'text': pd.Series(texts),
+        'result_id': pd.Series(result_ids),
         'doc_id': doc_id
     }
     return pd.DataFrame(data)
@@ -103,93 +107,6 @@ for summ, _, doc, _ in q_results:
     doc_json = json.loads(doc.doc_json)
     word_idx = df_doc_prop.groupby('doc_id').get_group(doc_json['doc_id'])
     df_h = df_h.append(process_doc(doc_json, word_idx))
-
-#%%
-# Calculate word overlap ratio between document and highlights
-from itertools import chain
-
-df_doc = df_doc.assign(doc_text=lambda x: df_doc_prop[df_doc_prop['type'] == 'word'].groupby('doc_id')['content'].apply(list))
-df_doc = df_doc.assign(h_idxs=lambda x: df_h.groupby('doc_id').apply(lambda x: list(set(chain(*x.indexes)))))
-
-df_doc = df_doc.assign(doc_idxs=lambda x: df_doc_prop[df_doc_prop['type']=='word'].groupby('doc_id')['index'].apply(list))
-
-df_doc = df_doc.assign(h_len=lambda x: df_doc[['h_idxs']].apply(lambda x: len(x['h_idxs']), axis=1))
-
-df_doc = df_doc.assign(
-    doc_h_overlap=lambda x: df_doc[['h_idxs', 'doc_idxs']]
-        .apply(lambda x: set(x['doc_idxs']) & set(x['h_idxs']), axis=1)
-        .apply(lambda x: len(list(x))))
-
-df_doc = df_doc.assign(
-    doc_h_overlap_recall=lambda x: df_doc.doc_h_overlap/df_doc.word_len)
-
-df_doc = df_doc.assign(
-    doc_h_overlap_precision=lambda x: df_doc.doc_h_overlap/df_doc.h_len)
-
-df_doc = df_doc.assign(
-    doc_h_overlap_F1=lambda x: 2*df_doc.doc_h_overlap_recall*df_doc.doc_h_overlap_precision/(df_doc.doc_h_overlap_recall+df_doc.doc_h_overlap_precision))
-#%%
-# Calculate word overlap ratio between summary and highlights
-
-df_doc = df_doc.assign(h_text=lambda x: df_h.groupby('doc_id').apply(lambda x: ' '.join(x.text).split()))
-
-from nltk.util import ngrams
-for i in range(1, 4):
-    kwargs_1 = {
-        'summ_h_%s_gram' % i: lambda x: df_doc[['summ', 'h_text']].apply(
-        lambda x: set(ngrams(x['h_text'], i)) & set(ngrams(x['summ'], i)), axis=1).apply(lambda x: len(list(x)))
-    }
-    kwargs_2 = {
-        'summ_h_overlap_%s_gram_recall' % i: lambda x: df_doc[['h_text', 'summ_h_%s_gram' % i]].apply(lambda x: x['summ_h_%s_gram' % i] / len(list(set(ngrams(x['h_text'], i)))), axis=1)
-    }
-    kwargs_3 = {
-        'summ_h_overlap_%s_gram_precision' % i: lambda x: df_doc[['summ', 'summ_h_%s_gram' % i]].apply(
-            lambda x: x['summ_h_%s_gram' % i] / len(list(set(ngrams(x['summ'], i)))), axis=1)
-    }
-    kwargs_4 = {
-        'summ_h_overlap_%s_gram_F1' % i: lambda x: 2*df_doc['summ_h_overlap_%s_gram_precision' % i]*df_doc['summ_h_overlap_%s_gram_recall' % i]/(df_doc['summ_h_overlap_%s_gram_precision' % i]+df_doc['summ_h_overlap_%s_gram_recall' % i])
-    }
-    df_doc = df_doc.assign(**kwargs_1)
-    df_doc = df_doc.assign(**kwargs_2)
-    df_doc = df_doc.assign(**kwargs_3)
-    df_doc = df_doc.fillna(0)
-    df_doc = df_doc.assign(**kwargs_4)
-    df_doc = df_doc.fillna(0)
-#%%
-# Calculate word overlap ratio between summary and doc
-for i in range(1, 4):
-    kwargs_1 = {
-        'summ_doc_%s_gram' % i: lambda x: df_doc[['summ', 'doc_text']].apply(
-        lambda x: set(ngrams(x['doc_text'], i)) & set(ngrams(x['summ'], i)), axis=1).apply(lambda x: len(list(x)))
-    }
-    kwargs_2 = {
-        'summ_doc_overlap_%s_gram_recall' % i: lambda x: df_doc[['doc_text', 'summ_doc_%s_gram' % i]].apply(lambda x: x['summ_doc_%s_gram' % i] / len(list(set(ngrams(x['doc_text'], i)))), axis=1)
-    }
-    kwargs_3 = {
-        'summ_doc_overlap_%s_gram_precision' % i: lambda x: df_doc[['summ', 'summ_doc_%s_gram' % i]].apply(
-            lambda x: x['summ_doc_%s_gram' % i] / len(list(set(ngrams(x['summ'], i)))), axis=1)
-    }
-    kwargs_4 = {
-        'summ_doc_overlap_%s_gram_F1' % i: lambda x: 2*df_doc['summ_doc_overlap_%s_gram_precision' % i]*df_doc['summ_doc_overlap_%s_gram_recall' % i]/(df_doc['summ_doc_overlap_%s_gram_precision' % i]+df_doc['summ_doc_overlap_%s_gram_recall' % i])
-    }
-    df_doc = df_doc.assign(**kwargs_1)
-    df_doc = df_doc.assign(**kwargs_2)
-    df_doc = df_doc.assign(**kwargs_3)
-    df_doc = df_doc.fillna(0)
-    df_doc = df_doc.assign(**kwargs_4)
-    df_doc = df_doc.fillna(0)
-
-#%%
-# Saving result to csv files
-import numpy as np
-import os
-
-result_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/results'
-
-df_doc.to_csv(os.path.join(result_path, '%s_df_doc.csv' % summary_name))
-
-df_result = pd.DataFrame(df_doc.describe(include=[np.number]))
-df_result.to_csv(os.path.join(result_path, '%s_df_result.csv' % summary_name))
 
 #%%
 # Retrieve result per coder and store them in DataFrame
@@ -273,56 +190,72 @@ for doc in q_results:
 
 #%%
 # Modified n-gram
+df_doc = df_doc.assign(doc_text=lambda x: df_doc_prop[df_doc_prop['type'] == 'word'].groupby('doc_id')['content'].apply(list))
+df_doc = df_doc.assign(h_idxs=lambda x: df_h.groupby('doc_id').apply(lambda x: list(set(chain(*x.indexes)))))
+
+df_doc = df_doc.assign(doc_idxs=lambda x: df_doc_prop[df_doc_prop['type']=='word'].groupby('doc_id')['index'].apply(list))
+
+df_doc = df_doc.assign(h_len=lambda x: df_doc[['h_idxs']].apply(lambda x: len(x['h_idxs']), axis=1))
 
 MAX_LEN = 30
 df_ngrams = pd.DataFrame([])
-# summary_name = 'BBC_system_ptgen'
-# summary_name = 'BBC_system_tconvs2s'
-summary_name = 'BBC_ref_gold'
 
 
-def numH(w):
+
+def numH(w, H):
     result = 0
-    for k in range(H):
-        if w[j] in H[k]:
-            result += len(H[k]) / MAX_LEN
+    H_group = H.groupby('result_id')
+    highlights = {}
+    for result_id, data in H_group:
+        if result_id not in highlights.keys():
+            highlights[result_id] = data['text']
+        else:
+            highlights[result_id].append(data['text'])
+    for result_id in highlights.keys():
+        h_words = list(chain(*[highlight.split() for highlight in highlights[result_id]]))
+        if w in h_words:
+            result += len(h_words) / MAX_LEN
     return result
 
 
-def beta(n, g):
+def beta(n, g, w, H):
     numerator = 0
     denominator = 0
     m = len(w)
-    for i in range(m-(n-1)):
+    for i in range(m-n+1):
         total_NumH = 0
-        for j in range(i, i+n-1):
-            if w[i, i+n-1] == g:
-                total_NumH += numH(w[j])
+        for j in range(i, i+n):
+            if w[i:i+n] == list(g):
+                total_NumH += numH(w[j], H)
         total_NumH /= 10
         total_NumH /= n
         numerator += total_NumH
-    for i in range(m-(n-1)):
-        if w[i, i+n-1] == g:
+    for i in range(m-n+1):
+        if w[i:i+n] == list(g):
             denominator += 1
     return numerator/denominator
 
 
-def R_rec(n, S, D):
-    n_gram_D = ngrams(D, n)
-    n_gram_S = ngrams(S, n)
+def R_rec(n, S, D, H):
+    n_gram_D = list(ngrams(D, n))
+    n_gram_S = list(ngrams(S, n))
 
     numerator = 0
     for g in n_gram_S:
-        numerator += beta(n, g)
-
+        if g in n_gram_D:
+            numerator += beta(n, g, D, H)
     denominator = 0
     for g in n_gram_D:
-        denominator += beta(n, g)
-
+        denominator += beta(n, g, D, H)
     return numerator/denominator
 
 
+df_h_g = df_h.groupby('doc_id')
+recs = []
+doc_ids = []
+test_num = 0
 for doc_id, data in df_annotations.groupby('doc_id'):
+    print(doc_id)
     summ = db.session.query(Summary, SummaryGroup, Document) \
         .join(Document).join(SummaryGroup) \
         .filter(
@@ -331,8 +264,15 @@ for doc_id, data in df_annotations.groupby('doc_id'):
         Document.doc_id == doc_id) \
         .first()[0]
     doc_texts = list(df_doc.loc[doc_id]['doc_text'])
-    rec = R_rec(2, summ.text.split(), doc_texts)
-    break
+    H = df_h_g.get_group(doc_id)
+    rec = R_rec(2, summ.text.split(), doc_texts, H)
+    recs.append(rec)
+    doc_ids.append(doc_id)
+    test_num += 1
+    if test_num == 2:
+        break
+df_f_1 = pd.DataFrame({'doc_id': pd.Series(doc_ids), 'rec': pd.Series(recs)})
+
 
 # rouge_1 = []
 # rouge_2 = []
@@ -360,6 +300,90 @@ for doc_id, data in df_annotations.groupby('doc_id'):
 # }
 # df_rouge = pd.DataFrame(data)
 # df_rouge.describe().to_csv(os.path.join(results_dir, '%s_rouge.csv' % summary_name))
+
+#%%
+# Calculate word overlap ratio between document and highlights
+from itertools import chain
+
+
+
+df_doc = df_doc.assign(
+    doc_h_overlap=lambda x: df_doc[['h_idxs', 'doc_idxs']]
+        .apply(lambda x: set(x['doc_idxs']) & set(x['h_idxs']), axis=1)
+        .apply(lambda x: len(list(x))))
+
+df_doc = df_doc.assign(
+    doc_h_overlap_recall=lambda x: df_doc.doc_h_overlap/df_doc.word_len)
+
+df_doc = df_doc.assign(
+    doc_h_overlap_precision=lambda x: df_doc.doc_h_overlap/df_doc.h_len)
+
+df_doc = df_doc.assign(
+    doc_h_overlap_F1=lambda x: 2*df_doc.doc_h_overlap_recall*df_doc.doc_h_overlap_precision/(df_doc.doc_h_overlap_recall+df_doc.doc_h_overlap_precision))
+#%%
+# Calculate word overlap ratio between summary and highlights
+
+df_doc = df_doc.assign(h_text=lambda x: df_h.groupby('doc_id').apply(lambda x: ' '.join(x.text).split()))
+
+
+for i in range(1, 4):
+    kwargs_1 = {
+        'summ_h_%s_gram' % i: lambda x: df_doc[['summ', 'h_text']].apply(
+        lambda x: set(ngrams(x['h_text'], i)) & set(ngrams(x['summ'], i)), axis=1).apply(lambda x: len(list(x)))
+    }
+    kwargs_2 = {
+        'summ_h_overlap_%s_gram_recall' % i: lambda x: df_doc[['h_text', 'summ_h_%s_gram' % i]].apply(lambda x: x['summ_h_%s_gram' % i] / len(list(set(ngrams(x['h_text'], i)))), axis=1)
+    }
+    kwargs_3 = {
+        'summ_h_overlap_%s_gram_precision' % i: lambda x: df_doc[['summ', 'summ_h_%s_gram' % i]].apply(
+            lambda x: x['summ_h_%s_gram' % i] / len(list(set(ngrams(x['summ'], i)))), axis=1)
+    }
+    kwargs_4 = {
+        'summ_h_overlap_%s_gram_F1' % i: lambda x: 2*df_doc['summ_h_overlap_%s_gram_precision' % i]*df_doc['summ_h_overlap_%s_gram_recall' % i]/(df_doc['summ_h_overlap_%s_gram_precision' % i]+df_doc['summ_h_overlap_%s_gram_recall' % i])
+    }
+    df_doc = df_doc.assign(**kwargs_1)
+    df_doc = df_doc.assign(**kwargs_2)
+    df_doc = df_doc.assign(**kwargs_3)
+    df_doc = df_doc.fillna(0)
+    df_doc = df_doc.assign(**kwargs_4)
+    df_doc = df_doc.fillna(0)
+#%%
+# Calculate word overlap ratio between summary and doc
+for i in range(1, 4):
+    kwargs_1 = {
+        'summ_doc_%s_gram' % i: lambda x: df_doc[['summ', 'doc_text']].apply(
+        lambda x: set(ngrams(x['doc_text'], i)) & set(ngrams(x['summ'], i)), axis=1).apply(lambda x: len(list(x)))
+    }
+    kwargs_2 = {
+        'summ_doc_overlap_%s_gram_recall' % i: lambda x: df_doc[['doc_text', 'summ_doc_%s_gram' % i]].apply(lambda x: x['summ_doc_%s_gram' % i] / len(list(set(ngrams(x['doc_text'], i)))), axis=1)
+    }
+    kwargs_3 = {
+        'summ_doc_overlap_%s_gram_precision' % i: lambda x: df_doc[['summ', 'summ_doc_%s_gram' % i]].apply(
+            lambda x: x['summ_doc_%s_gram' % i] / len(list(set(ngrams(x['summ'], i)))), axis=1)
+    }
+    kwargs_4 = {
+        'summ_doc_overlap_%s_gram_F1' % i: lambda x: 2*df_doc['summ_doc_overlap_%s_gram_precision' % i]*df_doc['summ_doc_overlap_%s_gram_recall' % i]/(df_doc['summ_doc_overlap_%s_gram_precision' % i]+df_doc['summ_doc_overlap_%s_gram_recall' % i])
+    }
+    df_doc = df_doc.assign(**kwargs_1)
+    df_doc = df_doc.assign(**kwargs_2)
+    df_doc = df_doc.assign(**kwargs_3)
+    df_doc = df_doc.fillna(0)
+    df_doc = df_doc.assign(**kwargs_4)
+    df_doc = df_doc.fillna(0)
+
+#%%
+# Saving result to csv files
+import numpy as np
+import os
+
+result_path = '/home/acp16hh/Projects/Research/Experiments/Exp_Elly_Human_Evaluation/results'
+
+df_doc.to_csv(os.path.join(result_path, '%s_df_doc.csv' % summary_name))
+
+df_result = pd.DataFrame(df_doc.describe(include=[np.number]))
+df_result.to_csv(os.path.join(result_path, '%s_df_result.csv' % summary_name))
+
+
 
 #%%
 # Create the Fleiss' kappa matrix
