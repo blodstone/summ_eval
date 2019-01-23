@@ -2,7 +2,7 @@ from nltk.util import ngrams
 from itertools import chain
 import pandas as pd
 
-MAX_LEN = 30
+MAX_LEN = 4
 df_ngrams = pd.DataFrame([])
 
 
@@ -24,13 +24,13 @@ def beta(n, g, w, H):
         for j in range(i, i+n):
             if w[i:i+n] == list(g):
                 total_NumH += numH(w[j], H)
-        total_NumH /= 10
+        total_NumH /= len(H)
         total_NumH /= n
         numerator += total_NumH
     for i in range(m-n+1):
         if w[i:i+n] == list(g):
             denominator += 1
-    return numerator/denominator
+    return (numerator + 1)/(denominator + 1) - 1
 
 
 def R_rec(n, S, D, H):
@@ -46,11 +46,24 @@ def R_rec(n, S, D, H):
         denominator += beta(n, g, D, H)
     return numerator/denominator
 
+def R_prec(n, S, D, H):
+    n_gram_D = list(ngrams(D, n))
+    n_gram_S = list(ngrams(S, n))
+
+    numerator = 0
+    for g in n_gram_S:
+        if g in n_gram_D:
+            numerator += beta(n, g, D, H)
+    denominator = 0
+    for g in n_gram_S:
+        denominator += beta(n, g, D, H)
+    return numerator/denominator
+
 doc = 'a b c b'
 
 H = [
-    ['a b', 'c', 'b'],
-    ['a', 'b'],
+    ['a b', 'b'],
+    ['a', 'c'],
     ['a', 'b c']
 ]
 
@@ -60,5 +73,7 @@ recs = []
 doc_ids = []
 test_num = 0
 doc_texts = doc.split()
-rec = R_rec(2, summ.split(), doc_texts, H)
+rec = R_rec(1, summ.split(), doc_texts, H)
+prec = R_prec(1, summ.split(), doc_texts, H)
 print(rec)
+print(prec)

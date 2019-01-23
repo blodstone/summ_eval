@@ -3,6 +3,7 @@
 Extract results from database and then perform analysis on top of to draw insights
 """
 import json
+import os
 from nltk.util import ngrams
 from itertools import chain
 import pandas as pd
@@ -13,8 +14,8 @@ from backend.app import create_app
 
 #%%
 # Loading data from database
-summary_name = 'BBC_system_ptgen'
-# summary_name = 'BBC_system_tconvs2s'
+# summary_name = 'BBC_system_ptgen'
+summary_name = 'BBC_system_tconvs2s'
 # summary_name = 'BBC_ref_gold'
 app = create_app()
 db = SQLAlchemy(app)
@@ -205,14 +206,15 @@ df_ngrams = pd.DataFrame([])
 def numH(w, H):
     result = 0
     H_group = H.groupby('result_id')
+    from collections import defaultdict
     highlights = {}
     for result_id, data in H_group:
         if result_id not in highlights.keys():
-            highlights[result_id] = data['text']
+            highlights[result_id] = data['indexes']
         else:
-            highlights[result_id].append(data['text'])
+            highlights[result_id].append(data['indexes'])
     for result_id in highlights.keys():
-        h_words = list(chain(*[highlight.split() for highlight in highlights[result_id]]))
+        h_words = list(chain(*[highlight for highlight in highlights[result_id]]))
         if w in h_words:
             result += len(h_words) / MAX_LEN
     return result
@@ -221,23 +223,25 @@ def numH(w, H):
 def beta(n, g, w, H):
     numerator = 0
     denominator = 0
-    m = len(w)
+    m = len(w[0])
     for i in range(m-n+1):
         total_NumH = 0
         for j in range(i, i+n):
-            if w[i:i+n] == list(g):
-                total_NumH += numH(w[j], H)
+            if w[0][i:i+n] == list(g):
+                total_NumH += numH(w[1][j], H)
         total_NumH /= 10
         total_NumH /= n
         numerator += total_NumH
     for i in range(m-n+1):
-        if w[i:i+n] == list(g):
+        if w[0][i:i+n] == list(g):
             denominator += 1
+    if denominator == 0:
+        return 1
     return numerator/denominator
 
 
 def R_rec(n, S, D, H):
-    n_gram_D = list(ngrams(D, n))
+    n_gram_D = list(ngrams(D[0], n))
     n_gram_S = list(ngrams(S, n))
 
     numerator = 0
@@ -247,13 +251,29 @@ def R_rec(n, S, D, H):
     denominator = 0
     for g in n_gram_D:
         denominator += beta(n, g, D, H)
+    print(denominator)
+    return numerator/denominator
+
+
+def R_prec(n, S, D, H):
+    n_gram_D = list(ngrams(D[0], n))
+    n_gram_S = list(ngrams(S, n))
+
+    numerator = 0
+    for g in n_gram_S:
+        if g in n_gram_D:
+            numerator += beta(n, g, D, H)
+    denominator = 0
+    for g in n_gram_S:
+        denominator += beta(n, g, D, H)
     return numerator/denominator
 
 
 df_h_g = df_h.groupby('doc_id')
 recs = []
+precs = []
+f_1s = []
 doc_ids = []
-test_num = 0
 for doc_id, data in df_annotations.groupby('doc_id'):
     print(doc_id)
     summ = db.session.query(Summary, SummaryGroup, Document) \
@@ -263,43 +283,37 @@ for doc_id, data in df_annotations.groupby('doc_id'):
         SummaryGroup.name == summary_name,
         Document.doc_id == doc_id) \
         .first()[0]
-    doc_texts = list(df_doc.loc[doc_id]['doc_text'])
+    doc_texts = (list(df_doc.loc[doc_id]['doc_text']), list(df_doc.loc[doc_id]['doc_idxs']))
     H = df_h_g.get_group(doc_id)
-    rec = R_rec(2, summ.text.split(), doc_texts, H)
+    total_rec = 0
+    total_prec = 0
+    import math
+    for i in range(1, 4):
+        print('Calculating ' + str(i) + '-gram')
+        r = math.log(R_rec(i, summ.text.split(), doc_texts, H) + 1)
+        p = math.log(R_prec(i, summ.text.split(), doc_texts, H) + 1)
+        print(r)
+        print(p)
+        total_rec += r
+        total_prec += p
+    rec = math.exp(total_rec / 3) - 1
+    prec = math.exp(total_prec / 3) - 1
+    f_1 = 2*rec*prec/(rec+prec)
     recs.append(rec)
+    precs.append(prec)
+    f_1s.append(f_1)
     doc_ids.append(doc_id)
-    test_num += 1
-    if test_num == 2:
-        break
-df_f_1 = pd.DataFrame({'doc_id': pd.Series(doc_ids), 'rec': pd.Series(recs)})
+df_f_1 = pd.DataFrame({
+    'doc_id': pd.Series(doc_ids),
+    'rec': pd.Series(recs),
+    'prec': pd.Series(precs),
+    'f_1': pd.Series(f_1s)
+})
 
-
-# rouge_1 = []
-# rouge_2 = []
-# rouge_3 = []
-# data = []
-# for doc_id, data in df_annotations.groupby('doc_id'):
-#     summ = db.session.query(Summary, SummaryGroup, Document) \
-#         .join(Document).join(SummaryGroup) \
-#         .filter(
-#             Dataset.name == 'BBC',
-#             SummaryGroup.name == summary_name,
-#             Document.doc_id == doc_id) \
-#         .first()[0]
-#
-#     doc_idxs = list(df_doc.loc[doc_id]['doc_idxs'])
-#     df_result = data.groupby('result_id')
-#     x_texts = [list(chain(result['texts'])) for _, result in df_result]
-#     rouge_1.append(calc_n_gram(x_texts, summ.text, 1))
-#     rouge_2.append(calc_n_gram(x_texts, summ.text, 2))
-#     rouge_3.append(calc_n_gram(x_texts, summ.text, 3))
-# data = {
-#     'rouge_1': pd.Series(rouge_1),
-#     'rouge_2': pd.Series(rouge_2),
-#     'rouge_3': pd.Series(rouge_3)
-# }
-# df_rouge = pd.DataFrame(data)
-# df_rouge.describe().to_csv(os.path.join(results_dir, '%s_rouge.csv' % summary_name))
+#%%
+# Save to file
+df_f_1.to_csv(os.path.join(results_dir, '%s_rouge.csv' % summary_name))
+df_f_1.describe().to_csv(os.path.join(results_dir, '%s_rouge_describe.csv' % summary_name))
 
 #%%
 # Calculate word overlap ratio between document and highlights

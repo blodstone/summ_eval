@@ -11,6 +11,7 @@ flask-sqlalchemy = "*"
 pandas = "*"
 jwt = "*"
 mysqlclient = "*"
+nltk = "*"
 
 [dev-packages]
 pylint = "*"
