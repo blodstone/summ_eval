@@ -28,6 +28,13 @@ def api_get_result_id(project_type, status_id):
     return jsonify(dict(result_id=result_id))
 
 
+@api.route('/highlight/get/<doc_id>', methods=['GET'])
+def api_project_highlight_doc(doc_id):
+    document = Document.query.filter_by(doc_id=doc_id).first()
+    doc_json = json.loads(document.doc_json)
+    return jsonify(dict(doc_json=doc_json))
+
+
 @api.route('/project/<project_type>/<project_category>/<project_id>/single_doc', methods=['GET'])
 def api_project_single_doc(project_type, project_category, project_id):
     random.seed(datetime.now())

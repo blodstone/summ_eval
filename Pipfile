@@ -9,9 +9,9 @@ python-dotenv = "*"
 flask-sqlalchemy = "*"
 "psycopg2" = "*"
 pandas = "*"
-jwt = "*"
 mysqlclient = "*"
 nltk = "*"
+pyjwt = "*"
 
 [dev-packages]
 pylint = "*"

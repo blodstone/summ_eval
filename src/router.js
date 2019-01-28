@@ -13,6 +13,7 @@ import AnnotationStatus from './views/AnnotationStatus.vue';
 import EvaluationStatus from './views/EvaluationStatus.vue';
 import NewAnnotation from './components/Home/NewProject/NewAnnotation.vue';
 import NewEvaluation from './components/Home/NewProject/NewEvaluation.vue';
+import ViewDocHighlight from './views/ViewDocHighlight.vue';
 import store from './store';
 
 Vue.use(Router);
@@ -116,6 +117,11 @@ export default new Router({
       path: '/evaluation/fluency/:project_id',
       name: 'fluency',
       component: EvalFluency,
+    },
+    {
+      path: '/highlight/view/:doc_id',
+      name: 'viewHighlightDoc',
+      component: ViewDocHighlight,
     },
     {
       path: '/login',
