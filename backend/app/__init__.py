@@ -34,8 +34,8 @@ def create_app(test_config=None):
 
         app.config.from_mapping(
             SECRET_KEY=os.getenv('SECRET_KEY'),
-            SQLALCHEMY_DATABASE_URI='mysql://root:wildanimus@localhost/summ',
-            # SQLALCHEMY_DATABASE_URI=os.getenv('db_uri'),
+            # SQLALCHEMY_DATABASE_URI='mysql://root:wildanimus@localhost/summ',
+            SQLALCHEMY_DATABASE_URI=os.getenv('db_uri'),
             SQLALCHEMY_TRACK_MODIFICATIONS=True,
         )
     app.register_blueprint(api)
