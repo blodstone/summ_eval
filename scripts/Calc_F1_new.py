@@ -14,7 +14,7 @@ from backend.app import create_app
 # proj_name = 'Inf Doc Highlight TConvs2s'
 # proj_name = 'Inf Doc Highlight PTGen'
 # proj_name = 'Inf Doc Highlight Ref'
-# proj_name = 'Inf Doc No Highlight TConvs2s'
+proj_name = 'Inf Doc No Highlight TConvs2s'
 # proj_name = 'Inf Doc No Highlight PTGen'
 # proj_name = 'Inf Doc No Highlight Ref'
 # proj_name = 'Inf Ref TConvs2s'
@@ -49,4 +49,7 @@ df_result = pd.DataFrame(data)
 df_g_result = df_result.groupby('doc_id')
 df_mean = df_g_result.mean().mean()
 df_std = df_g_result.std().mean()
+df_cv = (1 + 1/12) * df_g_result.std() / df_g_result.mean()
+df_cv.to_csv(os.path.join(results_dir, '%s_cv_result.csv' % proj_name))
+df_cv = df_cv.mean()
 df_g_result.mean().to_csv(os.path.join(results_dir, '%s_result.csv' % proj_name))
